@@ -1,0 +1,160 @@
+<project name="CommonCode" default="dist" basedir=".">
+	<!-- set global properties for this build -->
+	<property name="version" value="1.0.0a1-snapshot" />
+	<property name="src" value="./src" />
+	<property name="lib" value="./lib" />
+	<property name="lib.test" value="./lib/test" />
+	<property name="build" value="./build" />
+	<property name="build.gen-src.dir" value="./src/generated" />
+	<property name="build.test" value="./build/junit" />
+	<property name="dist" value="./dist" />
+	<property name="config" value="./src/conf" />
+	<property name="apidocs" value="./doc/api" />
+	<property name="test.src" value="./src/junit" />
+	<property name="test.dir" value="test" />
+	<property name="test.report.dir" value="test/result" />
+	<property name="debug" value="true" />
+	<property name="debuglevel" value="lines,vars,source" />
+
+	<path id="classpath">
+		<pathelement location="${build}/classes" />
+		<pathelement location="${build}/conf" />
+		<fileset dir="${lib}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	<path id="junit.class.path">
+		<!--
+        <pathelement location="${build}/classes"/>
+  -->
+		<pathelement location="${build}/junit/classes" />
+		<pathelement location="src/junit-conf" />
+		<pathelement location="${build}/conf" />
+		<fileset dir="${lib.test}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement location="${env.JAVA_HOME}/lib/tools.jar" />
+		<pathelement location="${env.ANT_HOME}/lib/junit.jar" />
+		<pathelement location="${env.ANT_HOME}/lib/optional.jar" />
+	</path>
+
+	<target name="clean">
+		<!-- Delete the ${build} and ${dist} directory trees - except for dist/conf which
+    is built by hand, and dist logs which may be needed -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+		<delete dir="${apidocs}/" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}/classes" />
+		<mkdir dir="${build.test}/classes" />
+		<mkdir dir="${build.test}/lib" />
+		<mkdir dir="${dist}/bin" />
+		<mkdir dir="${dist}/lib" />
+		<mkdir dir="${dist}/cfg" />
+		<mkdir dir="${apidocs}" />
+	</target>
+
+	<target name="compile.src" depends="prepare, generate.version">
+		<property name="compile.debug" value="true" />
+		<property name="compile.deprecation" value="true" />
+		<property name="compile.optimize" value="true" />
+		<javac fork="yes" srcdir="${src}/java"
+			destdir="${build}/classes" debug="true"
+			debuglevel="lines,vars,source"
+			>
+			<!--  TODO need to include -Xlint:unchecked -->
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javac>
+		<echo message="application source compiled" />
+	</target>
+	
+	<target name="compile.test" depends="compile.src">
+		<property name="compile.debug" value="true" />
+		<property name="compile.deprecation" value="true" />
+		<property name="compile.optimize" value="true" />
+		<javac fork="yes" srcdir="${src}/junit"
+			destdir="${build}/classes" debug="true"
+			debuglevel="lines,vars,source"
+			>
+			<!--  TODO need to include -Xlint:unchecked -->
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javac>
+		<echo message="unit test source compiled" />
+	</target>
+	
+	<target name="generate.version" depends="prepare">
+		<echo message="Generating version class" />
+		<mkdir dir="${build.gen-src.dir}/uk/me/gumbley/commoncode/version" />
+		<echo append="false" file="${build.gen-src.dir}/uk/me/gumbley/commoncode/version/Version.java" >
+package uk.me.gumbley.commoncode.version;
+public class Version {
+	public static String VERSION="${version}";
+}
+			</echo>
+		<property name="compile.debug" value="true" />
+		<property name="compile.deprecation" value="true" />
+		<property name="compile.optimize" value="true" />
+		<javac fork="yes" srcdir="${build.gen-src.dir}"
+			destdir="${build}/classes" debug="true"
+			debuglevel="lines,vars,source"
+			>
+		    <include name="uk/me/gumbley/commoncode/version/Version.java"/>
+			<!--  TODO need to include -Xlint:unchecked -->
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javac>
+		<echo message="version source compiled" />
+	</target>
+
+	<target name="dist" depends="compile.src, compile.test, generate.version">
+		<echo message="Building jar" />
+		<jar destfile="${dist}/lib/CommonCode-${version}.jar">
+			<fileset dir="${build}/classes">
+				<!-- <exclude name="**/test/*.class" /> -->
+				
+				<!-- include the tests, for now -->
+			</fileset>
+			<fileset dir="${src}/java">
+				<patternset>
+					<include name="**/*.log4j.xml" />
+					<include name="**/*.properties" />
+				</patternset>
+			</fileset>
+		</jar>
+		
+		<!-- Copy required libraries -->
+		<copy todir="${dist}/lib">
+			<fileset dir="${lib}">
+				<patternset>
+					<include name="*.jar" />
+					<include name="*.properties" />
+				</patternset>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="all" depends="clean,dist,javadoc" />
+
+	<target name="javadoc" depends="">
+		<javadoc packagenames="uk.me.gumbley.*" package="true" additionalparam="-breakiterator" sourcepath="${src}/java" excludepackagenames="" defaultexcludes="yes" destdir="${apidocs}" author="true" version="true" use="true" windowtitle="Common Code - API JavaDoc." overview="">
+			<link href="http://java.sun.com/j2se/1.4/docs/api" />
+			<doctitle>
+				<![CDATA[<h1>Common Code</h1>]]></doctitle>
+			<bottom>
+				<![CDATA[<i>Copyright &#169; 2005-7 Matt J. Gumbley. All Rights Reserved.</i>]]></bottom>
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javadoc>
+	</target>
+</project>
