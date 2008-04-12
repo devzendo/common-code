@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.me.gumbley</groupId>
   <artifactId>CommonCode</artifactId>
@@ -23,8 +24,7 @@
 	<dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.15</version>
-      <scope>runtime</scope>
+      <version>1.2.8</version>
     </dependency>
   </dependencies>
   
