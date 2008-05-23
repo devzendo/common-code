@@ -2,22 +2,34 @@ package uk.me.gumbley.commoncode;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import junit.framework.TestCase;
+import org.junit.Before;
 
-public abstract class CCTestCase extends TestCase {
-    private static Logger myLogger = Logger.getLogger(CCTestCase.class);
+/**
+ * Base class for commoncode test classes - initialise logging
+ * 
+ * @author matt
+ *
+ */
+public abstract class CCTestCase {
+    private static final Logger LOGGER = Logger.getLogger(CCTestCase.class);
     private static boolean bInitialised = false;
-    protected CCTestCase(String arg) {
-        super(arg);
-    }
-    protected void setUp() throws Exception {
-        super.setUp();
+    
+    /**
+     * Initialise log4j
+     * @throws Exception on failure
+     */
+    @Before
+    public final void setUpLogging() throws Exception {
         if (!bInitialised) {
             bInitialised = true;
             BasicConfigurator.resetConfiguration();
             BasicConfigurator.configure();
-            myLogger.debug("Initialising logging");
+            LOGGER.debug("Initialising logging");
         }
     }
+    
+    /**
+     * @return the Logger for the base class
+     */
     protected abstract Logger getLogger();
 }

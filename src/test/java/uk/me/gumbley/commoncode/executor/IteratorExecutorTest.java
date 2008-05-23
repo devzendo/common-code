@@ -1,44 +1,60 @@
 package uk.me.gumbley.commoncode.executor;
 
 import org.apache.log4j.Logger;
+import org.junit.Test;
 import uk.me.gumbley.commoncode.CCTestCase;
 
-public class IteratorExecutorTest extends CCTestCase {
-    private static Logger myLogger = Logger.getLogger(IteratorExecutor.class);
-    public IteratorExecutorTest(String arg0) {
-        super(arg0);
-    }
+/**
+ * Tests for IteratorExecutor
+ * 
+ * @author matt
+ *
+ */
+public final class IteratorExecutorTest extends CCTestCase {
+    private static final Logger LOGGER = Logger.getLogger(IteratorExecutor.class);
     
+    /**
+     * ls -l
+     */
+    @Test
     public void testLSL() {
-        myLogger.info("testLSL");
-        IteratorExecutor ie = new IteratorExecutor(new String[] { "ls", "-l" });
+        LOGGER.info("testLSL");
+        IteratorExecutor ie = new IteratorExecutor(new String[] {"ls", "-l" });
         while (ie.hasNext()) {
-            String line = (String)ie.next();
-            myLogger.info("Line: '" + line + "'");
+            String line = (String) ie.next();
+            LOGGER.info("Line: '" + line + "'");
         }
-        myLogger.info("Exit code is " + ie.getExitValue());
-        myLogger.info("IOException is " + ie.getIOException());
+        LOGGER.info("Exit code is " + ie.getExitValue());
+        LOGGER.info("IOException is " + ie.getIOException());
     }
 
+    /**
+     * mkisofs
+     */
+    @Test
     public void testMkISOFS() {
-        myLogger.info("testMkISOFS");
-        IteratorExecutor ie = new IteratorExecutor( new String[] {
+        LOGGER.info("testMkISOFS");
+        IteratorExecutor ie = new IteratorExecutor(new String[] {
                 "mkisofs",
                 "-r",
                 "-gui",
                 "-o",
                 "/home/matt/Desktop/crap/testmkisofs.iso",
                 "/home/matt/Desktop/crap/apache-tomcat-5.5.15"
-        } );
+        });
         ie.useStdErr();
         while (ie.hasNext()) {
-            String line = (String)ie.next();
-            myLogger.info("Line: '" + line + "'");
+            String line = (String) ie.next();
+            LOGGER.info("Line: '" + line + "'");
         }
-        myLogger.info("Exit code is " + ie.getExitValue());
-        myLogger.info("IOException is " + ie.getIOException());
+        LOGGER.info("Exit code is " + ie.getExitValue());
+        LOGGER.info("IOException is " + ie.getIOException());
     }
+
+    /**
+     * {@inheritDoc}
+     */
     protected Logger getLogger() {
-        return myLogger;
+        return LOGGER;
     }
 }

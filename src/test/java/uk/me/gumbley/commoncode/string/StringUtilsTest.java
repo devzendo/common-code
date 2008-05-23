@@ -1,39 +1,64 @@
 package uk.me.gumbley.commoncode.string;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
+import org.junit.Test;
 import uk.me.gumbley.commoncode.CCTestCase;
-import uk.me.gumbley.commoncode.string.StringUtils;
 
+/**
+ * Tests for String Utilities
+ * 
+ * @author matt
+ *
+ */
 public class StringUtilsTest extends CCTestCase {
-    private static Logger myLogger = Logger.getLogger(StringUtilsTest.class);
-    public StringUtilsTest(String arg0) {
-        super(arg0);
-    }
+    private static final Logger LOGGER = Logger.getLogger(StringUtilsTest.class);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Logger getLogger() {
-        return myLogger;
+        return LOGGER;
     }
     
+    /**
+     * Join
+     */
+    @Test
     public void testJoin0() {
-        myLogger.info("start testJoin0");
-        assertEquals("", StringUtils.join(new String[] {}, "; "));
-        myLogger.info("end testJoin0");
+        LOGGER.info("start testJoin0");
+        Assert.assertEquals("", StringUtils.join(new String[] {}, "; "));
+        LOGGER.info("end testJoin0");
     }
+    
+    /**
+     * Join
+     */
+    @Test
     public void testJoin1() {
-        myLogger.info("start testJoin1");
-        assertEquals("XYZ", StringUtils.join(new String[] {"XYZ"}, "; "));
-        myLogger.info("end testJoin1");
+        LOGGER.info("start testJoin1");
+        Assert.assertEquals("XYZ", StringUtils.join(new String[] {"XYZ"}, "; "));
+        LOGGER.info("end testJoin1");
     }
+    
+    /**
+     * Join
+     */
+    @Test
     public void testJoin2() {
-        myLogger.info("start testJoin2");
-        assertEquals("XYZ; ABC", StringUtils.join(new String[] {"XYZ", "ABC"}, "; "));
-        myLogger.info("end testJoin2");
+        LOGGER.info("start testJoin2");
+        Assert.assertEquals("XYZ; ABC", StringUtils.join(new String[] {"XYZ", "ABC"}, "; "));
+        LOGGER.info("end testJoin2");
     }
+    
+    /**
+     * Join
+     */
+    @Test
     public void testJoin3() {
-        myLogger.info("start testJoin3");
-        assertEquals("XYZ; ABC; DEF", StringUtils.join(new String[] {"XYZ", "ABC", "DEF"}, "; "));
-        myLogger.info("end testJoin3");
+        LOGGER.info("start testJoin3");
+        Assert.assertEquals("XYZ; ABC; DEF", StringUtils.join(new String[] {"XYZ", "ABC", "DEF"}, "; "));
+        LOGGER.info("end testJoin3");
     }
-
 }
