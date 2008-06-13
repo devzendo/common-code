@@ -3,24 +3,55 @@ package uk.me.gumbley.commoncode.string;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
-import org.apache.log4j.Logger;
 
-public class StringUtils {
-    private static Logger myLogger = Logger.getLogger(StringUtils.class);
+/**
+ * Toolkit for String utility methods.
+ * 
+ * @author matt
+ *
+ */
+public final class StringUtils {
     private StringUtils() {
         super();
     }
 
+    /**
+     * A Kilosomething
+     */
     public static final long KILO = 1024L;
+
+    /**
+     * A Megasomething
+     */
     public static final long MEGA = KILO * KILO;
+
+    /**
+     * A Gigasomething
+     */
     public static final long GIGA = MEGA * MEGA;
+
+    /**
+     * A Terasomething
+     */
     public static final long TERA = GIGA * GIGA;
+    
+    /**
+     * A Petasomething 
+     */
     public static final long PETA = TERA * TERA;
+    
+    /**
+     * An Etasomething 
+     */
     public static final long ETA = PETA * PETA;
     
+    /**
+     * Translate a number of bytes into an SI representation.
+     * @param bytes the number of bytes, e.g. 1024
+     * @return e.g. 1KB
+     */
     public static String translateByteUnits(final long bytes) {
         //myLogger.debug("Converting " + bytes + " into byte units... ");
         Formatter fmt = new Formatter();
@@ -84,7 +115,7 @@ public class StringUtils {
      */
     public static String sensibilizeFileName(final String name) {
         StringBuilder sb = new StringBuilder(name.trim());
-        for (int i=0; i<sb.length(); i++) {
+        for (int i = 0; i < sb.length(); i++) {
             if (sb.charAt(i) == ' ' || sb.charAt(i) == '.') {
                 sb.setCharAt(i, '_');
             }
@@ -92,10 +123,29 @@ public class StringUtils {
         return sb.toString();
     }
     
+    /**
+     * How many ms in a second?
+     */
     public static final long MS_IN_SEC = 1000;
+    
+    /**
+     * How many ms in minute? 
+     */
     public static final long MS_IN_MIN = MS_IN_SEC * 60;
+    
+    /**
+     * How many ms in an hour? 
+     */
     public static final long MS_IN_HOUR = MS_IN_MIN * 60;
+    
+    /**
+     * How many ms in a day? 
+     */
     public static final long MS_IN_DAY = MS_IN_HOUR * 24;
+    
+    /**
+     * How many ms in a week? 
+     */
     public static final long MS_IN_WEEK = MS_IN_DAY * 7;
     
     /**
@@ -154,12 +204,18 @@ public class StringUtils {
      * @param bytesTransferred a number
      * @return a comma-ized version
      */
-    public static String translateCommaBytes(long bytesTransferred) {
+    public static String translateCommaBytes(final long bytesTransferred) {
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setGroupingUsed(true);
         return nf.format(bytesTransferred);
     }
 
+    /**
+     * Translate a bandwidth figure.
+     * @param dur How many ms the transfer took
+     * @param bytesTransferred How many bytes were transferred
+     * @return e.g. 2.3 MB/s
+     */
     public static String translateBandwidth(final long dur, final long bytesTransferred) {
         StringBuilder sb = new StringBuilder();
         double elapsedSecsD = (dur) / 1000.0;
@@ -181,38 +237,75 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static Object translatePercentage(long numerator, long denominator) {
-        double p = ((double)numerator / (double)denominator) * 100.0;
+    /**
+     * Translate a fraction into a percentage
+     * @param numerator e.g. 5
+     * @param denominator e.g. 10
+     * @return e.g. 50%
+     */
+    public static Object translatePercentage(final long numerator, final long denominator) {
+        double p = ((double) numerator / (double) denominator) * 100.0;
         Formatter fmt = new Formatter();
         return fmt.format("%3.2f%%", Double.valueOf(p));
     }
 
 
-    public static String join(final String[] errs, final String inBetween) {
-        return join(null, errs, null, inBetween);
+    /**
+     * Join words together
+     * @param words the words to join
+     * @param inBetween what goes between
+     * @return the joined up string
+     */
+    public static String join(final String[] words, final String inBetween) {
+        return join(null, words, null, inBetween);
     }
-    public static void join(final StringBuilder sb, final String start, final String[] errs, final String end, final String inBetween) {
+    
+    /**
+     * Join words together
+     * @param sb a StringBuilder to fill
+     * @param start something to put at the start
+     * @param words the words to join
+     * @param end something to put at the end
+     * @param inBetween what goes between each word
+     */
+    public static void join(final StringBuilder sb, final String start, final String[] words, final String end, final String inBetween) {
         if (start != null) {
             sb.append(start);
         }
-        if (errs.length != 0) {
-            for (int i=0; i<errs.length - 1; i++) {
-                sb.append(errs[i]);
+        if (words.length != 0) {
+            for (int i = 0; i < words.length - 1; i++) {
+                sb.append(words[i]);
                 sb.append(inBetween);
             }
-            sb.append(errs[errs.length - 1]);
+            sb.append(words[words.length - 1]);
         }
         if (end != null) {
             sb.append(end);
         }
     }
-    public static String join(final String start, final String[] errs, final String end, final String inBetween) {
+
+    /**
+     * Join words together
+     * @param start something to put at the start
+     * @param words the words to join
+     * @param end something to put at the end
+     * @param inBetween what goes between each word
+     * @return the joined up string
+     */
+    public static String join(final String start, final String[] words, final String end, final String inBetween) {
         StringBuilder sb = new StringBuilder();
-        join(sb, start, errs, end, inBetween);
+        join(sb, start, words, end, inBetween);
         return sb.toString();
     }   
-    public static String join(final List<String> errs, final String inBetween) {
-        return join(errs.toArray(new String[0]), inBetween);
+
+    /**
+     * Join words together
+     * @param words the words to join
+     * @param inBetween what goes between each word
+     * @return the joined up string
+     */
+    public static String join(final List<String> words, final String inBetween) {
+        return join(words.toArray(new String[0]), inBetween);
     }
 
     /**
@@ -229,7 +322,18 @@ public class StringUtils {
         }
         return list.toArray(new String[0]);
     }
+    
+    /**
+     * A string mapping function
+     * @author matt
+     *
+     */
     public interface MapStringFunction {
+        /**
+         * Map an Object to a String
+         * @param object some object
+         * @return the String that it maps to
+         */
         String mapToString(final Object object);
     }
 
@@ -247,7 +351,29 @@ public class StringUtils {
         }
         return list.toArray(new String[0]);
     }
+    /**
+     * An Object mapping function
+     * @author matt
+     *
+     */
     public interface MapFunction {
+        /**
+         * @param object an input Object
+         * @return an output Object
+         */
         Object mapToObject(final Object object);
+    }
+
+    /**
+     * Generate a simplistic pluralisation of a word. Don't expect
+     * linguistic correctness if you ask it to pluralise sheep, fish,
+     * octopus. Dog/Dogs is as far as it goes.
+     * 
+     * @param word the word to pluralise, e.g. "file"
+     * @param num how many of these things there are
+     * @return the word, possibly with 's' added.
+     */
+    public static String pluralise(final String word, final int num) {
+        return num == 1 ? word : (word + "s"); 
     }
 }

@@ -11,7 +11,7 @@ import uk.me.gumbley.commoncode.CCTestCase;
  * @author matt
  *
  */
-public class StringUtilsTest extends CCTestCase {
+public final class StringUtilsTest extends CCTestCase {
     private static final Logger LOGGER = Logger.getLogger(StringUtilsTest.class);
 
     /**
@@ -60,5 +60,14 @@ public class StringUtilsTest extends CCTestCase {
         LOGGER.info("start testJoin3");
         Assert.assertEquals("XYZ; ABC; DEF", StringUtils.join(new String[] {"XYZ", "ABC", "DEF"}, "; "));
         LOGGER.info("end testJoin3");
+    }
+    
+    /**
+     * Test pluralisation
+     */
+    @Test
+    public void testPluralise() {
+        Assert.assertEquals("Files", StringUtils.pluralise("File", 2));
+        Assert.assertEquals("File", StringUtils.pluralise("File", 1));
     }
 }
