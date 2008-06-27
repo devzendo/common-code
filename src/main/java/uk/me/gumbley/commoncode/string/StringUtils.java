@@ -54,8 +54,8 @@ public final class StringUtils {
      */
     public static String translateByteUnits(final long bytes) {
         //myLogger.debug("Converting " + bytes + " into byte units... ");
-        Formatter fmt = new Formatter();
-        double work = bytes;
+        final Formatter fmt = new Formatter();
+        final double work = bytes;
         if (bytes < KILO) {
             //myLogger.debug("BYTES: " + Long.valueOf(bytes));
             fmt.format("%4dB", Long.valueOf(bytes));
@@ -83,7 +83,7 @@ public final class StringUtils {
      * @return the path with no trailing slashes e.g. /tmp
      */
     public static String unSlashTerminate(final String dirPath) {
-        StringBuilder sb = new StringBuilder(dirPath.trim());
+        final StringBuilder sb = new StringBuilder(dirPath.trim());
         unSlashTerminate(sb);
         return sb.toString();
     }
@@ -101,7 +101,7 @@ public final class StringUtils {
      * @return the path with one trailing slash e.g. /tmp/ or /foo/
      */
     public static String slashTerminate(final String dirPath) {
-        StringBuilder sb = new StringBuilder(dirPath.trim());
+        final StringBuilder sb = new StringBuilder(dirPath.trim());
         unSlashTerminate(sb);
         sb.append(File.separatorChar);
         return sb.toString();
@@ -114,7 +114,7 @@ public final class StringUtils {
      * @return the sensible version
      */
     public static String sensibilizeFileName(final String name) {
-        StringBuilder sb = new StringBuilder(name.trim());
+        final StringBuilder sb = new StringBuilder(name.trim());
         for (int i = 0; i < sb.length(); i++) {
             if (sb.charAt(i) == ' ' || sb.charAt(i) == '.') {
                 sb.setCharAt(i, '_');
@@ -157,7 +157,7 @@ public final class StringUtils {
     public static String translateTimeDuration(final long ms) {
         long m = ms;
         long v = 0;
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         if (m > MS_IN_WEEK) {
             v = m / MS_IN_WEEK;
             m %= MS_IN_WEEK;
@@ -205,7 +205,7 @@ public final class StringUtils {
      * @return a comma-ized version
      */
     public static String translateCommaBytes(final long bytesTransferred) {
-        NumberFormat nf = NumberFormat.getNumberInstance();
+        final NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setGroupingUsed(true);
         return nf.format(bytesTransferred);
     }
@@ -217,9 +217,9 @@ public final class StringUtils {
      * @return e.g. 2.3 MB/s
      */
     public static String translateBandwidth(final long dur, final long bytesTransferred) {
-        StringBuilder sb = new StringBuilder();
-        double elapsedSecsD = (dur) / 1000.0;
-        double xferRate = (bytesTransferred / MEGA) / elapsedSecsD;
+        final StringBuilder sb = new StringBuilder();
+        final double elapsedSecsD = (dur) / 1000.0;
+        final double xferRate = (bytesTransferred / MEGA) / elapsedSecsD;
         sb.append(translateByteUnits(bytesTransferred));
         sb.append(" (");
         sb.append(translateCommaBytes(bytesTransferred));
@@ -230,7 +230,7 @@ public final class StringUtils {
         sb.append(") transferred in ");
         sb.append(translateTimeDuration(dur));
         sb.append(" (");
-        Formatter fmt = new Formatter();
+        final Formatter fmt = new Formatter();
         fmt.format("%.2f", Double.valueOf(xferRate));
         sb.append(fmt.toString());
         sb.append(" MB/s)");
@@ -244,9 +244,8 @@ public final class StringUtils {
      * @return e.g. 50%
      */
     public static Object translatePercentage(final long numerator, final long denominator) {
-        double p = ((double) numerator / (double) denominator) * 100.0;
-        Formatter fmt = new Formatter();
-        return fmt.format("%3.2f%%", Double.valueOf(p));
+        final double p = ((double) numerator / (double) denominator) * 100.0;
+        return new Formatter().format("%3.2f%%", Double.valueOf(p));
     }
 
 
@@ -293,7 +292,7 @@ public final class StringUtils {
      * @return the joined up string
      */
     public static String join(final String start, final String[] words, final String end, final String inBetween) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         join(sb, start, words, end, inBetween);
         return sb.toString();
     }   
@@ -316,7 +315,7 @@ public final class StringUtils {
      * @return the transformed objects, as Strings
      */
     public String[] map(final Object[] objects, final MapStringFunction func) {
-        ArrayList < String > list = new ArrayList < String >();
+        final ArrayList < String > list = new ArrayList < String >();
         for (Object object : objects) {
             list.add(func.mapToString(object));
         }
@@ -345,7 +344,7 @@ public final class StringUtils {
      * @return the transformed objects
      */
     public Object[] map(final Object[] objects, final MapFunction func) {
-        ArrayList < Object > list = new ArrayList < Object >();
+        final ArrayList < Object > list = new ArrayList < Object >();
         for (Object object : objects) {
             list.add(func.mapToObject(object));
         }
@@ -375,5 +374,15 @@ public final class StringUtils {
      */
     public static String pluralise(final String word, final int num) {
         return num == 1 ? word : (word + "s"); 
+    }
+
+    /**
+     * Return the correct word, are or is, depending on some number,
+     * e.g. there are 2, there is 1.  
+     * @param num a number
+     * @return are or is
+     */
+    public static String getAreIs(final int num) {
+        return num == 1 ? "is" : "are";
     }
 }

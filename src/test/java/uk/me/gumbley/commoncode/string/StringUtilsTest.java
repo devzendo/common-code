@@ -70,4 +70,13 @@ public final class StringUtilsTest extends CCTestCase {
         Assert.assertEquals("Files", StringUtils.pluralise("File", 2));
         Assert.assertEquals("File", StringUtils.pluralise("File", 1));
     }
+    
+    /**
+     * Test return of are or is
+     */
+    @Test
+    public void testAreIs() {
+        Assert.assertEquals("are", StringUtils.getAreIs(2));
+        Assert.assertEquals("is", StringUtils.getAreIs(1));
+    }
 }
