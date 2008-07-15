@@ -4,11 +4,24 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
-public class GUIUtils {
-    private static Logger myLogger = Logger.getLogger(GUIUtils.class);
+/**
+ * Various GUI utilitiy toolkit methods.
+ * 
+ * @author matt
+ *
+ */
+public final class GUIUtils {
+    private static final Logger LOGGER = Logger.getLogger(GUIUtils.class);
+   
     private GUIUtils() {
         super();
     }
+   
+    /**
+     * Pass a Runnable to be queued on the event thread. If we're already on the
+     * event thread, run it immediately.
+     * @param run the Runnable to run.
+     */
     public static void runOnEventThread(final Runnable run) {
         if (SwingUtilities.isEventDispatchThread()) {
             run.run();
@@ -16,12 +29,18 @@ public class GUIUtils {
             try {
                 SwingUtilities.invokeAndWait(run);
             } catch (InterruptedException e) {
-                myLogger.warn(run.getClass().getSimpleName() + " was interrupted");
+                LOGGER.warn(run.getClass().getSimpleName() + " was interrupted");
             } catch (InvocationTargetException e) {
-                myLogger.warn("IncocationTargetExcpetion running " + run.getClass().getSimpleName() + ": " + e.getMessage(), e);
+                LOGGER.warn("InvocationTargetExcpetion running " + run.getClass().getSimpleName() + ": " + e.getMessage(), e);
             }
         }
     }
+    
+    /**
+     * Start a Runnable on the event thread and wait for it to complete.
+     * If we're already on the event thread, run it immediately.
+     * @param run the Runnable to run.
+     */
     public static void invokeLaterOnEventThread(final Runnable run) {
         if (SwingUtilities.isEventDispatchThread()) {
             run.run();
