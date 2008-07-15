@@ -8,11 +8,13 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -75,21 +77,21 @@ public class INIFile {
         if (myWriteSuspensions > 0 || !bDirty) {
             return;
         }
-        String lineSep = System.getProperty("line.separator");
+        final String lineSep = System.getProperty("line.separator");
         try {
-            FileOutputStream fos = new FileOutputStream(myFile);
-            FileDescriptor fd = fos.getFD();
-            FileWriter fw = new FileWriter(fd);
+            final FileOutputStream fos = new FileOutputStream(myFile);
+            final FileDescriptor fd = fos.getFD();
+            final FileWriter fw = new FileWriter(fd);
             try {
-                Iterator sectionIterator = mySectionProperties.keySet().iterator();
+                final Iterator<String> sectionIterator = mySectionProperties.keySet().iterator();
                 while (sectionIterator.hasNext()) {
-                    String sectionName = (String) sectionIterator.next();
+                    final String sectionName = (String) sectionIterator.next();
                     fw.write("[" + sectionName + "]" + lineSep);
-                    Properties nvps = (Properties) mySectionProperties.get(sectionName);
-                    Iterator nvpIterator = nvps.keySet().iterator();
+                    final Properties nvps = (Properties) mySectionProperties.get(sectionName);
+                    final Iterator<?> nvpIterator = nvps.keySet().iterator();
                     while (nvpIterator.hasNext()) {
-                        String name = (String) nvpIterator.next();
-                        String value = nvps.getProperty(name).toString();
+                        final String name = (String) nvpIterator.next();
+                        final String value = nvps.getProperty(name).toString();
                         fw.write(name + "=" + value + lineSep);
                     }
                 }
@@ -100,24 +102,24 @@ public class INIFile {
                 fw.close();
                 fos.close();
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.error("Could not write INI file " + myFile.getAbsolutePath() + ": " + e.getMessage());
         }
     }
 
     private void loadFile() {
-        Pattern sectionPattern = Pattern.compile("^\\[(.*)\\]$");
-        Matcher sectionMatcher = sectionPattern.matcher("");
-        Pattern nvpPattern = Pattern.compile("^(.*?)=(.*)$$");
-        Matcher nvpMatcher = nvpPattern.matcher("");
+        final Pattern sectionPattern = Pattern.compile("^\\[(.*)\\]$");
+        final Matcher sectionMatcher = sectionPattern.matcher("");
+        final Pattern nvpPattern = Pattern.compile("^(.*?)=(.*)$$");
+        final Matcher nvpMatcher = nvpPattern.matcher("");
         Properties currentSectionProperties = null;
         String currentSectionName = null;
         int lineNo = 0;
         try {
-            BufferedReader br = new BufferedReader(new FileReader(myFile));
+            final BufferedReader br = new BufferedReader(new FileReader(myFile));
             try {
                 while (true) {
-                    String line = br.readLine();
+                    final String line = br.readLine();
                     LOGGER.debug("Read line '" + line + "'");
                     if (line == null) {
                         break;
@@ -127,7 +129,7 @@ public class INIFile {
                     if (sectionMatcher.lookingAt()) {
                         currentSectionName = sectionMatcher.group(1);
                         LOGGER.debug("Found section [" + currentSectionName + "]");
-                        Properties newSectionProperties = new Properties();
+                        final Properties newSectionProperties = new Properties();
                         currentSectionProperties = newSectionProperties;
                         mySectionProperties.put(currentSectionName, newSectionProperties);
                     } else {
@@ -136,8 +138,8 @@ public class INIFile {
                             if (currentSectionProperties == null) {
                                 LOGGER.error("Line " + lineNo + " name=value line not under any [section]: '" + line  + "'");
                             } else {
-                                String name = nvpMatcher.group(1);
-                                String value = nvpMatcher.group(2);
+                                final String name = nvpMatcher.group(1);
+                                final String value = nvpMatcher.group(2);
                                 LOGGER.debug("[" + currentSectionName + "] " + name + "=" + value);
                                 currentSectionProperties.put(name, value);
                             }
@@ -146,18 +148,18 @@ public class INIFile {
                         }
                     }
                 }
-            } catch (IOException ioe) {
+            } catch (final IOException ioe) {
                 LOGGER.error("Could not load INI file: " + ioe.getMessage());
             } finally {
                 if (br != null) {
                     try {
                         br.close();
-                    } catch (IOException e1) {
+                    } catch (final IOException e1) {
                         LOGGER.error("Could not close BufferedReader: " + e1.getMessage());
                     }
                 }
             }
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             LOGGER.error("INI file " + myFile.getAbsolutePath() + " not found");
         }
     }
@@ -173,8 +175,8 @@ public class INIFile {
             LOGGER.debug("getValue(" + sectionName + "," + name + "): not found [section]");
             return null;
         } else {
-            Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
-            String value = (String) sectionProperties.get(name); // returns null on 'not found'
+            final Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
+            final String value = (String) sectionProperties.get(name); // returns null on 'not found'
             LOGGER.debug("getValue(" + sectionName + "," + name + "): returning '" + value + "'");
             return value;
         }
@@ -189,7 +191,7 @@ public class INIFile {
      * @return the value, if one exists, defaultValue if it does not exist.
      */
     public final String getValue(final String sectionName, final String name, final String defaultValue) {
-        String value = getValue(sectionName, name);
+        final String value = getValue(sectionName, name);
         return value == null ? defaultValue : value;
     }
 
@@ -205,7 +207,7 @@ public class INIFile {
             return;
         }
         bDirty = true;
-        Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
+        final Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
         sectionProperties.remove(name);
         if (sectionProperties.size() == 0) {
             LOGGER.debug("removeValue(" + sectionName + ", " + name
@@ -274,10 +276,10 @@ public class INIFile {
      * @return the value.
      */
     public final long getLongValue(final String sectionName, final String name) {
-        String value = getValue(sectionName, name, "0");
+        final String value = getValue(sectionName, name, "0");
         try {
             return Long.parseLong(value);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LOGGER.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not a long integer");
             return 0L;
         }
@@ -290,10 +292,10 @@ public class INIFile {
      * @return the value.
      */
     public final int getIntegerValue(final String sectionName, final String name) {
-        String value = getValue(sectionName, name, "0");
+        final String value = getValue(sectionName, name, "0");
         try {
             return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LOGGER.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not an integer");
             return 0;
         }
@@ -306,10 +308,10 @@ public class INIFile {
      * @return the value.
      */
     public final boolean getBooleanValue(final String sectionName, final String name) {
-        String value = getValue(sectionName, name, "FALSE");
+        final String value = getValue(sectionName, name, "FALSE");
         try {
             return Boolean.parseBoolean(value);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LOGGER.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not a boolean");
             return false;
         }
@@ -325,8 +327,12 @@ public class INIFile {
             LOGGER.debug("getArray(" + sectionName + "): not found [section]");
             return new String[0];
         } else {
-            Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
-            return (String[]) sectionProperties.values().toArray(new String[0]);
+            final Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
+            final ArrayList<String> array = new ArrayList<String>();
+            for (int i = 0; i < sectionProperties.size(); i++) {
+                array.add(sectionProperties.getProperty("" + (i + 1)));
+            }
+            return array.toArray(new String[0]);
         }
     }
     
@@ -337,7 +343,7 @@ public class INIFile {
      */
     public final synchronized void setArray(final String sectionName, final String[] array) {
         bDirty = true;
-        Properties arrayProperties = new Properties();
+        final Properties arrayProperties = new Properties();
         for (int i = 0; i < array.length; i++) {
             arrayProperties.put("" + (i + 1), array[i]);
         }
