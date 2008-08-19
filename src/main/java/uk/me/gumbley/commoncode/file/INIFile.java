@@ -10,11 +10,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Properties;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -26,7 +24,7 @@ import org.apache.log4j.Logger;
 public class INIFile {
     private static final Logger LOGGER = Logger.getLogger(INIFile.class);
 
-    private HashMap < String, Properties> mySectionProperties;
+    private Map<String, Map<String, String> > mySectionMap;
 
     private File myFile;
     
@@ -41,7 +39,7 @@ public class INIFile {
     public INIFile(final String fileName) {
         super();
         myWriteSuspensions = 0;
-        mySectionProperties = new HashMap < String, Properties> ();
+        mySectionMap = new HashMap < String, Map<String, String> > ();
         myFile = new File(fileName);
         if (myFile.exists()) {
             LOGGER.debug("Loading existing INI file: " + fileName);
@@ -83,15 +81,11 @@ public class INIFile {
             final FileDescriptor fd = fos.getFD();
             final FileWriter fw = new FileWriter(fd);
             try {
-                final Iterator<String> sectionIterator = mySectionProperties.keySet().iterator();
-                while (sectionIterator.hasNext()) {
-                    final String sectionName = (String) sectionIterator.next();
+                for (String sectionName : mySectionMap.keySet()) {
                     fw.write("[" + sectionName + "]" + lineSep);
-                    final Properties nvps = (Properties) mySectionProperties.get(sectionName);
-                    final Iterator<?> nvpIterator = nvps.keySet().iterator();
-                    while (nvpIterator.hasNext()) {
-                        final String name = (String) nvpIterator.next();
-                        final String value = nvps.getProperty(name).toString();
+                    final Map<String, String> nvps = mySectionMap.get(sectionName);
+                    for (String name : nvps.keySet()) {
+                        final String value = nvps.get(name).toString();
                         fw.write(name + "=" + value + lineSep);
                     }
                 }
@@ -108,11 +102,9 @@ public class INIFile {
     }
 
     private void loadFile() {
-        final Pattern sectionPattern = Pattern.compile("^\\[(.*)\\]$");
-        final Matcher sectionMatcher = sectionPattern.matcher("");
-        final Pattern nvpPattern = Pattern.compile("^(.*?)=(.*)$$");
-        final Matcher nvpMatcher = nvpPattern.matcher("");
-        Properties currentSectionProperties = null;
+        final Matcher sectionMatcher = Pattern.compile("^\\[(.*)\\]$").matcher("");
+        final Matcher nvpMatcher = Pattern.compile("^(.*?)=(.*)$$").matcher("");
+        Map<String, String> currentSectionMap = null;
         String currentSectionName = null;
         int lineNo = 0;
         try {
@@ -129,19 +121,19 @@ public class INIFile {
                     if (sectionMatcher.lookingAt()) {
                         currentSectionName = sectionMatcher.group(1);
                         LOGGER.debug("Found section [" + currentSectionName + "]");
-                        final Properties newSectionProperties = new Properties();
-                        currentSectionProperties = newSectionProperties;
-                        mySectionProperties.put(currentSectionName, newSectionProperties);
+                        final Map<String, String> newSectionMap = new HashMap<String, String>();
+                        currentSectionMap = newSectionMap;
+                        mySectionMap.put(currentSectionName, newSectionMap);
                     } else {
                         nvpMatcher.reset(line);
                         if (nvpMatcher.lookingAt()) {
-                            if (currentSectionProperties == null) {
+                            if (currentSectionMap == null) {
                                 LOGGER.error("Line " + lineNo + " name=value line not under any [section]: '" + line  + "'");
                             } else {
                                 final String name = nvpMatcher.group(1);
                                 final String value = nvpMatcher.group(2);
                                 LOGGER.debug("[" + currentSectionName + "] " + name + "=" + value);
-                                currentSectionProperties.put(name, value);
+                                currentSectionMap.put(name, value);
                             }
                         } else {
                             LOGGER.error("Line " + lineNo + " not matched against [section] or name=value: '" + line + "'");
@@ -171,12 +163,12 @@ public class INIFile {
      * @return the value, if one exists, null if it does not exist.
      */
     public final String getValue(final String sectionName, final String name) {
-        if (!mySectionProperties.containsKey(sectionName)) {
+        if (!mySectionMap.containsKey(sectionName)) {
             LOGGER.debug("getValue(" + sectionName + "," + name + "): not found [section]");
             return null;
         } else {
-            final Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
-            final String value = (String) sectionProperties.get(name); // returns null on 'not found'
+            final Map<String, String> sectionMap = mySectionMap.get(sectionName);
+            final String value = (String) sectionMap.get(name); // returns null on 'not found'
             LOGGER.debug("getValue(" + sectionName + "," + name + "): returning '" + value + "'");
             return value;
         }
@@ -202,17 +194,17 @@ public class INIFile {
      * @param name the name= that will be deleted, if it exists.
      */
     public final synchronized void removeValue(final String sectionName, final String name) {
-        if (!mySectionProperties.containsKey(sectionName)) {
+        if (!mySectionMap.containsKey(sectionName)) {
             LOGGER.debug("removeValue(" + sectionName + ", " + name + "): not found [section]");
             return;
         }
         bDirty = true;
-        final Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
-        sectionProperties.remove(name);
-        if (sectionProperties.size() == 0) {
+        final Map<String, String> sectionMap = mySectionMap.get(sectionName);
+        sectionMap.remove(name);
+        if (sectionMap.size() == 0) {
             LOGGER.debug("removeValue(" + sectionName + ", " + name
                     + "): final name returned from [section]; removing [section]");
-            mySectionProperties.remove(sectionName);
+            mySectionMap.remove(sectionName);
         }
         saveFile();
     }
@@ -225,17 +217,17 @@ public class INIFile {
      * @param value the value.
      */
     public final synchronized void setValue(final String sectionName, final String name, final String value) {
-        Properties sectionProperties = null;
+        Map<String, String> sectionMap = null;
         bDirty = true;
-        if (!mySectionProperties.containsKey(sectionName)) {
-            sectionProperties = new Properties();
-            mySectionProperties.put(sectionName, sectionProperties);
+        if (!mySectionMap.containsKey(sectionName)) {
+            sectionMap = new HashMap<String, String>();
+            mySectionMap.put(sectionName, sectionMap);
             LOGGER.debug("setValue(" + sectionName + "," + name + "," + value + "): created new [class]");
         } else {
-            sectionProperties = (Properties) mySectionProperties.get(sectionName);
+            sectionMap = mySectionMap.get(sectionName);
         }
         LOGGER.debug("setValue(" + sectionName + "," + name + "," + value + "): saving");
-        sectionProperties.put(name, value);
+        sectionMap.put(name, value);
         saveFile();
     }
     
@@ -323,14 +315,14 @@ public class INIFile {
      * @return the values.
      */
     public final String[] getArray(final String sectionName) {
-        if (!mySectionProperties.containsKey(sectionName)) {
+        if (!mySectionMap.containsKey(sectionName)) {
             LOGGER.debug("getArray(" + sectionName + "): not found [section]");
             return new String[0];
         } else {
-            final Properties sectionProperties = (Properties) mySectionProperties.get(sectionName);
+            final Map<String, String> sectionMap = mySectionMap.get(sectionName);
             final ArrayList<String> array = new ArrayList<String>();
-            for (int i = 0; i < sectionProperties.size(); i++) {
-                array.add(sectionProperties.getProperty("" + (i + 1)));
+            for (int i = 0; i < sectionMap.size(); i++) {
+                array.add(sectionMap.get("" + (i + 1)));
             }
             return array.toArray(new String[0]);
         }
@@ -343,11 +335,11 @@ public class INIFile {
      */
     public final synchronized void setArray(final String sectionName, final String[] array) {
         bDirty = true;
-        final Properties arrayProperties = new Properties();
+        final Map<String, String> arrayMap = new HashMap<String, String>();
         for (int i = 0; i < array.length; i++) {
-            arrayProperties.put("" + (i + 1), array[i]);
+            arrayMap.put("" + (i + 1), array[i]);
         }
-        mySectionProperties.put(sectionName, arrayProperties);
+        mySectionMap.put(sectionName, arrayMap);
         LOGGER.debug("setArray(" + sectionName + ", ...): saving");
         saveFile();
     }
@@ -357,11 +349,11 @@ public class INIFile {
      * @param sectionName the [section name]
      */
     public final synchronized void removeSection(final String sectionName) {
-        if (!mySectionProperties.containsKey(sectionName)) {
+        if (!mySectionMap.containsKey(sectionName)) {
             LOGGER.debug("removeSection(" + sectionName + "): not found [section]");
         } else {
             bDirty = true;
-            mySectionProperties.remove(sectionName);
+            mySectionMap.remove(sectionName);
             LOGGER.debug("removeSection(" + sectionName + "): saving");
             saveFile();
         }
