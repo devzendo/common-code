@@ -18,8 +18,8 @@ public final class GUIUtils {
     }
    
     /**
-     * Pass a Runnable to be queued on the event thread. If we're already on the
-     * event thread, run it immediately.
+     * Pass a Runnable to be run immediately on the event thread. If we're
+     * already on the event thread, run it immediately.
      * @param run the Runnable to run.
      */
     public static void runOnEventThread(final Runnable run) {
@@ -28,9 +28,9 @@ public final class GUIUtils {
         } else {
             try {
                 SwingUtilities.invokeAndWait(run);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 LOGGER.warn(run.getClass().getSimpleName() + " was interrupted");
-            } catch (InvocationTargetException e) {
+            } catch (final InvocationTargetException e) {
                 LOGGER.warn("InvocationTargetExcpetion running " + run.getClass().getSimpleName() + ": " + e.getMessage(), e);
             }
         }
