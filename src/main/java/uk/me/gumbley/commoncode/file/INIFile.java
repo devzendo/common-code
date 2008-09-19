@@ -297,7 +297,7 @@ public class INIFile {
      * Obtain a boolean value in the file.
      * @param sectionName the [section name] from which this value will be obtained.
      * @param name the name= key to the given value
-     * @return the value.
+     * @return the value, or false if this name does not exist.
      */
     public final boolean getBooleanValue(final String sectionName, final String name) {
         final String value = getValue(sectionName, name, "FALSE");
