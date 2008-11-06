@@ -29,7 +29,7 @@ public final class GUIUtils {
             try {
                 SwingUtilities.invokeAndWait(run);
             } catch (final InterruptedException e) {
-                LOGGER.warn(run.getClass().getSimpleName() + " was interrupted");
+                LOGGER.warn(run.getClass().getSimpleName() + " was interrupted", e);
             } catch (final InvocationTargetException e) {
                 LOGGER.warn("InvocationTargetExcpetion running " + run.getClass().getSimpleName() + ": " + e.getMessage(), e);
             }
