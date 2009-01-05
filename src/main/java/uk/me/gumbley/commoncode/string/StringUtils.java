@@ -1,6 +1,7 @@
 package uk.me.gumbley.commoncode.string;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Formatter;
@@ -384,5 +385,19 @@ public final class StringUtils {
      */
     public static String getAreIs(final int num) {
         return num == 1 ? "is" : "are";
+    }
+
+    /**
+     * Encode the given string to an ASCII byte array
+     * @param input the input string
+     * @return the ASCII bytes
+     */
+    public static byte[] stringToASCII(final String input) {
+        try {
+            return input.getBytes("ASCII");
+        } catch (final UnsupportedEncodingException e) {
+            // when hell freezes over :-)
+            return new byte[0];
+        }
     }
 }

@@ -79,4 +79,16 @@ public final class StringUtilsTest extends CCTestCase {
         Assert.assertEquals("are", StringUtils.getAreIs(2));
         Assert.assertEquals("is", StringUtils.getAreIs(1));
     }
+    
+    /**
+     * Tests ASCII conversion
+     */
+    @Test
+    public void testStrToASCII() {
+        final byte[] ascii = StringUtils.stringToASCII("ABC");
+        Assert.assertEquals(3, ascii.length);
+        Assert.assertEquals((byte) 65, ascii[0]);
+        Assert.assertEquals((byte) 66, ascii[1]);
+        Assert.assertEquals((byte) 67, ascii[2]);
+    }
 }
