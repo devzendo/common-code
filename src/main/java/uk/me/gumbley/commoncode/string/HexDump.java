@@ -8,63 +8,110 @@ import java.util.ArrayList;
  * @author matt
  *
  */
-public class HexDump {
+public final class HexDump {
     private HexDump() {
         super();
     }
 
-    private static String HEXDIGS = "0123456789ABCDEF";
+    private static String hexDigits = "0123456789ABCDEF";
+    
+    /**
+     * Convert a byte into its Hex String
+     * @param b e.g. 127
+     * @return "7F"
+     */
     public static String byte2hex(final byte b) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         appendHexByte(sb, b);
         return sb.toString();
     }
+    
+    /**
+     * Convert a number of bytes into their Hex String
+     * @param bs e.g. 127, 201
+     * @return "7FC9"
+     */
     public static String bytes2hex(final byte[] bs) {
-        StringBuilder sb = new StringBuilder();
-        for (int i=0; i<bs.length; i++) {
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bs.length; i++) {
             appendHexByte(sb, bs[i]);
         }
         return sb.toString();
     }
+    
     private static void appendHexByte(final StringBuilder sb, final byte b) {
-        sb.append(HEXDIGS.charAt((b & 0xf0) >> 4));
-        sb.append(HEXDIGS.charAt(b & 0x0f));
+        sb.append(hexDigits.charAt((b & 0xf0) >> 4));
+        sb.append(hexDigits.charAt(b & 0x0f));
     }
 
+    /**
+     * Convert a long into its Hex String
+     * @param l the long
+     * @return a 16 char hex string
+     */
     public static String long2hex(final long l) {
         long d = l;
-        char[] buf = new char[16];
-        long mask = 0x0f;
+        final char[] buf = new char[16];
+        final long mask = 0x0f;
         for (int x = 15; x >= 0; x--) {
-            buf[x] = HEXDIGS.charAt((int)(d & mask));
+            buf[x] = hexDigits.charAt((int) (d & mask));
             d >>>= 4;
         }
         return new String(buf);
     }
+    
+    /**
+     * Convert an int into its hex string
+     * @param i the int
+     * @return an 8 char hex string
+     */
     public static String int2hex(final int i) {
         int d = i;
-        char[] buf = new char[8];
-        long mask = 0x0f;
+        final char[] buf = new char[8];
+        final long mask = 0x0f;
         for (int x = 7; x >= 0; x--) {
-            buf[x] = HEXDIGS.charAt((int)(d & mask));
+            buf[x] = hexDigits.charAt((int) (d & mask));
             d >>>= 4;
         }
         return new String(buf);
     }
+    
+    /**
+     * Convert a short into its hex string
+     * @param s the short
+     * @return a 4 char hex string
+     */
     public static String short2hex(final short s) {
         short d = s;
-        char[] buf = new char[4];
-        long mask = 0x0f;
+        final char[] buf = new char[4];
+        final long mask = 0x0f;
         for (int x = 3; x >= 0; x--) {
-            buf[x] = HEXDIGS.charAt((int)(d & mask));
+            buf[x] = hexDigits.charAt((int) (d & mask));
             d >>>= 4;
         }
         return new String(buf);
     }
+
+    /**
+     * Dump all of a byte array into a hex/ascii dump
+     * @param buffer the byte array
+     * @return an array of hex/ascii dump strings
+     */
+    public static String[] hexDump(final byte[] buffer) {
+        return hexDump(buffer, 0, buffer.length);
+    }
+
+    /**
+     * Dump some of a byte array into a hex/ascii dump
+     * @param buffer the byte array
+     * @param startOffset the position in the byte array to start the dump
+     * @param bufferLength the number of bytes in the byte array to dump
+     * @return an array of hex/ascii dump strings
+     */
     public static String[] hexDump(final byte[] buffer, final int startOffset, final int bufferLength) {
         int offset = startOffset;
-        ArrayList < String > lines = new ArrayList < String > ();
-        StringBuilder line = new StringBuilder(80);
+        final ArrayList < String > lines = new ArrayList < String > ();
+        final StringBuilder line = new StringBuilder(80);
 
         for (int i = 0; i < 78; i++) {
             line.append(' ');
@@ -86,8 +133,8 @@ public class HexDump {
 
             for (int x = 0; x < upto16; x++) {
                 b = buffer[offset + x];
-                line.setCharAt(11 + (3 * x), HEXDIGS.charAt((b & 0xf0) >> 4));
-                line.setCharAt(12 + (3 * x), HEXDIGS.charAt(b & 0x0f));
+                line.setCharAt(11 + (3 * x), hexDigits.charAt((b & 0xf0) >> 4));
+                line.setCharAt(12 + (3 * x), hexDigits.charAt(b & 0x0f));
                 line.setCharAt(61 + x, (b >= 32 && b <= 126) ? (char) b : '.');
             }
 
@@ -99,21 +146,61 @@ public class HexDump {
         return lines.toArray(new String[0]);
     }
 
+    /**
+     * Dump an entire ByteBuffer without affecting the position of the buffer
+     * (it gets changed but restored by this routine)
+     * @param buffer the buffer
+     * @return the lines of hex/ascii dump
+     */
     public static String[] hexDump(final ByteBuffer buffer) {
-        int len = buffer.remaining();
-        byte[] buf = new byte[len];
-        int startPosition = buffer.position();
+        final int len = buffer.remaining();
+        final byte[] buf = new byte[len];
+        final int startPosition = buffer.position();
         buffer.get(buf);
-        String[] ret = hexDump(buf, 0, len);
+        final String[] ret = hexDump(buf, 0, len);
         buffer.position(startPosition);
         return ret;
     }
     
-    private static byte hex2byte(final String h) {
+    /**
+     * Convert the first two characters of a hex dump into a byte
+     * @param h a string starting with 2 hex characters
+     * @return the byte
+     */
+    public static byte hex2byte(final String h) {
         return (byte) ((nibble2decimal(h.charAt(0)) << 4) | (nibble2decimal(h.charAt(1))));
     }
+    
+    /**
+     * Convert two hex characters into a byte
+     * @param h the most significant nibble
+     * @param l the least significant nibble
+     * @return the byte
+     */
+    public static byte hex2byte(final char h, final char l) {
+        return (byte) ((nibble2decimal(h) << 4) | (nibble2decimal(l)));
+    }
+    
     private static byte nibble2decimal(final char n) {
         return (byte) ((n >= 0x30 && n <= 0x39) ? n - 0x30 :
             n - 'A' + 10);
+    }
+    
+    /**
+     * Convert a hex dump string into the bytes it represents
+     * @param hexdump a hexdump, as generated by bytes2hex, e.g. "4142"
+     * @return its raw data e.g. the bytes 0x41, 0x42
+     */
+    public static byte[] hex2bytes(final String hexdump) {
+        final int hexdumpLength = hexdump.length();
+        if ((hexdumpLength & 0x01) == 0x01) {
+            throw new IllegalArgumentException("Cannot decode an odd length hex dump into bytes");
+        }
+        final byte[] bytes = new byte[hexdumpLength >> 1];
+        int j = 0;
+        for (int i = 0; i < hexdumpLength; i += 2) {
+            bytes[j++] = hex2byte(hexdump.charAt(i), hexdump.charAt(i + 1));
+        }
+        return bytes;
     }
 }
