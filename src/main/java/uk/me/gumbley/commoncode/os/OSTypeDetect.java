@@ -1,5 +1,10 @@
 package uk.me.gumbley.commoncode.os;
 
+/**
+ * Operating System detection
+ * @author matt
+ *
+ */
 public final class OSTypeDetect {
     private static OSTypeDetect myInstance = null;
     private OSType myOSType;
@@ -9,21 +14,50 @@ public final class OSTypeDetect {
         myOSType = getOS();
         bWindows = getWindows();
     }
+    /**
+     * Singleton that gives the current OS
+     * @return the OS
+     */
     public static synchronized OSTypeDetect getInstance() {
         if (myInstance == null) {
             myInstance = new OSTypeDetect();
         }
         return myInstance;
     }
+    /**
+     * The types of OS we detect
+     */
     public enum OSType {
-        Windows, Linux, MacOSX, Solaris
+        /**
+         * Any variant of Windows
+         */
+        Windows,
+        
+        /**
+         * Any variant of Linux 
+         */
+        Linux,
+        /**
+         * Any version of Mac OS X
+         */
+        MacOSX,
+        /**
+         * Any variant of Solaris
+         */
+        Solaris
     }
+    /**
+     * @return the OS type
+     */
     public OSType getOSType() {
         return myOSType;
     }
     private OSType getOS() {
-        String osName = System.getProperty("os.name");
-        if (osName.equals("Windows 2000") || osName.equals("Windows XP") || osName.startsWith("Windows")) { // let's guess about Longhorn and others...
+        final String osName = System.getProperty("os.name");
+        if (osName.equals("Windows 2000")
+                || osName.equals("Windows XP")
+                || osName.startsWith("Windows")) { 
+            // let's guess about Vista and 7 and others...
             return OSType.Windows;
         } else if (osName.equals("SunOS")) {
             return OSType.Solaris;
@@ -35,11 +69,24 @@ public final class OSTypeDetect {
         throw new RuntimeException("Unknown OS type");
     }
     private boolean getWindows() {
-        String osName = System.getProperty("os.name");
-        return (osName.equals("Windows 2000") || osName.equals("Windows XP") || osName.startsWith("Windows")); // let's guess about Longhorn and others...        
+        final String osName = System.getProperty("os.name");
+        return (osName.equals("Windows 2000")
+                || osName.equals("Windows XP")
+                || osName.startsWith("Windows")); // would they ever drop that brand?
+        // let's guess about Vista and 7 and others...        
     }
+    /**
+     * @return true iff running on some MS Windows variant
+     */
     public boolean isWindows() {
         return bWindows;
     }
 
+    /**
+     * Command line program to print the detected OS
+     * @param args none
+     */
+    public static void main(final String[] args) {
+        System.out.println(getInstance().getOSType());
+    }
 }
