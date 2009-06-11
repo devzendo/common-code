@@ -2,6 +2,7 @@ package uk.me.gumbley.commoncode.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -25,9 +26,7 @@ public final class ResourceLoader {
      * @param resourceName the name of the resource, from the classpath 
      */
     public static void readResource(final StringBuilder store, final String resourceName) {
-        final InputStream resourceAsStream = Thread.currentThread().
-            getContextClassLoader().
-            getResourceAsStream(resourceName);
+        final InputStream resourceAsStream = getResourceInputStream(resourceName);
         final int bufsize = 16384;
         final byte[] buf = new byte[bufsize];
         int nread;
@@ -44,5 +43,27 @@ public final class ResourceLoader {
             } catch (final IOException ioe) {
             }
         }
+    }
+
+    /**
+     * Obtain the InputStream for the named resource
+     * @param resourceName the name of the resource, from the classpath
+     * @return the InputStream
+     */
+    public static InputStream getResourceInputStream(final String resourceName) {
+        final InputStream resourceAsStream = Thread.currentThread().
+            getContextClassLoader().
+            getResourceAsStream(resourceName);
+        return resourceAsStream;
+    }
+
+    /**
+     * Does the named resource exist?
+     * @param resourceName the name of the resource, from the classpath
+     * @return true iff it exists.
+     */
+    public static boolean resourceExists(final String resourceName) {
+        return Thread.currentThread().
+            getContextClassLoader().getResource(resourceName) != null;
     }
 }

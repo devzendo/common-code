@@ -3,6 +3,7 @@ package uk.me.gumbley.commoncode.resource;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.me.gumbley.commoncode.CCTestCase;
 
 
@@ -31,5 +32,14 @@ public final class TestResourceLoader extends CCTestCase {
         final StringBuilder sb = new StringBuilder();
         ResourceLoader.readResource(sb, "resourceloader.txt");
         Assert.assertEquals("this is a test", sb.toString());
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void resourceExists() {
+        Assert.assertTrue(ResourceLoader.resourceExists("resourceloader.txt"));
+        Assert.assertFalse(ResourceLoader.resourceExists("lordlucan.txt"));
     }
 }
