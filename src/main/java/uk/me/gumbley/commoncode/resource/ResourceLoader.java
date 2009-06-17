@@ -44,6 +44,17 @@ public final class ResourceLoader {
             }
         }
     }
+    
+    /**
+     * Read a resource into a String
+     * @param resourceName the name of the resource, from the classpath
+     * @return the resource contents
+     */
+    public static String readResource(final String resourceName) {
+        final StringBuilder sb = new StringBuilder();
+        readResource(sb, resourceName);
+        return sb.toString();
+    }
 
     /**
      * Obtain the InputStream for the named resource

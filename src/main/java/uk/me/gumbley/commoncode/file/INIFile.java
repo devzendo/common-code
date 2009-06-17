@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -24,9 +25,9 @@ import org.apache.log4j.Logger;
 public class INIFile {
     private static final Logger LOGGER = Logger.getLogger(INIFile.class);
 
-    private Map<String, Map<String, String> > mySectionMap;
+    private final Map<String, Map<String, String> > mySectionMap;
 
-    private File myFile;
+    private final File myFile;
     
     private boolean bDirty = false;
 
@@ -85,7 +86,9 @@ public class INIFile {
                     fw.write("[" + sectionName + "]" + lineSep);
                     final Map<String, String> nvps = mySectionMap.get(sectionName);
                     for (String name : nvps.keySet()) {
-                        final String value = nvps.get(name).toString();
+                        final String valueObject = nvps.get(name);
+                        //final String value = valueObject == null ? "" : valueObject.toString();
+                        final String value = valueObject.toString();
                         fw.write(name + "=" + value + lineSep);
                     }
                 }
@@ -168,7 +171,7 @@ public class INIFile {
             return null;
         } else {
             final Map<String, String> sectionMap = mySectionMap.get(sectionName);
-            final String value = (String) sectionMap.get(name); // returns null on 'not found'
+            final String value = sectionMap.get(name); // returns null on 'not found'
             LOGGER.debug("getValue(" + sectionName + "," + name + "): returning '" + value + "'");
             return value;
         }
