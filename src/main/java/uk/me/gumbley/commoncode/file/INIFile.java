@@ -220,6 +220,12 @@ public class INIFile {
      * @param value the value.
      */
     public final synchronized void setValue(final String sectionName, final String name, final String value) {
+        if (sectionName == null || name == null || value == null) {
+            throw new IllegalArgumentException("Null values cannot be stored: sectionName: "
+                + sectionName + " name: "
+                + name + " value: "
+                + value);
+        }
         Map<String, String> sectionMap = null;
         bDirty = true;
         if (!mySectionMap.containsKey(sectionName)) {

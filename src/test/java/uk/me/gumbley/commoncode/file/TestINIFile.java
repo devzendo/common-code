@@ -100,4 +100,28 @@ public final class TestINIFile extends CCTestCase {
             Assert.assertEquals(two[i], array[i]);
         }
     }
+    
+    /**
+     * 
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void nullSectionIsDisallowed() {
+        iniFile.setValue(null, "foo", "bar");
+    }
+
+    /**
+     * 
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void nullNameIsDisallowed() {
+        iniFile.setValue("section", null, "bar");
+    }
+
+    /**
+     * 
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void nullValueIsDisallowed() {
+        iniFile.setValue("section", "name", null);
+    }
 }
