@@ -2,6 +2,7 @@ package uk.me.gumbley.commoncode.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import org.apache.log4j.Logger;
 
@@ -76,5 +77,17 @@ public final class ResourceLoader {
     public static boolean resourceExists(final String resourceName) {
         return Thread.currentThread().
             getContextClassLoader().getResource(resourceName) != null;
+    }
+    
+    /**
+     * Obtain the URL for the named resource
+     * @param resourceName the name of the resource, from the classpath
+     * @return the URL
+     */
+    public static URL getResourceURL(final String resourceName) {
+        final URL url = Thread.currentThread().
+            getContextClassLoader().
+            getResource(resourceName);
+        return url;
     }
 }
