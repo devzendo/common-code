@@ -400,4 +400,23 @@ public final class StringUtils {
             return new byte[0];
         }
     }
+
+    /**
+     * Convert a string into a number os asterisks, as long as
+     * the input, for the masking of sentivie information, e.g.
+     * passwords
+     * @param input the input string, can be null
+     * @return the converted output, or an empty string - never
+     * null
+     */
+    public static String maskSensitiveText(final String input) {
+        if (input == null) {
+            return "";
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            sb.append("*");
+        }
+        return sb.toString();
+    }
 }

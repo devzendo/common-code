@@ -3,6 +3,7 @@ package uk.me.gumbley.commoncode.string;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.me.gumbley.commoncode.CCTestCase;
 
 /**
@@ -90,5 +91,16 @@ public final class StringUtilsTest extends CCTestCase {
         Assert.assertEquals((byte) 65, ascii[0]);
         Assert.assertEquals((byte) 66, ascii[1]);
         Assert.assertEquals((byte) 67, ascii[2]);
+    }
+    
+    /**
+     * Test the masking of sensitive text
+     */
+    @Test
+    public void maskString() {
+        Assert.assertEquals("***", StringUtils.maskSensitiveText("abc"));
+        Assert.assertEquals("****", StringUtils.maskSensitiveText("****"));
+        Assert.assertEquals("", StringUtils.maskSensitiveText(""));
+        Assert.assertEquals("", StringUtils.maskSensitiveText(null));
     }
 }
