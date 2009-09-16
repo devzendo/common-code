@@ -7,12 +7,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
 
 public abstract class Executor {
     private static Logger myLogger = Logger.getLogger(Executor.class);
 
-    private String[] myArguments;
+    private final String[] myArguments;
 
     private Process myProcess;
 
@@ -45,14 +46,14 @@ public abstract class Executor {
 
     private void init() {
         if (myLogger.isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
+            final StringBuilder sb = new StringBuilder();
             sb.append(this.getClass().getSimpleName());
             sb.append(" [");
             for (String arg : myArguments) {
                 sb.append(arg);
                 sb.append(',');
             }
-            sb.deleteCharAt(sb.length()-1);
+            sb.deleteCharAt(sb.length() - 1);
             sb.append("]");
             myLogger.debug(sb.toString());
         }
@@ -79,17 +80,18 @@ public abstract class Executor {
     }
 
     class OtherReader extends Thread {
-        InputStream is;
+        InputStream mInputStream;
 
         OtherReader(InputStream is) {
-            this.is = is;
+            this.mInputStream = is;
             setName(myArguments[0] + " Std Err Reader");
         }
 
+        @Override
         public void run() {
             String l = null;
             try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                BufferedReader br = new BufferedReader(new InputStreamReader(mInputStream));
                 while ((l = br.readLine()) != null) {
                     myOtherLines.add(l);
                 }
@@ -220,6 +222,7 @@ public abstract class Executor {
     /**
      * Make sue we tidy up
      */
+    @Override
     public void finalize() throws Throwable {
         close();
         super.finalize();
