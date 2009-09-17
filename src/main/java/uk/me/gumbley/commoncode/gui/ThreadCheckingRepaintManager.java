@@ -1,34 +1,51 @@
 package uk.me.gumbley.commoncode.gui;
 
-// See http://www.clientjava.com/blog/2004/08/31/1093972473000.html
-// for source.
 import java.awt.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
 import javax.swing.JComponent;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
+/**
+ * A repaint manager that checks that Swing updates are happening
+ * on an event thread.
+ * 
+ * See http://www.clientjava.com/blog/2004/08/31/1093972473000.html
+ * for source.
+ *
+ */
 public class ThreadCheckingRepaintManager extends RepaintManager {
-    private int tabCount = 0;
+    private int mTabCount = 0;
+    private boolean mCheckIsShowing = false;
 
-    private boolean checkIsShowing = false;
-
+    /**
+     * Construct the repaint manager
+     */
     public ThreadCheckingRepaintManager() {
         super();
     }
 
-    public ThreadCheckingRepaintManager(boolean checkIsShowing) {
+    /**
+     * Construct the repaint manager
+     * @param checkIsShowing whether 'isShowing' should be checked
+     */
+    public ThreadCheckingRepaintManager(final boolean checkIsShowing) {
         super();
-        this.checkIsShowing = checkIsShowing;
+        mCheckIsShowing = checkIsShowing;
     }
 
-    public synchronized void addInvalidComponent(JComponent jComponent) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void addInvalidComponent(final JComponent jComponent) {
         checkThread(jComponent);
         super.addInvalidComponent(jComponent);
     }
 
-    private void checkThread(JComponent c) {
+    private void checkThread(final JComponent c) {
         if (!SwingUtilities.isEventDispatchThread() && checkIsShowing(c)) {
             System.out.println("----------Wrong Thread START");
             System.out.println(getStracktraceAsString(new Exception()));
@@ -37,30 +54,38 @@ public class ThreadCheckingRepaintManager extends RepaintManager {
         }
     }
 
-    private String getStracktraceAsString(Exception e) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(byteArrayOutputStream);
+    private String getStracktraceAsString(final Exception e) {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         e.printStackTrace(printStream);
         printStream.flush();
         return byteArrayOutputStream.toString();
     }
 
-    private boolean checkIsShowing(JComponent c) {
-        if (this.checkIsShowing == false) {
+    private boolean checkIsShowing(final JComponent c) {
+        if (!this.mCheckIsShowing) {
             return true;
         } else {
             return c.isShowing();
         }
     }
 
-    public synchronized void addDirtyRegion(JComponent jComponent, int i, int i1, int i2, int i3) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void addDirtyRegion(final JComponent jComponent,
+            final int i, final int i1,
+            final int i2,
+            final int i3) {
         checkThread(jComponent);
         super.addDirtyRegion(jComponent, i, i1, i2, i3);
     }
 
-    private void dumpComponentTree(Component c) {
+    private void dumpComponentTree(final Component component) {
         System.out.println("----------Component Tree");
         resetTabCount();
+        Component c = component;
         for (; c != null; c = c.getParent()) {
             printTabIndent();
             System.out.println(c);
@@ -71,19 +96,23 @@ public class ThreadCheckingRepaintManager extends RepaintManager {
     }
 
     private void resetTabCount() {
-        this.tabCount = 0;
+        this.mTabCount = 0;
     }
 
     private void incrementTabCount() {
-        this.tabCount++;
+        this.mTabCount++;
     }
 
     private void printTabIndent() {
-        for (int i = 0; i < this.tabCount; i++) {
+        for (int i = 0; i < this.mTabCount; i++) {
             System.out.print("\t");
         }
     }
     
+    /**
+     * Initialise the repaint manager with the thread-checking
+     * version.
+     */
     public static void initialise() {
         RepaintManager.setCurrentManager(new ThreadCheckingRepaintManager());
     }

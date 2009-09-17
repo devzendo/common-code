@@ -37,7 +37,7 @@ public abstract class SwingWorker {
         }
     }
 
-    private ThreadVar myThreadVar;
+    private final ThreadVar myThreadVar;
 
     /**
      * Get the value produced by the worker thread, or null if it
@@ -58,6 +58,7 @@ public abstract class SwingWorker {
 
     /**
      * Compute the value to be returned by the <code>get</code> method.
+     * @return the value to be returned by get().
      */
     public abstract Object construct();
 
@@ -73,7 +74,7 @@ public abstract class SwingWorker {
      * to force the worker to stop what it's doing.
      */
     public void interrupt() {
-        Thread t = myThreadVar.get();
+        final Thread t = myThreadVar.get();
         if (t != null) {
             t.interrupt();
         }
@@ -89,13 +90,13 @@ public abstract class SwingWorker {
      */
     public Object get() {
         while (true) {
-            Thread t = myThreadVar.get();
+            final Thread t = myThreadVar.get();
             if (t == null) {
                 return getValue();
             }
             try {
                 t.join();
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt(); // propagate
                 return null;
             }
@@ -112,7 +113,7 @@ public abstract class SwingWorker {
                 finished();
             }
         };
-        Runnable doConstruct = new Runnable() {
+        final Runnable doConstruct = new Runnable() {
             public void run() {
                 try {
                     setValue(construct());
@@ -122,7 +123,7 @@ public abstract class SwingWorker {
                 SwingUtilities.invokeLater(doFinished);
             }
         };
-        Thread t = new Thread(doConstruct);
+        final Thread t = new Thread(doConstruct);
         myThreadVar = new ThreadVar(t);
     }
 
@@ -130,7 +131,7 @@ public abstract class SwingWorker {
      * Start the worker thread.
      */
     public void start() {
-        Thread t = myThreadVar.get();
+        final Thread t = myThreadVar.get();
         if (t != null) {
             t.start();
         }

@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.me.gumbley.commoncode.CCTestCase;
 
 /**
@@ -90,7 +91,7 @@ public final class TestObserverList extends CCTestCase {
         observer.eventOccurred(oe);
         EasyMock.replay(observer);
         
-        ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
+        final ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
         list.addObserver(observer);
         
         list.eventOccurred(oe);
@@ -110,7 +111,7 @@ public final class TestObserverList extends CCTestCase {
         observer.eventOccurred(oe);
         EasyMock.replay(observer);
         
-        ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
+        final ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
         list.addObserver(observer);
         
         list.eventOccurred(oe);
@@ -135,7 +136,7 @@ public final class TestObserverList extends CCTestCase {
         listener2.eventOccurred(oe);
         EasyMock.replay(listener1, listener2);
         
-        ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
+        final ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
         list.addObserver(listener1);
         list.addObserver(listener2);
         Assert.assertEquals(2, list.getNumberOfObservers());
@@ -157,7 +158,7 @@ public final class TestObserverList extends CCTestCase {
         observer.eventOccurred(se1);
         EasyMock.replay(observer);
         
-        ObserverList<StringEvent> list = new ObserverList<StringEvent>();
+        final ObserverList<StringEvent> list = new ObserverList<StringEvent>();
         list.addObserver(observer);
         
         list.eventOccurred(se1);

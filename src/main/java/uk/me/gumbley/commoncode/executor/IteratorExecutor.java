@@ -3,9 +3,16 @@ package uk.me.gumbley.commoncode.executor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Iterator;
+
 import org.apache.log4j.Logger;
 
-public class IteratorExecutor extends Executor implements Iterator {
+/**
+ * An IteratorExecutor executes a process and allows the output
+ * to be retrieved using an Iterator.
+ * @author matt
+ *
+ */
+public class IteratorExecutor extends Executor implements Iterator<Object> {
     private static Logger myLogger = Logger.getLogger(IteratorExecutor.class);
     private boolean bFirst;
     private boolean bSkipBlankLines;
@@ -18,7 +25,7 @@ public class IteratorExecutor extends Executor implements Iterator {
      * parameters given in the String array
      * @param args an array of (program name, arg1, arg2, ... , argN) 
      */
-    public IteratorExecutor(String[] args) {
+    public IteratorExecutor(final String[] args) {
         super(args);
         init();
     }
@@ -28,7 +35,7 @@ public class IteratorExecutor extends Executor implements Iterator {
      * no parameters.
      * @param cmd the name of a program 
      */
-    public IteratorExecutor(String cmd) {
+    public IteratorExecutor(final String cmd) {
         super(cmd);
         init();
     }
@@ -73,7 +80,7 @@ public class IteratorExecutor extends Executor implements Iterator {
             try {
                 execute();
                 myReader = getReader();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 myIOException = e;
                 myLogger.warn("Could not execute " + getArguments()[0] + ": " + e.getMessage());
                 return false;
@@ -93,12 +100,12 @@ public class IteratorExecutor extends Executor implements Iterator {
                 try {
                     setExitValue(getProcess().waitFor());
                     myLogger.debug("Exit code is " + getExitValue());
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     myLogger.warn("Interrupted " + getArguments()[0] + " obtaining exit status");
                     // TODO now what?
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             myIOException = e;
             myLogger.warn("Could not read " + getArguments()[0] + ": " + e.getMessage());
         }
@@ -122,7 +129,7 @@ public class IteratorExecutor extends Executor implements Iterator {
 
     /**
      * If hasNext() returns false, was there an IOException?
-     * @return
+     * @return any IOException that was thrown
      */
     public IOException getIOException() {
         return myIOException;

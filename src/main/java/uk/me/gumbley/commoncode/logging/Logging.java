@@ -2,6 +2,7 @@ package uk.me.gumbley.commoncode.logging;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+
 import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
@@ -9,11 +10,24 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
+/**
+ * Initialisation toolkit for log4j logging, given command line
+ * options.
+ * 
+ * @author matt
+ *
+ */
 public final class Logging {
     private static Logging myInstance = null;
+    
     private Logging() {
         super();
     }
+    
+    /**
+     * Singleton constructor for Logging
+     * @return the single instance of Logging.
+     */
     public static synchronized Logging getInstance() {
         if (myInstance == null) {
             myInstance = new Logging();
@@ -32,17 +46,19 @@ public final class Logging {
      */
     public ArrayList<String> setupLoggingFromArgs(final ArrayList<String> origArgs) {
         BasicConfigurator.resetConfiguration();
-        Level lev = Level.INFO;
-        StringBuilder sb = new StringBuilder();
-        ArrayList<String> out = new ArrayList<String>();
+        final ArrayList<String> out = new ArrayList<String>();
         boolean bLevel = false;
         boolean bDebug = false;
         boolean bClasses = false;
         boolean bThreads = false;
         boolean bTimes = false;
-        for (String arg: origArgs) {
+        for (String arg : origArgs) {
             if (arg.equals("-debugall")) {
-                bLevel = bDebug = bClasses = bThreads = bTimes = true;
+                bLevel = true;
+                bDebug = true;
+                bClasses = true;
+                bThreads = true;
+                bTimes = true;
                 continue;
             }
             if (arg.equals("-level")) {
@@ -67,9 +83,21 @@ public final class Logging {
             }
             out.add(arg);
         }
-        if (bDebug) {
-            lev = Level.DEBUG;
-        }
+        myLayout = createLayout(bLevel, bClasses, bThreads, bTimes);
+        final Logger root = Logger.getRootLogger();
+        root.removeAllAppenders();
+        final Appender appender = new ConsoleAppender(myLayout);
+        root.addAppender(appender);
+        root.setLevel(bDebug ? Level.DEBUG : Level.INFO);
+        return out;
+    }
+
+    private PatternLayout createLayout(
+            final boolean bLevel,
+            final boolean bClasses,
+            final boolean bThreads,
+            final boolean bTimes) {
+        final StringBuilder sb = new StringBuilder();
         if (bLevel) {
             sb.append("%-5p ");
         }
@@ -83,24 +111,27 @@ public final class Logging {
             sb.append("[%t] ");
         }
         sb.append("%m\n");
-        Logger root = Logger.getRootLogger();
-        root.removeAllAppenders();
-        myLayout = new PatternLayout(sb.toString());
-        Appender appender = new ConsoleAppender(myLayout);
-        root.addAppender(appender);
-        root.setLevel(lev);
-        return out;
+        return new PatternLayout(sb.toString());
     }
+    
+    /**
+     * @return the PatternLayout in use
+     */
     public PatternLayout getLayout() {
         return myLayout;
     }
+    
+    /**
+     * Set a new PatternLayout to use
+     * @param layout the new layout
+     */
     public void setLayout(final PatternLayout layout) {
         myLayout = layout;
-        Logger root = Logger.getRootLogger();
-        Enumeration en = root.getAllAppenders();
+        final Logger root = Logger.getRootLogger();
+        final Enumeration<?> en = root.getAllAppenders();
         while (en.hasMoreElements()) {
-            Appender appender = (Appender)en.nextElement();
+            final Appender appender = (Appender) en.nextElement();
             appender.setLayout(myLayout);
-        };
+        }
     }
 }

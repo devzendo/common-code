@@ -2,6 +2,7 @@ package uk.me.gumbley.commoncode.executor;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
+
 import uk.me.gumbley.commoncode.CCTestCase;
 
 /**
@@ -19,9 +20,9 @@ public final class IteratorExecutorTest extends CCTestCase {
     @Test
     public void testLSL() {
         LOGGER.info("testLSL");
-        IteratorExecutor ie = new IteratorExecutor(new String[] {"ls", "-l" });
+        final IteratorExecutor ie = new IteratorExecutor(new String[] {"ls", "-l" });
         while (ie.hasNext()) {
-            String line = (String) ie.next();
+            final String line = (String) ie.next();
             LOGGER.info("Line: '" + line + "'");
         }
         LOGGER.info("Exit code is " + ie.getExitValue());
@@ -34,7 +35,7 @@ public final class IteratorExecutorTest extends CCTestCase {
     @Test
     public void testMkISOFS() {
         LOGGER.info("testMkISOFS");
-        IteratorExecutor ie = new IteratorExecutor(new String[] {
+        final IteratorExecutor ie = new IteratorExecutor(new String[] {
                 "mkisofs",
                 "-r",
                 "-gui",
@@ -44,7 +45,7 @@ public final class IteratorExecutorTest extends CCTestCase {
         });
         ie.useStdErr();
         while (ie.hasNext()) {
-            String line = (String) ie.next();
+            final String line = (String) ie.next();
             LOGGER.info("Line: '" + line + "'");
         }
         LOGGER.info("Exit code is " + ie.getExitValue());
@@ -54,6 +55,7 @@ public final class IteratorExecutorTest extends CCTestCase {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Logger getLogger() {
         return LOGGER;
     }
