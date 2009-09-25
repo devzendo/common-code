@@ -1,7 +1,10 @@
 package uk.me.gumbley.commoncode.gui;
 
+import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -47,5 +50,19 @@ public final class GUIUtils {
         } else {
             SwingUtilities.invokeLater(run);
         }
+    }
+    
+
+    private static final double FACTOR = 0.92;
+
+    /**
+     * Compute a colour slightly darker than the one passed in
+     * @param color a colour
+     * @return a shade darker
+     */
+    public static Color slightlyDarkerColor(final Color color) {
+        return new Color(Math.max((int) (color.getRed() * FACTOR), 0), 
+                 Math.max((int) (color.getGreen() * FACTOR), 0),
+                 Math.max((int) (color.getBlue() * FACTOR), 0));
     }
 }
