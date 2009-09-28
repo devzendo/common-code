@@ -12,7 +12,6 @@ package com.nadeausoftware;
  * 
  * This class is copyright Dr David R. Nadeau, Nadeau Software Consulting.
  */
-// CHECKSTYLE:OFF
 @SuppressWarnings("serial")
 public class ZebraJTable extends javax.swing.JTable {
     private final java.awt.Color[] rowColors = new java.awt.Color[2];
@@ -69,11 +68,11 @@ public class ZebraJTable extends javax.swing.JTable {
     }
 
     /**
-     * @param rowData
-     * @param columnNames
+     * @param rowData the row data
+     * @param columnNames the column names
      */
-    public ZebraJTable(java.util.Vector<?> rowData,
-            java.util.Vector<?> columnNames) {
+    public ZebraJTable(final java.util.Vector<?> rowData,
+            final java.util.Vector<?> columnNames) {
         super(rowData, columnNames);
     }
 
@@ -82,8 +81,9 @@ public class ZebraJTable extends javax.swing.JTable {
      * {@inheritDoc}
      */
     @Override
-    public void paintComponent(java.awt.Graphics g) {
-        if (!(drawStripes = isOpaque())) {
+    public void paintComponent(final java.awt.Graphics g) {
+        drawStripes = isOpaque();
+        if (!drawStripes) {
             super.paintComponent(g);
             return;
         }
@@ -124,12 +124,13 @@ public class ZebraJTable extends javax.swing.JTable {
      */
     @Override
     public java.awt.Component prepareRenderer(
-            javax.swing.table.TableCellRenderer renderer,
-            int row,
-            int col) {
+            final javax.swing.table.TableCellRenderer renderer,
+            final int row,
+            final int col) {
         final java.awt.Component c = super.prepareRenderer(renderer, row, col);
-        if (drawStripes && !isCellSelected(row, col))
+        if (drawStripes && !isCellSelected(row, col)) {
             c.setBackground(rowColors[row & 1]);
+        }
         return c;
     }
 
@@ -139,12 +140,13 @@ public class ZebraJTable extends javax.swing.JTable {
      */
     @Override
     public java.awt.Component prepareEditor(
-            javax.swing.table.TableCellEditor editor,
-            int row,
-            int col) {
+            final javax.swing.table.TableCellEditor editor,
+            final int row,
+            final int col) {
         final java.awt.Component c = super.prepareEditor(editor, row, col);
-        if (drawStripes && !isCellSelected(row, col))
+        if (drawStripes && !isCellSelected(row, col)) {
             c.setBackground(rowColors[row & 1]);
+        }
         return c;
     }
 
@@ -155,8 +157,9 @@ public class ZebraJTable extends javax.swing.JTable {
     @Override
     public boolean getScrollableTracksViewportHeight() {
         final java.awt.Component p = getParent();
-        if (!(p instanceof javax.swing.JViewport))
+        if (!(p instanceof javax.swing.JViewport)) {
             return false;
+        }
         return ((javax.swing.JViewport) p).getHeight() > getPreferredSize().height;
     }
 
@@ -164,8 +167,10 @@ public class ZebraJTable extends javax.swing.JTable {
      * Compute zebra background stripe colors.
      */
     private void updateZebraColors() {
-        if ((rowColors[0] = getBackground()) == null) {
-            rowColors[0] = rowColors[1] = java.awt.Color.white;
+        rowColors[0] = getBackground();
+        if (rowColors[0] == null) {
+            rowColors[0] = java.awt.Color.white;
+            rowColors[1] = java.awt.Color.white;
             return;
         }
         final java.awt.Color sel = getSelectionBackground();
@@ -183,4 +188,3 @@ public class ZebraJTable extends javax.swing.JTable {
                     + ((bgHSB[2] < 0.5f) ? 0.05f : -0.05f));
     }
 }
-// CHECKSTYLE: ON
