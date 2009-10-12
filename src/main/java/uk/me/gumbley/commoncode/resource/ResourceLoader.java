@@ -28,6 +28,10 @@ public final class ResourceLoader {
      */
     public static void readResource(final StringBuilder store, final String resourceName) {
         final InputStream resourceAsStream = getResourceInputStream(resourceName);
+        if (resourceAsStream == null) {
+            LOGGER.warn("Could not open resource '" + resourceName + "'");
+            return;
+        }
         final int bufsize = 16384;
         final byte[] buf = new byte[bufsize];
         int nread;
