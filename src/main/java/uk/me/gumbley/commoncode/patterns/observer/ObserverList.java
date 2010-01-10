@@ -74,4 +74,19 @@ public final class ObserverList<T extends ObservableEvent> {
             return observerList.contains(observer);
         }
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        synchronized (observerList) {
+            for (Observer<T> observer : observerList) {
+                sb.append(observer.getClass().getSimpleName());
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
+    }
 }
