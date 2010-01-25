@@ -2,7 +2,6 @@ package org.devzendo.commoncode.concurrency;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.CCTestCase;
-import org.devzendo.commoncode.concurrency.ThreadUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 

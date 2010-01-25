@@ -2,7 +2,6 @@ package org.devzendo.commoncode.string;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.CCTestCase;
-import org.devzendo.commoncode.string.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

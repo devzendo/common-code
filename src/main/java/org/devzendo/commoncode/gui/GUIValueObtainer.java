@@ -2,7 +2,9 @@ package org.devzendo.commoncode.gui;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+
 import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 
 /**

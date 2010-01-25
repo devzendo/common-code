@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.CCTestCase;
-import org.devzendo.commoncode.file.INIFile;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

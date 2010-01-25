@@ -6,7 +6,6 @@ import java.util.GregorianCalendar;
 
 import junit.framework.Assert;
 
-import org.devzendo.commoncode.datetime.SQLDateUtils;
 import org.junit.Test;
 
 

@@ -1,6 +1,5 @@
 package org.devzendo.commoncode.string;
 
-import org.devzendo.commoncode.string.HexDump;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -2,9 +2,6 @@ package org.devzendo.commoncode.patterns.observer;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.CCTestCase;
-import org.devzendo.commoncode.patterns.observer.ObservableEvent;
-import org.devzendo.commoncode.patterns.observer.Observer;
-import org.devzendo.commoncode.patterns.observer.ObserverList;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,7 +9,7 @@ import org.junit.Test;
 
 /**
  * Tests the generic observer list
- * 
+ *
  * @author matt
  *
  */
@@ -35,7 +32,7 @@ public final class TestObserverList extends CCTestCase {
         final ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
         Assert.assertEquals(0, list.getNumberOfObservers());
     }
-    
+
     /**
      * A list with one observer
      */
@@ -47,7 +44,7 @@ public final class TestObserverList extends CCTestCase {
         list.addObserver(obs);
         Assert.assertEquals(1, list.getNumberOfObservers());
     }
-    
+
     /**
      * Removing a observer makes the count go down
      */
@@ -89,19 +86,19 @@ public final class TestObserverList extends CCTestCase {
     @Test
     public void dispatch() {
         final ObservableEvent oe = EasyMock.createMock(ObservableEvent.class);
-        
+
         final Observer<ObservableEvent> observer = EasyMock.createMock(Observer.class);
         observer.eventOccurred(oe);
         EasyMock.replay(observer);
-        
+
         final ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
         list.addObserver(observer);
-        
+
         list.eventOccurred(oe);
-        
+
         EasyMock.verify(observer);
     }
-    
+
     /**
      * After removing a observer, no more events are dispatched to it
      */
@@ -109,22 +106,22 @@ public final class TestObserverList extends CCTestCase {
     @Test
     public void removeDoesntDispatchToRemoved() {
         final ObservableEvent oe = EasyMock.createMock(ObservableEvent.class);
-        
+
         final Observer<ObservableEvent> observer = EasyMock.createMock(Observer.class);
         observer.eventOccurred(oe);
         EasyMock.replay(observer);
-        
+
         final ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
         list.addObserver(observer);
-        
+
         list.eventOccurred(oe);
-        
+
         list.removeListener(observer);
         list.eventOccurred(oe);
-        
+
         EasyMock.verify(observer);
     }
-    
+
     /**
      * Dispatch a marker event, detect propagation to multiple listeners
      */
@@ -132,23 +129,23 @@ public final class TestObserverList extends CCTestCase {
     @Test
     public void multipleListenerDispatch() {
         final ObservableEvent oe = EasyMock.createMock(ObservableEvent.class);
-        
+
         final Observer<ObservableEvent> listener1 = EasyMock.createMock(Observer.class);
         listener1.eventOccurred(oe);
         final Observer<ObservableEvent> listener2 = EasyMock.createMock(Observer.class);
         listener2.eventOccurred(oe);
         EasyMock.replay(listener1, listener2);
-        
+
         final ObserverList<ObservableEvent> list = new ObserverList<ObservableEvent>();
         list.addObserver(listener1);
         list.addObserver(listener2);
         Assert.assertEquals(2, list.getNumberOfObservers());
-        
+
         list.eventOccurred(oe);
-        
+
         EasyMock.verify(listener1, listener2);
     }
-    
+
     /**
      * Dispatch a subclass of ObservableEvent, detect propagation.
      */
@@ -160,12 +157,12 @@ public final class TestObserverList extends CCTestCase {
         final Observer<StringEvent> observer = EasyMock.createMock(Observer.class);
         observer.eventOccurred(se1);
         EasyMock.replay(observer);
-        
+
         final ObserverList<StringEvent> list = new ObserverList<StringEvent>();
         list.addObserver(observer);
-        
+
         list.eventOccurred(se1);
-        
+
         EasyMock.verify(observer);
     }
 
@@ -176,6 +173,7 @@ public final class TestObserverList extends CCTestCase {
             this.eventData = data;
         }
 
+        @SuppressWarnings("unused")
         public String getEventData() {
             return eventData;
         }

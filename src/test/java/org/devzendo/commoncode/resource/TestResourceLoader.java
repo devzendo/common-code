@@ -2,7 +2,6 @@ package org.devzendo.commoncode.resource;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.CCTestCase;
-import org.devzendo.commoncode.resource.ResourceLoader;
 import org.junit.Assert;
 import org.junit.Test;
 

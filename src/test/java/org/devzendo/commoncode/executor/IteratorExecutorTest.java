@@ -2,7 +2,6 @@ package org.devzendo.commoncode.executor;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.CCTestCase;
-import org.devzendo.commoncode.executor.IteratorExecutor;
 import org.junit.Test;
 
 

@@ -1,12 +1,13 @@
 package org.devzendo.commoncode.gui;
 
 import java.util.concurrent.Callable;
+
 import javax.swing.JLabel;
+
 import junit.framework.Assert;
+
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.CCTestCase;
-import org.devzendo.commoncode.gui.GUIUtils;
-import org.devzendo.commoncode.gui.GUIValueObtainer;
 import org.junit.Test;
 
 
