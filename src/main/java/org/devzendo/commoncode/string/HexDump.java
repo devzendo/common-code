@@ -18,6 +18,7 @@ package org.devzendo.commoncode.string;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Hexadecimal routines
@@ -218,5 +219,65 @@ public final class HexDump {
             bytes[j++] = hex2byte(hexdump.charAt(i), hexdump.charAt(i + 1));
         }
         return bytes;
+    }
+    
+    /**
+     * Create a HEX|ASCII dump of a complete buffer.
+     * 
+     * @param buffer a buffer of bytes
+     * @return a dump of the complete buffer starting at offset 0.
+     * 
+     */
+    public static String[] asciiDump(byte[] buffer) {
+        return asciiDump(buffer, 0, buffer.length);
+    }
+    
+    /**
+     * Create a HEX|ASCII dump of part of a buffer, given a start within it.
+     * 
+     * @param buffer a buffer of bytes
+     * @param startOffset the starting offset within the buffer to start the dump at
+     * @return the dump of the buffer starting at the start offset
+     */
+    public static String[] asciiDump(byte[] buffer, int startOffset) {
+        return asciiDump(buffer, startOffset, buffer.length);
+    }
+    
+    /**
+     * Create a HEX|ASCII dump of part of a buffer, given a start and length.
+     * 
+     * @param buffer a buffer of bytes
+     * @param startOffset the starting offset within the buffer to start the dump at.
+     * @param bufferLength the number of bytes to dump 
+     * @return
+     */
+    public static String[] asciiDump(byte[] buffer, int startOffset, int bufferLength) {
+        final List<String> lines = new ArrayList<String>();
+        final StringBuffer line = new StringBuffer(80);
+        for (int i=0; i<78; i++) {
+            line.append(' ');
+        }
+        int left = bufferLength;
+        int i, upto64, x;
+        byte b;
+        while (left > 0) {
+            for (i=0; i<78; i++) {
+                line.setCharAt(i, ' ');
+            }
+            line.setCharAt(9, '|');
+            //line.setCharAt(59, '|');
+            line.replace(0, 8, int2hex(startOffset));
+            upto64 = (left > 64) ? 64 : left;
+            for (x=0; x<upto64; x++) {
+                b = buffer[startOffset + x];
+                //line.setCharAt(11+(3*x), hexDigit((b&0xf0) >> 4));
+                //line.setCharAt(12+(3*x), hexDigit(b&0x0f));
+                line.setCharAt(11+x, (b >= 32 && b < 127) ? (char)b : '.');
+            }
+            lines.add(line.toString());
+            startOffset += 64;
+            left -= 64;
+        }
+        return (String[]) lines.toArray(new String[lines.size()]);
     }
 }
