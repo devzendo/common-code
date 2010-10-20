@@ -228,7 +228,7 @@ public final class HexDump {
      * @return a dump of the complete buffer starting at offset 0.
      * 
      */
-    public static String[] asciiDump(byte[] buffer) {
+    public static String[] asciiDump(final byte[] buffer) {
         return asciiDump(buffer, 0, buffer.length);
     }
     
@@ -239,7 +239,7 @@ public final class HexDump {
      * @param startOffset the starting offset within the buffer to start the dump at
      * @return the dump of the buffer starting at the start offset
      */
-    public static String[] asciiDump(byte[] buffer, int startOffset) {
+    public static String[] asciiDump(final byte[] buffer, final int startOffset) {
         return asciiDump(buffer, startOffset, buffer.length);
     }
     
@@ -249,35 +249,34 @@ public final class HexDump {
      * @param buffer a buffer of bytes
      * @param startOffset the starting offset within the buffer to start the dump at.
      * @param bufferLength the number of bytes to dump 
-     * @return
+     * @return a HEX|ASCII dump
      */
-    public static String[] asciiDump(byte[] buffer, int startOffset, int bufferLength) {
+    public static String[] asciiDump(final byte[] buffer, final int startOffset, 
+            final int bufferLength) {
+        int offset = startOffset;
         final List<String> lines = new ArrayList<String>();
         final StringBuffer line = new StringBuffer(80);
-        for (int i=0; i<78; i++) {
+        for (int i = 0; i < 78; i++) {
             line.append(' ');
         }
         int left = bufferLength;
         int i, upto64, x;
         byte b;
         while (left > 0) {
-            for (i=0; i<78; i++) {
+            for (i = 0; i < 78; i++) {
                 line.setCharAt(i, ' ');
             }
             line.setCharAt(9, '|');
-            //line.setCharAt(59, '|');
-            line.replace(0, 8, int2hex(startOffset));
+            line.replace(0, 8, int2hex(offset));
             upto64 = (left > 64) ? 64 : left;
-            for (x=0; x<upto64; x++) {
-                b = buffer[startOffset + x];
-                //line.setCharAt(11+(3*x), hexDigit((b&0xf0) >> 4));
-                //line.setCharAt(12+(3*x), hexDigit(b&0x0f));
-                line.setCharAt(11+x, (b >= 32 && b < 127) ? (char)b : '.');
+            for (x = 0; x < upto64; x++) {
+                b = buffer[offset + x];
+                line.setCharAt(11 + x, (b >= 32 && b < 127) ? (char) b : '.');
             }
             lines.add(line.toString());
-            startOffset += 64;
+            offset += 64;
             left -= 64;
         }
-        return (String[]) lines.toArray(new String[lines.size()]);
+        return lines.toArray(new String[lines.size()]);
     }
 }
