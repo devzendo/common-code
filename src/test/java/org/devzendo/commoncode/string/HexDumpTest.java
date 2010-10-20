@@ -57,8 +57,20 @@ public final class HexDumpTest {
     public void testAsciiDump() {
         final String in = "This is a test of the asciiDump routine\n";
         final byte[] inBytes = in.getBytes();
-        final String[] asciiDump = HexDump.asciiDump(inBytes, 32, 9);
+        final String[] asciiDump = HexDump.asciiDump(inBytes, 32, 8);
         Assert.assertEquals(1, asciiDump.length);
-        Assert.assertEquals("00000020 | routine.                                                           ", asciiDump[0]);
+        Assert.assertEquals("00000020 | routine.                                                        ", asciiDump[0]);
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void testFullAsciiDump() {
+        final String in = "1234567890123456789012345678901234567890123456789012345678901234";
+        final byte[] inBytes = in.getBytes();
+        final String[] asciiDump = HexDump.asciiDump(inBytes);
+        Assert.assertEquals(1, asciiDump.length);
+        Assert.assertEquals("00000000 | 1234567890123456789012345678901234567890123456789012345678901234", asciiDump[0]);
     }
 }

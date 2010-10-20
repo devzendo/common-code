@@ -256,14 +256,14 @@ public final class HexDump {
         int offset = startOffset;
         final List<String> lines = new ArrayList<String>();
         final StringBuffer line = new StringBuffer(80);
-        for (int i = 0; i < 78; i++) {
+        for (int i = 0; i < 75; i++) {
             line.append(' ');
         }
-        int left = bufferLength - 1;
+        int left = bufferLength;
         int i, upto64, x;
         byte b;
         while (left > 0) {
-            for (i = 0; i < 78; i++) {
+            for (i = 0; i < 75; i++) {
                 line.setCharAt(i, ' ');
             }
             line.setCharAt(9, '|');
