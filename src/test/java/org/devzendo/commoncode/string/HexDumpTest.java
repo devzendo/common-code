@@ -49,4 +49,16 @@ public final class HexDumpTest {
         Assert.assertEquals((byte) 0x80, bytes[3]);
         Assert.assertEquals((byte) 0xff, bytes[4]);
     }
+    
+    /**
+     * 
+     */
+    @Test
+    public void testAsciiDump() {
+        final String in = "This is a test of the asciiDump routine\n";
+        final byte[] inBytes = in.getBytes();
+        final String[] asciiDump = HexDump.asciiDump(inBytes, 32, 9);
+        Assert.assertEquals(1, asciiDump.length);
+        Assert.assertEquals("00000020 | routine.                                                           ", asciiDump[0]);
+    }
 }

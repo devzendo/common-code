@@ -244,12 +244,12 @@ public final class HexDump {
     }
     
     /**
-     * Create a HEX|ASCII dump of part of a buffer, given a start and length.
+     * Create an ASCII dump of part of a buffer, given a start and length.
      * 
      * @param buffer a buffer of bytes
      * @param startOffset the starting offset within the buffer to start the dump at.
      * @param bufferLength the number of bytes to dump 
-     * @return a HEX|ASCII dump
+     * @return an ASCII dump
      */
     public static String[] asciiDump(final byte[] buffer, final int startOffset, 
             final int bufferLength) {
@@ -259,7 +259,7 @@ public final class HexDump {
         for (int i = 0; i < 78; i++) {
             line.append(' ');
         }
-        int left = bufferLength;
+        int left = bufferLength - 1;
         int i, upto64, x;
         byte b;
         while (left > 0) {
