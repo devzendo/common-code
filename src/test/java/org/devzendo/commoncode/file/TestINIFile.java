@@ -19,11 +19,11 @@ package org.devzendo.commoncode.file;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-import org.devzendo.commoncode.CCTestCase;
+import org.devzendo.commoncode.logging.LoggingTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -33,20 +33,19 @@ import org.junit.Test;
  * @author matt
  *
  */
-public final class TestINIFile extends CCTestCase {
-    private static final Logger LOGGER = Logger.getLogger(TestINIFile.class);
+public final class TestINIFile {
     private static final String SECTION_ARRAY = "ARRAY";
     private INIFile iniFile;
     private File tempFile;
-    
+
     /**
-     * {@inheritDoc}
+     * 
      */
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
+    @BeforeClass
+    public static void setupLogging() {
+        LoggingTestCase.setupLogging();
     }
-    
+
     /**
      * Create temporary ini file
      * @throws IOException on failure

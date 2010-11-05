@@ -17,8 +17,9 @@
 package org.devzendo.commoncode.string;
 
 import org.apache.log4j.Logger;
-import org.devzendo.commoncode.CCTestCase;
+import org.devzendo.commoncode.logging.LoggingTestCase;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -28,17 +29,17 @@ import org.junit.Test;
  * @author matt
  *
  */
-public final class StringUtilsTest extends CCTestCase {
+public final class StringUtilsTest {
     private static final Logger LOGGER = Logger.getLogger(StringUtilsTest.class);
 
     /**
-     * {@inheritDoc}
+     * 
      */
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
+    @BeforeClass
+    public static void setupLogging() {
+        LoggingTestCase.setupLogging();
     }
-    
+
     /**
      * Join
      */

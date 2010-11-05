@@ -16,9 +16,9 @@
 
 package org.devzendo.commoncode.resource;
 
-import org.apache.log4j.Logger;
-import org.devzendo.commoncode.CCTestCase;
+import org.devzendo.commoncode.logging.LoggingTestCase;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -28,18 +28,15 @@ import org.junit.Test;
  * @author matt
  *
  */
-public final class TestResourceLoader extends CCTestCase {
-    private static final Logger LOGGER = Logger
-            .getLogger(TestResourceLoader.class);
-
+public final class TestResourceLoader {
     /**
-     * {@inheritDoc}
+     * 
      */
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
+    @BeforeClass
+    public static void setupLogging() {
+        LoggingTestCase.setupLogging();
     }
-    
+
     /**
      * 
      */

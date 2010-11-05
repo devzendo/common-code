@@ -17,7 +17,8 @@
 package org.devzendo.commoncode.executor;
 
 import org.apache.log4j.Logger;
-import org.devzendo.commoncode.CCTestCase;
+import org.devzendo.commoncode.logging.LoggingTestCase;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -27,9 +28,17 @@ import org.junit.Test;
  * @author matt
  *
  */
-public final class IteratorExecutorTest extends CCTestCase {
+public final class IteratorExecutorTest {
     private static final Logger LOGGER = Logger.getLogger(IteratorExecutor.class);
-    
+
+    /**
+     * 
+     */
+    @BeforeClass
+    public static void setupLogging() {
+        LoggingTestCase.setupLogging();
+    }
+
     /**
      * ls -l
      */
@@ -66,13 +75,5 @@ public final class IteratorExecutorTest extends CCTestCase {
         }
         LOGGER.info("Exit code is " + ie.getExitValue());
         LOGGER.info("IOException is " + ie.getIOException());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
     }
 }

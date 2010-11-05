@@ -16,10 +16,10 @@
 
 package org.devzendo.commoncode.patterns.observer;
 
-import org.apache.log4j.Logger;
-import org.devzendo.commoncode.CCTestCase;
+import org.devzendo.commoncode.logging.LoggingTestCase;
 import org.easymock.EasyMock;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -29,15 +29,13 @@ import org.junit.Test;
  * @author matt
  *
  */
-public final class TestObserverList extends CCTestCase {
-    private static final Logger LOGGER = Logger.getLogger(TestObserverList.class);
-
+public final class TestObserverList {
     /**
-     * {@inheritDoc}
+     * 
      */
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
+    @BeforeClass
+    public static void setupLogging() {
+        LoggingTestCase.setupLogging();
     }
 
     /**

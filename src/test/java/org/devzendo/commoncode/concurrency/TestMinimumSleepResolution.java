@@ -17,16 +17,25 @@
 package org.devzendo.commoncode.concurrency;
 
 import org.apache.log4j.Logger;
-import org.devzendo.commoncode.CCTestCase;
+import org.devzendo.commoncode.logging.LoggingTestCase;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author matt
  */
-public final class TestMinimumSleepResolution extends CCTestCase {
+public final class TestMinimumSleepResolution {
     private static final Logger LOGGER = Logger
             .getLogger(TestMinimumSleepResolution.class);
+
+    /**
+     * 
+     */
+    @BeforeClass
+    public static void setupLogging() {
+        LoggingTestCase.setupLogging();
+    }
 
     /**
      * 
@@ -56,13 +65,5 @@ public final class TestMinimumSleepResolution extends CCTestCase {
             LOGGER.info(String.format("dur %d (+%d) min %d avg %d max %d", dur,
                 (favg - dur), min, favg, max));
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
     }
 }
