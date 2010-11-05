@@ -16,7 +16,7 @@
 
 package org.devzendo.commoncode.patterns.observer;
 
-import org.devzendo.commoncode.logging.LoggingTestCase;
+import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -35,7 +35,7 @@ public final class TestObserverList {
      */
     @BeforeClass
     public static void setupLogging() {
-        LoggingTestCase.setupLogging();
+        LoggingUnittestHelper.setupLogging();
     }
 
     /**

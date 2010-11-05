@@ -24,7 +24,7 @@ import org.apache.log4j.BasicConfigurator;
  * @author matt
  *
  */
-public final class LoggingTestCase {
+public final class LoggingUnittestHelper {
     /**
      * Initialise logging.
      */

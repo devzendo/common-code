@@ -17,7 +17,7 @@
 package org.devzendo.commoncode.string;
 
 import org.apache.log4j.Logger;
-import org.devzendo.commoncode.logging.LoggingTestCase;
+import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public final class StringUtilsTest {
      */
     @BeforeClass
     public static void setupLogging() {
-        LoggingTestCase.setupLogging();
+        LoggingUnittestHelper.setupLogging();
     }
 
     /**

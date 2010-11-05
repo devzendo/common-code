@@ -17,7 +17,7 @@
 package org.devzendo.commoncode.executor;
 
 import org.apache.log4j.Logger;
-import org.devzendo.commoncode.logging.LoggingTestCase;
+import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public final class IteratorExecutorTest {
      */
     @BeforeClass
     public static void setupLogging() {
-        LoggingTestCase.setupLogging();
+        LoggingUnittestHelper.setupLogging();
     }
 
     /**

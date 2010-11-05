@@ -19,7 +19,7 @@ package org.devzendo.commoncode.file;
 import java.io.File;
 import java.io.IOException;
 
-import org.devzendo.commoncode.logging.LoggingTestCase;
+import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public final class TestINIFile {
      */
     @BeforeClass
     public static void setupLogging() {
-        LoggingTestCase.setupLogging();
+        LoggingUnittestHelper.setupLogging();
     }
 
     /**
