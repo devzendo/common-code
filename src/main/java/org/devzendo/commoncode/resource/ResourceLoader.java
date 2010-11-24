@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.swing.ImageIcon;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -109,5 +111,20 @@ public final class ResourceLoader {
             getContextClassLoader().
             getResource(resourceName);
         return url;
+    }
+
+    /**
+     *  Loads an ImageIcon from a resource.
+     *  @param resourceName the name of the icon resource, from the classpath
+     *  @return an ImageIcon, or null if the path was invalid. 
+     */
+    public static ImageIcon createResourceImageIcon(final String resourceName) {
+        final java.net.URL imgURL = ResourceLoader.getResourceURL(resourceName);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            LOGGER.warn("Couldn't find file: " + resourceName);
+            return null;
+        }
     }
 }

@@ -55,4 +55,13 @@ public final class TestResourceLoader {
         Assert.assertTrue(ResourceLoader.resourceExists("resourceloader.txt"));
         Assert.assertFalse(ResourceLoader.resourceExists("lordlucan.txt"));
     }
+    
+    /**
+     * 
+     */
+    @Test
+    public void iconResourceLoads() {
+        Assert.assertNotNull(ResourceLoader.createResourceImageIcon("application.gif"));
+        Assert.assertNull(ResourceLoader.createResourceImageIcon("nonexistant.gif"));
+    }
 }
