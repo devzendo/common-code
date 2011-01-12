@@ -55,6 +55,7 @@ public final class Logging {
     }
     
     private PatternLayout myLayout;
+    private boolean mDebug;
 
     /**
      * Sets up log4j given command line arguments, called only once at the start
@@ -90,14 +91,14 @@ public final class Logging {
         BasicConfigurator.resetConfiguration();
         final ArrayList<String> out = new ArrayList<String>();
         boolean bLevel = false;
-        boolean bDebug = false;
+        mDebug = false;
         boolean bClasses = false;
         boolean bThreads = false;
         boolean bTimes = false;
         for (final String arg : origArgs) {
             if (arg.equals("-debugall")) {
                 bLevel = true;
-                bDebug = true;
+                mDebug = true;
                 bClasses = true;
                 bThreads = true;
                 bTimes = true;
@@ -108,7 +109,7 @@ public final class Logging {
                 continue;
             }
             if (arg.equals("-debug")) {
-                bDebug = true;
+                mDebug = true;
                 continue;
             }
             if (arg.equals("-classes")) {
@@ -130,7 +131,7 @@ public final class Logging {
         root.removeAllAppenders();
         final Appender appender = new ConsoleAppender(myLayout);
         root.addAppender(appender);
-        root.setLevel(bDebug ? Level.DEBUG : Level.INFO);
+        root.setLevel(mDebug ? Level.DEBUG : Level.INFO);
         return out;
     }
 
@@ -179,13 +180,19 @@ public final class Logging {
 
     /**
      * Sets the log threshold level of a given package so that only logs of that
-     * level are emitted (given overall logging threshold, i.e. use -debug to
-     * emit EVERYTHING) 
+     * level are emitted.
+     * <p/>
+     * <b>If debug mode has been set previously, this will have
+     * no effect.</b>
      * 
      * @param packageName e.g. org.springframework
      * @param level e.g. Level.WARN
      */
     public void setPackageLoggingLevel(final String packageName, final Level level) {
+        if (mDebug) {
+            return; // We warn to see EVERYTHING in debug mode.
+        }
+        
         final LoggerRepository defaultHierarchy = LogManager.getLoggerRepository();
         final Logger logger = defaultHierarchy.getLogger(packageName);
         if (logger != null) {
