@@ -24,8 +24,10 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.spi.LoggerRepository;
 
 /**
  * Initialisation toolkit for log4j logging, given command line
@@ -172,6 +174,22 @@ public final class Logging {
         while (en.hasMoreElements()) {
             final Appender appender = (Appender) en.nextElement();
             appender.setLayout(myLayout);
+        }
+    }
+
+    /**
+     * Sets the log threshold level of a given package so that only logs of that
+     * level are emitted (given overall logging threshold, i.e. use -debug to
+     * emit EVERYTHING) 
+     * 
+     * @param packageName e.g. org.springframework
+     * @param level e.g. Level.WARN
+     */
+    public void setPackageLoggingLevel(final String packageName, final Level level) {
+        final LoggerRepository defaultHierarchy = LogManager.getLoggerRepository();
+        final Logger logger = defaultHierarchy.getLogger(packageName);
+        if (logger != null) {
+            logger.setLevel(level);
         }
     }
 }
