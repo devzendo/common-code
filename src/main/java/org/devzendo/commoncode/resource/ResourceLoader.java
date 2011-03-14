@@ -16,10 +16,12 @@
 
 package org.devzendo.commoncode.resource;
 
+import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
@@ -124,6 +126,25 @@ public final class ResourceLoader {
             return new ImageIcon(imgURL);
         } else {
             LOGGER.warn("Couldn't find file: " + resourceName);
+            return null;
+        }
+    }
+    
+    /**
+     *  Loads an Image from a resource.
+     *  @param resourceName the name of the icon resource, from the classpath
+     *  @return an Image, or null if the path was invalid. 
+     */
+    public static Image readImageResource(final String resourceName) {
+        try {
+            final InputStream resourceAsStream = getResourceInputStream(resourceName);
+            try {
+                return ImageIO.read(resourceAsStream);
+            } finally {
+                resourceAsStream.close();
+            }
+        } catch (final IOException e) {
+            LOGGER.warn("Couldn't read image " + resourceName + ": " + e.getMessage(), e);
             return null;
         }
     }
