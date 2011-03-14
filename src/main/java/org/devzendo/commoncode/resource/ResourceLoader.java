@@ -138,10 +138,15 @@ public final class ResourceLoader {
     public static Image readImageResource(final String resourceName) {
         try {
             final InputStream resourceAsStream = getResourceInputStream(resourceName);
-            try {
-                return ImageIO.read(resourceAsStream);
-            } finally {
-                resourceAsStream.close();
+            if (resourceAsStream != null) {
+                try {
+                    return ImageIO.read(resourceAsStream);
+                } finally {
+                    resourceAsStream.close();
+                }
+            } else {
+                LOGGER.warn("Couldn't find file: " + resourceName);
+                return null;
             }
         } catch (final IOException e) {
             LOGGER.warn("Couldn't read image " + resourceName + ": " + e.getMessage(), e);
