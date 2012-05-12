@@ -56,6 +56,7 @@ public final class Logging {
     
     private PatternLayout myLayout;
     private boolean mDebug;
+    private boolean mWarn;
 
     /**
      * Sets up log4j given command line arguments, called only once at the start
@@ -92,6 +93,7 @@ public final class Logging {
         final ArrayList<String> out = new ArrayList<String>();
         boolean bLevel = false;
         mDebug = false;
+        mWarn = false;
         boolean bClasses = false;
         boolean bThreads = false;
         boolean bTimes = false;
@@ -110,6 +112,10 @@ public final class Logging {
             }
             if (arg.equals("-debug")) {
                 mDebug = true;
+                continue;
+            }
+            if (arg.equals("-warn")) {
+                mWarn = true;
                 continue;
             }
             if (arg.equals("-classes")) {
@@ -131,7 +137,7 @@ public final class Logging {
         root.removeAllAppenders();
         final Appender appender = new ConsoleAppender(myLayout);
         root.addAppender(appender);
-        root.setLevel(mDebug ? Level.DEBUG : Level.INFO);
+        root.setLevel(mDebug ? Level.DEBUG : mWarn ? Level.WARN : Level.INFO);
         return out;
     }
 

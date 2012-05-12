@@ -4,9 +4,9 @@
   <groupId>org.devzendo</groupId>
   <artifactId>CommonCode</artifactId>
   <name>Common utility code</name>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <description>Common utility code
-  (Apache License v2) 2008-2010 Matt Gumbley, DevZendo.org</description>
+  (Apache License v2) 2008-2012 Matt Gumbley, DevZendo.org</description>
 
   <parent>
   	<groupId>org.devzendo</groupId>
@@ -32,7 +32,7 @@
 	<dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
+      <version>1.2.16</version>
     </dependency>
   </dependencies>
   <build>
