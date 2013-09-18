@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.devzendo</groupId>
-  <artifactId>CommonCode</artifactId>
-  <name>Common utility code</name>
-  <version>1.0.2-SNAPSHOT</version>
-  <description>Common utility code
-  (Apache License v2) 2008-2013 Matt Gumbley, DevZendo.org</description>
-  <url>http://www.devzendo.org/content/commoncode</url>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.devzendo</groupId>
+    <artifactId>CommonCode</artifactId>
+    <name>Common utility code</name>
+    <version>1.0.2-SNAPSHOT</version>
+    <description>Common utility code
+        (Apache License v2) 2008-2013 Matt Gumbley, DevZendo.org
+    </description>
+    <url>http://www.devzendo.org/content/commoncode</url>
 
-  <organization>
-    <name>DevZendo.org</name>
-    <url>http://devzendo.org/</url>
-  </organization>
+    <organization>
+        <name>DevZendo.org</name>
+        <url>http://devzendo.org/</url>
+    </organization>
 
     <licenses>
         <license>
@@ -23,8 +24,11 @@
     </licenses>
     <scm>
         <url>http://devzendo-org-commoncode.googlecode.com/hg/</url>
-        <connection>scm:hg:http://devzendo-org-commoncode.googlecode.com/hg/</connection>
-        <developerConnection>scm:hg:https://devzendo-org-commoncode.googlecode.com/hg/</developerConnection>
+        <connection>scm:hg:http://devzendo-org-commoncode.googlecode.com/hg/
+        </connection>
+        <developerConnection>
+            scm:hg:https://devzendo-org-commoncode.googlecode.com/hg/
+        </developerConnection>
     </scm>
     <developers>
         <developer>
@@ -39,27 +43,27 @@
         <artifactId>GroupParent</artifactId>
         <version>1.0.2-SNAPSHOT</version>
     </parent>
-  
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.4</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <version>2.3</version>
-      <scope>test</scope>
-    </dependency>
-	
-	<dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.16</version>
-    </dependency>
-  </dependencies>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>2.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+    </dependencies>
 
 </project>
