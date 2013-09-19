@@ -4,7 +4,7 @@
     <groupId>org.devzendo</groupId>
     <artifactId>CommonCode</artifactId>
     <name>Common utility code</name>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <description>Common utility code
         (Apache License v2) 2008-2013 Matt Gumbley, DevZendo.org
     </description>
