@@ -20,6 +20,7 @@ import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -150,6 +151,33 @@ public final class ResourceLoader {
             }
         } catch (final IOException e) {
             LOGGER.warn("Couldn't read image " + resourceName + ": " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Loads a properties file from a resource.
+     * @param resourceName the name of the properties resource, from the classpath
+     * @return a Properties, or null if the path was invalid, or the properties
+     * could not be read.
+     */
+    public static Properties readPropertiesResource(final String resourceName) {
+        final Properties properties = new Properties();
+        try {
+            final InputStream resourceAsStream = getResourceInputStream(resourceName);
+            if (resourceAsStream != null) {
+                try {
+                    properties.load(resourceAsStream);
+                    return properties;
+                } finally {
+                    resourceAsStream.close();
+                }
+            } else {
+                LOGGER.warn("Couldn't find file: " + resourceName);
+                return null;
+            }
+        } catch (final IOException e) {
+            LOGGER.warn("Couldn't read properties " + resourceName + ": " + e.getMessage(), e);
             return null;
         }
     }

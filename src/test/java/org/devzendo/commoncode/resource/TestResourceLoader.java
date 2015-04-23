@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Properties;
 
 
 /**
@@ -64,4 +65,13 @@ public final class TestResourceLoader {
         Assert.assertNotNull(ResourceLoader.createResourceImageIcon("application.gif"));
         Assert.assertNull(ResourceLoader.createResourceImageIcon("nonexistant.gif"));
     }
+
+    @Test
+    public void propertiesResourceLoads() {
+        final Properties properties = ResourceLoader.readPropertiesResource("test.properties");
+        Assert.assertNotNull(properties);
+        Assert.assertEquals("value", properties.getProperty("name"));
+        Assert.assertNull(ResourceLoader.readPropertiesResource("nonexistant.properties"));
+    }
+
 }
