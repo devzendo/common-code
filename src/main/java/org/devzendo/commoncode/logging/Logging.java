@@ -187,7 +187,7 @@ public final class Logging {
     /**
      * Sets the log threshold level of a given package so that only logs of that
      * level are emitted.
-     * <p/>
+     * <p>
      * <b>If debug mode has been set previously, this will have
      * no effect.</b>
      * 
