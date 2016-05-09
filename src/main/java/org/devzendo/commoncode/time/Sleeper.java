@@ -58,4 +58,13 @@ public final class Sleeper {
             // do nothing...
         }
     }
+
+    /**
+     * Get the number of milliseconds since the start of the UNIX epoch, but
+     * speeded up.
+     * @return milliseconds
+     */
+    public long currentTimeMillis() {
+        return System.currentTimeMillis() * fasterBy;
+    }
 }

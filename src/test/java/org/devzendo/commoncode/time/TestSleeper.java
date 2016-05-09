@@ -16,6 +16,8 @@
 
 package org.devzendo.commoncode.time;
 
+import org.devzendo.commoncode.concurrency.ThreadUtils;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,6 +52,39 @@ public final class TestSleeper {
         final long dur = sleepFor(normalTime, 250);
         Assert.assertTrue(dur >= 250 && dur <= 500); // upper bound dodgy?
     }
+
+    @Test(timeout = 4000)
+    public void getTimeMillisIsNormal() {
+        final Sleeper normalTime = new Sleeper();
+        final long realNow = System.currentTimeMillis();
+        final long sleeperNow = normalTime.currentTimeMillis();
+        // can't be more than 100ms different.
+        Assert.assertThat(Math.abs(realNow - sleeperNow), Matchers.lessThan(100L));
+
+        // Now really sleep.
+        ThreadUtils.waitNoInterruption(2000);
+
+        // Check again; they should be in sync by < 100ms
+        final long realLater = System.currentTimeMillis();
+        final long sleeperLater = normalTime.currentTimeMillis();
+        Assert.assertThat(Math.abs(realLater - sleeperLater), Matchers.lessThan(100L));
+    }
+
+    @Test(timeout = 4000)
+    public void getTimeMillisCanBeSpedUp() {
+        final Sleeper normalTime = new Sleeper(2);
+        final long sleeperNow = normalTime.currentTimeMillis();
+
+        // Now really sleep.
+        ThreadUtils.waitNoInterruption(2000);
+
+        // Check again; should be 4000 ms different
+        final long sleeperLater = normalTime.currentTimeMillis();
+        final long spedUpDuration = Math.abs(sleeperNow - sleeperLater);
+        // 4000 ms +/- 100ms
+        Assert.assertThat(Math.abs(spedUpDuration - 4000), Matchers.lessThan(100L));
+    }
+
 
     private long sleepFor(final Sleeper sleeper, final long duration) {
         final long start = System.currentTimeMillis();
