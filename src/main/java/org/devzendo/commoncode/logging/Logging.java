@@ -62,33 +62,10 @@ public final class Logging {
      * Sets up log4j given command line arguments, called only once at the start
      * of main, with the command line args. Changes to the layout (for example)
      * can be made after this call.
-     * 
-     * This is a shim version of the variant that just takes and returns a List,
-     * but using ArrayLists, for backwards compatibility. You should use the
-     * List variant.
-     * 
-     * @param origArgs the command line arguments
-     * @return those arguments with the logging arguments removed
-     * @deprecated since you should use the List variant
-     */
-    @Deprecated
-    public ArrayList<String> setupLoggingFromArgs(final ArrayList<String> origArgs) {
-        return new ArrayList<String>(internalSetupLoggingFromArgs(origArgs));
-    }
-    
-    /**
-     * Sets up log4j given command line arguments, called only once at the start
-     * of main, with the command line args. Changes to the layout (for example)
-     * can be made after this call.
      * @param origArgs the command line arguments
      * @return those arguments with the logging arguments removed
      */
     public List<String> setupLoggingFromArgs(final List<String> origArgs) {
-        return internalSetupLoggingFromArgs(origArgs);
-    }
-
-    private List<String> internalSetupLoggingFromArgs(
-            final List<String> origArgs) {
         BasicConfigurator.resetConfiguration();
         final ArrayList<String> out = new ArrayList<String>();
         boolean bLevel = false;
