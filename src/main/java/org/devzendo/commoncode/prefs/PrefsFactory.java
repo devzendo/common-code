@@ -1,7 +1,7 @@
 package org.devzendo.commoncode.prefs;
 
 /**
- * Copyright (C) 2008-2015 Matt Gumbley, DevZendo.org <http://devzendo.org>
+ * Copyright (C) 2008-2015 Matt Gumbley, DevZendo.org http://devzendo.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ package org.devzendo.commoncode.prefs;
  * limitations under the License.
  */
 
-import java.io.File;
-
 import org.devzendo.commoncode.string.StringUtils;
+
+import java.io.File;
 
 public class PrefsFactory {
     private final File absolutePrefsDir;
