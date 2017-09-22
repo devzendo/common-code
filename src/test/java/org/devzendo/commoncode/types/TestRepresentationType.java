@@ -9,13 +9,13 @@ import static org.hamcrest.Matchers.not;
 
 /**
  * Copyright (C) 2008-2016 Matt Gumbley, DevZendo.org <http://devzendo.org>
- * <p/>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p/>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,19 +25,19 @@ import static org.hamcrest.Matchers.not;
 public class TestRepresentationType {
 
     public class SampleRepresentationZero extends RepresentationType<String> {
-        public SampleRepresentationZero(String value) {
+        public SampleRepresentationZero(final String value) {
             super(value);
         }
     }
 
     public class SampleRepresentationOne extends RepresentationType<String> {
-        public SampleRepresentationOne(String value) {
+        public SampleRepresentationOne(final String value) {
             super(value);
         }
     }
 
     public class SampleRepresentationTwo extends RepresentationType<Integer> {
-        public SampleRepresentationTwo(Integer value) {
+        public SampleRepresentationTwo(final Integer value) {
             super(value);
         }
     }
