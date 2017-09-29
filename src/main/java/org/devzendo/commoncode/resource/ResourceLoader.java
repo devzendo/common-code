@@ -16,6 +16,9 @@
 
 package org.devzendo.commoncode.resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +28,6 @@ import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
-
 /**
  * Toolkit for helping with loading resources.
  * 
@@ -34,7 +35,7 @@ import org.apache.log4j.Logger;
  *
  */
 public final class ResourceLoader {
-    private static final Logger LOGGER = Logger.getLogger(ResourceLoader.class);
+    private static final Logger myLogger = LoggerFactory.getLogger(ResourceLoader.class);
     /**
      * It's a toolkit; no instances
      */
@@ -50,7 +51,7 @@ public final class ResourceLoader {
     public static void readResource(final StringBuilder store, final String resourceName) {
         final InputStream resourceAsStream = getResourceInputStream(resourceName);
         if (resourceAsStream == null) {
-            LOGGER.warn("Could not open resource '" + resourceName + "'");
+            myLogger.warn("Could not open resource '" + resourceName + "'");
             return;
         }
         final int bufsize = 16384;
@@ -62,7 +63,7 @@ public final class ResourceLoader {
                 store.append(block);
             }
         } catch (final IOException e) {
-            LOGGER.warn("Could not read resource '" + resourceName + "': " + e.getMessage());
+            myLogger.warn("Could not read resource '" + resourceName + "': " + e.getMessage());
         } finally {
             try {
                 resourceAsStream.close();
@@ -126,7 +127,7 @@ public final class ResourceLoader {
         if (imgURL != null) {
             return new ImageIcon(imgURL);
         } else {
-            LOGGER.warn("Couldn't find file: " + resourceName);
+            myLogger.warn("Couldn't find file: " + resourceName);
             return null;
         }
     }
@@ -146,11 +147,11 @@ public final class ResourceLoader {
                     resourceAsStream.close();
                 }
             } else {
-                LOGGER.warn("Couldn't find file: " + resourceName);
+                myLogger.warn("Couldn't find file: " + resourceName);
                 return null;
             }
         } catch (final IOException e) {
-            LOGGER.warn("Couldn't read image " + resourceName + ": " + e.getMessage(), e);
+            myLogger.warn("Couldn't read image " + resourceName + ": " + e.getMessage(), e);
             return null;
         }
     }
@@ -173,11 +174,11 @@ public final class ResourceLoader {
                     resourceAsStream.close();
                 }
             } else {
-                LOGGER.warn("Couldn't find file: " + resourceName);
+                myLogger.warn("Couldn't find file: " + resourceName);
                 return null;
             }
         } catch (final IOException e) {
-            LOGGER.warn("Couldn't read properties " + resourceName + ": " + e.getMessage(), e);
+            myLogger.warn("Couldn't read properties " + resourceName + ": " + e.getMessage(), e);
             return null;
         }
     }

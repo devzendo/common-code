@@ -29,7 +29,11 @@ import org.apache.log4j.spi.LoggingEvent;
 
 /**
  * A log4j Appender that captures events that it receives.
- * 
+ *
+ * Note that log4j is now a provided dependency of this project,
+ * having switched over to slf4j. This class would be of use only if you
+ * are using log4j as your top-level application logging framework.
+ *
  * @author matt
  *
  */

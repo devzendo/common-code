@@ -30,11 +30,8 @@ import org.junit.Test;
  *
  */
 public final class StringUtilsTest {
-    private static final Logger LOGGER = Logger.getLogger(StringUtilsTest.class);
+    private static final Logger myLogger = Logger.getLogger(StringUtilsTest.class);
 
-    /**
-     * 
-     */
     @BeforeClass
     public static void setupLogging() {
         LoggingUnittestHelper.setupLogging();
@@ -45,9 +42,9 @@ public final class StringUtilsTest {
      */
     @Test
     public void testJoin0() {
-        LOGGER.info("start testJoin0");
+        myLogger.info("start testJoin0");
         Assert.assertEquals("", StringUtils.join(new String[] {}, "; "));
-        LOGGER.info("end testJoin0");
+        myLogger.info("end testJoin0");
     }
     
     /**
@@ -55,9 +52,9 @@ public final class StringUtilsTest {
      */
     @Test
     public void testJoin1() {
-        LOGGER.info("start testJoin1");
+        myLogger.info("start testJoin1");
         Assert.assertEquals("XYZ", StringUtils.join(new String[] {"XYZ"}, "; "));
-        LOGGER.info("end testJoin1");
+        myLogger.info("end testJoin1");
     }
     
     /**
@@ -65,9 +62,9 @@ public final class StringUtilsTest {
      */
     @Test
     public void testJoin2() {
-        LOGGER.info("start testJoin2");
+        myLogger.info("start testJoin2");
         Assert.assertEquals("XYZ; ABC", StringUtils.join(new String[] {"XYZ", "ABC"}, "; "));
-        LOGGER.info("end testJoin2");
+        myLogger.info("end testJoin2");
     }
     
     /**
@@ -75,9 +72,9 @@ public final class StringUtilsTest {
      */
     @Test
     public void testJoin3() {
-        LOGGER.info("start testJoin3");
+        myLogger.info("start testJoin3");
         Assert.assertEquals("XYZ; ABC; DEF", StringUtils.join(new String[] {"XYZ", "ABC", "DEF"}, "; "));
-        LOGGER.info("end testJoin3");
+        myLogger.info("end testJoin3");
     }
     
     /**

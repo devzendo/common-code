@@ -16,11 +16,12 @@
 
 package org.devzendo.commoncode.executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Iterator;
-
-import org.apache.log4j.Logger;
 
 /**
  * An IteratorExecutor executes a process and allows the output
@@ -29,7 +30,7 @@ import org.apache.log4j.Logger;
  *
  */
 public class IteratorExecutor extends Executor implements Iterator<Object> {
-    private static Logger myLogger = Logger.getLogger(IteratorExecutor.class);
+    private static Logger myLogger = LoggerFactory.getLogger(IteratorExecutor.class);
     private boolean bFirst;
     private boolean bSkipBlankLines;
     private IOException myIOException;

@@ -29,7 +29,7 @@ import org.junit.Test;
  *
  */
 public final class IteratorExecutorTest {
-    private static final Logger LOGGER = Logger.getLogger(IteratorExecutor.class);
+    private static final Logger myLogger = Logger.getLogger(IteratorExecutor.class);
 
     /**
      * 
@@ -44,14 +44,14 @@ public final class IteratorExecutorTest {
      */
     @Test
     public void testLSL() {
-        LOGGER.info("testLSL");
+        myLogger.info("testLSL");
         final IteratorExecutor ie = new IteratorExecutor(new String[] {"ls", "-l" });
         while (ie.hasNext()) {
             final String line = (String) ie.next();
-            LOGGER.info("Line: '" + line + "'");
+            myLogger.info("Line: '" + line + "'");
         }
-        LOGGER.info("Exit code is " + ie.getExitValue());
-        LOGGER.info("IOException is " + ie.getIOException());
+        myLogger.info("Exit code is " + ie.getExitValue());
+        myLogger.info("IOException is " + ie.getIOException());
     }
 
     /**
@@ -59,7 +59,7 @@ public final class IteratorExecutorTest {
      */
     @Test
     public void testMkISOFS() {
-        LOGGER.info("testMkISOFS");
+        myLogger.info("testMkISOFS");
         final IteratorExecutor ie = new IteratorExecutor(new String[] {
                 "mkisofs",
                 "-r",
@@ -71,9 +71,9 @@ public final class IteratorExecutorTest {
         ie.useStdErr();
         while (ie.hasNext()) {
             final String line = (String) ie.next();
-            LOGGER.info("Line: '" + line + "'");
+            myLogger.info("Line: '" + line + "'");
         }
-        LOGGER.info("Exit code is " + ie.getExitValue());
-        LOGGER.info("IOException is " + ie.getIOException());
+        myLogger.info("Exit code is " + ie.getExitValue());
+        myLogger.info("IOException is " + ie.getIOException());
     }
 }

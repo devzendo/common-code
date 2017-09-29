@@ -26,20 +26,14 @@ import org.junit.Test;
  * @author matt
  */
 public final class TestMinimumSleepResolution {
-    private static final Logger LOGGER = Logger
+    private static final Logger myLogger = Logger
             .getLogger(TestMinimumSleepResolution.class);
 
-    /**
-     * 
-     */
     @BeforeClass
     public static void setupLogging() {
         LoggingUnittestHelper.setupLogging();
     }
 
-    /**
-     * 
-     */
     @Test
     @Ignore
     public void testBenchmark() {
@@ -62,7 +56,7 @@ public final class TestMinimumSleepResolution {
             }
             final double davg = (double) avg / (double) iters;
             final long favg = (long) davg;
-            LOGGER.info(String.format("dur %d (+%d) min %d avg %d max %d", dur,
+            myLogger.info(String.format("dur %d (+%d) min %d avg %d max %d", dur,
                 (favg - dur), min, favg, max));
         }
     }
