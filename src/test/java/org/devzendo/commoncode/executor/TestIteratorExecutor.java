@@ -28,7 +28,7 @@ import org.junit.Test;
  * @author matt
  *
  */
-public final class IteratorExecutorTest {
+public final class TestIteratorExecutor {
     private static final Logger myLogger = Logger.getLogger(IteratorExecutor.class);
 
     /**

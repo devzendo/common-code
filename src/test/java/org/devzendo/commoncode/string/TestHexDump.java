@@ -26,7 +26,7 @@ import org.junit.Test;
  * @author matt
  *
  */
-public final class HexDumpTest {
+public final class TestHexDump {
     
     /**
      * 

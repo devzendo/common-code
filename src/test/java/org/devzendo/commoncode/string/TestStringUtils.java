@@ -18,8 +18,6 @@ package org.devzendo.commoncode.string;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,8 +34,8 @@ import static org.junit.Assert.assertThat;
  * @author matt
  *
  */
-public final class StringUtilsTest {
-    private static final Logger myLogger = Logger.getLogger(StringUtilsTest.class);
+public final class TestStringUtils {
+    private static final Logger myLogger = Logger.getLogger(TestStringUtils.class);
 
     @BeforeClass
     public static void setupLogging() {
