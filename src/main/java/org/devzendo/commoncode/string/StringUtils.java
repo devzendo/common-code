@@ -47,25 +47,25 @@ public final class StringUtils {
     /**
      * A Gigasomething
      */
-    public static final long GIGA = MEGA * MEGA;
+    public static final long GIGA = MEGA * KILO;
 
     /**
      * A Terasomething
      */
-    public static final long TERA = GIGA * GIGA;
+    public static final long TERA = GIGA * KILO;
     
     /**
      * A Petasomething 
      */
-    public static final long PETA = TERA * TERA;
+    public static final long PETA = TERA * KILO;
     
     /**
      * An Etasomething 
      */
-    public static final long ETA = PETA * PETA;
+    public static final long ETA = PETA * KILO;
     
     /**
-     * Translate a number of bytes into an SI representation.
+     * Translate a number of bytes into an SI binary representation.
      * @param bytes the number of bytes, e.g. 1024
      * @return e.g. 1KB
      */
@@ -333,7 +333,7 @@ public final class StringUtils {
      */
     public String[] map(final Object[] objects, final MapStringFunction func) {
         final ArrayList < String > list = new ArrayList < String >();
-        for (Object object : objects) {
+        for (final Object object : objects) {
             list.add(func.mapToString(object));
         }
         return list.toArray(new String[0]);
@@ -362,7 +362,7 @@ public final class StringUtils {
      */
     public Object[] map(final Object[] objects, final MapFunction func) {
         final ArrayList < Object > list = new ArrayList < Object >();
-        for (Object object : objects) {
+        for (final Object object : objects) {
             list.add(func.mapToObject(object));
         }
         return list.toArray(new String[0]);

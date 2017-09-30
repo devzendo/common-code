@@ -18,9 +18,16 @@ package org.devzendo.commoncode.string;
 
 import org.apache.log4j.Logger;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.devzendo.commoncode.string.StringUtils.join;
+import static org.devzendo.commoncode.string.StringUtils.translateByteUnits;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 
 /**
@@ -37,13 +44,33 @@ public final class StringUtilsTest {
         LoggingUnittestHelper.setupLogging();
     }
 
+    @Test
+    public void byteUnitFormats() {
+        assertThat(translateByteUnits(0), equalTo("   0B"));
+        assertThat(translateByteUnits(1024 - 1), equalTo("1023B"));
+        assertThat(translateByteUnits(1024), equalTo("  1.00KB"));
+        assertThat(translateByteUnits(1048576 - 1), equalTo("1024.00KB"));
+        assertThat(translateByteUnits(1048576), equalTo("  1.00MB"));
+        assertThat(translateByteUnits(1073741824 - 1), equalTo("1024.00MB"));
+        assertThat(translateByteUnits(1073741824), equalTo("  1.00GB"));
+        assertThat(translateByteUnits(1099511627776L - 1), equalTo("1024.00GB"));
+        assertThat(translateByteUnits(1099511627776L), equalTo("  1.00TB"));
+        assertThat(translateByteUnits(1125899906842624L - 1), equalTo("1024.00TB"));
+        assertThat(translateByteUnits(1125899906842624L), equalTo("  1.00PB"));
+        assertThat(translateByteUnits(1152921504606846976L - 1), equalTo("1024.00PB"));
+        assertThat(translateByteUnits(1152921504606846976L), equalTo("???.?xB"));
+        // can't store a zettaabyte (or in new terms, zebibyte) in a Long.
+        // zebibyte: 1180591620717411303424L
+        // max long: 9223372036854775807L
+    }
+
     /**
      * Join
      */
     @Test
     public void testJoin0() {
         myLogger.info("start testJoin0");
-        Assert.assertEquals("", StringUtils.join(new String[] {}, "; "));
+        assertEquals("", join(new String[] {}, "; "));
         myLogger.info("end testJoin0");
     }
     
@@ -53,7 +80,7 @@ public final class StringUtilsTest {
     @Test
     public void testJoin1() {
         myLogger.info("start testJoin1");
-        Assert.assertEquals("XYZ", StringUtils.join(new String[] {"XYZ"}, "; "));
+        assertEquals("XYZ", join(new String[] {"XYZ"}, "; "));
         myLogger.info("end testJoin1");
     }
     
@@ -63,7 +90,7 @@ public final class StringUtilsTest {
     @Test
     public void testJoin2() {
         myLogger.info("start testJoin2");
-        Assert.assertEquals("XYZ; ABC", StringUtils.join(new String[] {"XYZ", "ABC"}, "; "));
+        assertEquals("XYZ; ABC", join(new String[] {"XYZ", "ABC"}, "; "));
         myLogger.info("end testJoin2");
     }
     
@@ -73,7 +100,7 @@ public final class StringUtilsTest {
     @Test
     public void testJoin3() {
         myLogger.info("start testJoin3");
-        Assert.assertEquals("XYZ; ABC; DEF", StringUtils.join(new String[] {"XYZ", "ABC", "DEF"}, "; "));
+        assertEquals("XYZ; ABC; DEF", join(new String[] {"XYZ", "ABC", "DEF"}, "; "));
         myLogger.info("end testJoin3");
     }
     
@@ -82,8 +109,8 @@ public final class StringUtilsTest {
      */
     @Test
     public void testPluralise() {
-        Assert.assertEquals("Files", StringUtils.pluralise("File", 2));
-        Assert.assertEquals("File", StringUtils.pluralise("File", 1));
+        assertEquals("Files", StringUtils.pluralise("File", 2));
+        assertEquals("File", StringUtils.pluralise("File", 1));
     }
     
     /**
@@ -91,8 +118,8 @@ public final class StringUtilsTest {
      */
     @Test
     public void testAreIs() {
-        Assert.assertEquals("are", StringUtils.getAreIs(2));
-        Assert.assertEquals("is", StringUtils.getAreIs(1));
+        assertEquals("are", StringUtils.getAreIs(2));
+        assertEquals("is", StringUtils.getAreIs(1));
     }
     
     /**
@@ -101,10 +128,10 @@ public final class StringUtilsTest {
     @Test
     public void testStrToASCII() {
         final byte[] ascii = StringUtils.stringToASCII("ABC");
-        Assert.assertEquals(3, ascii.length);
-        Assert.assertEquals((byte) 65, ascii[0]);
-        Assert.assertEquals((byte) 66, ascii[1]);
-        Assert.assertEquals((byte) 67, ascii[2]);
+        assertEquals(3, ascii.length);
+        assertEquals((byte) 65, ascii[0]);
+        assertEquals((byte) 66, ascii[1]);
+        assertEquals((byte) 67, ascii[2]);
     }
     
     /**
@@ -112,9 +139,9 @@ public final class StringUtilsTest {
      */
     @Test
     public void maskString() {
-        Assert.assertEquals("***", StringUtils.maskSensitiveText("abc"));
-        Assert.assertEquals("****", StringUtils.maskSensitiveText("****"));
-        Assert.assertEquals("", StringUtils.maskSensitiveText(""));
-        Assert.assertEquals("", StringUtils.maskSensitiveText(null));
+        assertEquals("***", StringUtils.maskSensitiveText("abc"));
+        assertEquals("****", StringUtils.maskSensitiveText("****"));
+        assertEquals("", StringUtils.maskSensitiveText(""));
+        assertEquals("", StringUtils.maskSensitiveText(null));
     }
 }
