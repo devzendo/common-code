@@ -29,7 +29,7 @@ public class NetworkMonitor {
     private static final Logger logger = LoggerFactory.getLogger(NetworkMonitor.class);
     private final Supplier<Enumeration<NetworkInterface>> interfaceSupplier;
     private final long monitorInterval;
-    private List<NetworkInterface> currentNetworkInterfaceList = Collections.EMPTY_LIST;
+    private List<NetworkInterface> currentNetworkInterfaceList = Collections.emptyList();
     private Thread monitorThread = new Thread(new NetworkMonitorRunnable());
     private volatile boolean stopThread = false;
     private volatile boolean running = false;
@@ -67,6 +67,7 @@ public class NetworkMonitor {
         monitorThread.interrupt();
     }
 
+    // Mostly for testing...
     public boolean isRunning() {
         return running;
     }

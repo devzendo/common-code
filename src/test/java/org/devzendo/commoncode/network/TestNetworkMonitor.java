@@ -1,18 +1,14 @@
 package org.devzendo.commoncode.network;
 
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-//import org.powermock.core.classloader.annotations.PrepareForTest;
-//import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.net.NetworkInterface;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Supplier;
@@ -39,8 +35,6 @@ import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//@RunWith(PowerMockRunner.class)
-//@PrepareForTest({NetworkInterface.class})
 public class TestNetworkMonitor {
 
     @Rule
@@ -59,6 +53,7 @@ public class TestNetworkMonitor {
     private static class CountingInterfaceSupplier implements Supplier<Enumeration<NetworkInterface>> {
         private final List<NetworkInterface>[] toBeReturned;
         int count = 0;
+        @SafeVarargs
         public CountingInterfaceSupplier(final List<NetworkInterface> ... toBeReturned) {
             this.toBeReturned = toBeReturned;
         }
@@ -134,7 +129,7 @@ public class TestNetworkMonitor {
         final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
 
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
-                asList(local), asList(local, ethernet));
+                singletonList(local), asList(local, ethernet));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
 
         waitNoInterruption(250);
@@ -167,7 +162,7 @@ public class TestNetworkMonitor {
         final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
 
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
-                asList(local), asList(local, ethernet));
+                singletonList(local), asList(local, ethernet));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
 
         final List<NetworkInterface> initial = monitor.getCurrentInterfaceList();
