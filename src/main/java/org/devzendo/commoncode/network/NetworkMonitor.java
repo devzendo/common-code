@@ -1,6 +1,7 @@
 package org.devzendo.commoncode.network;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
+import org.devzendo.commoncode.patterns.observer.ObserverList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +31,10 @@ public class NetworkMonitor {
     private final Supplier<Enumeration<NetworkInterface>> interfaceSupplier;
     private final long monitorInterval;
     private List<NetworkInterface> currentNetworkInterfaceList = Collections.emptyList();
-    private Thread monitorThread = new Thread(new NetworkMonitorRunnable());
+    private final Thread monitorThread = new Thread(new NetworkMonitorRunnable());
     private volatile boolean stopThread = false;
     private volatile boolean running = false;
+    private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<NetworkChangeEvent>();
 
     public NetworkMonitor(final Supplier<Enumeration<NetworkInterface>> interfaceSupplier, final long monitorInterval) {
         this.interfaceSupplier = interfaceSupplier;
