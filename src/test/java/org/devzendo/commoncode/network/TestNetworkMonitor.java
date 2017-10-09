@@ -9,6 +9,9 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Supplier;
@@ -36,6 +39,8 @@ import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption
  * limitations under the License.
  */
 public class TestNetworkMonitor {
+
+    private static final String ETHERNET_INTERFACE_NAME = "eth0"; // for tests, use a linuxy name
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -183,5 +188,59 @@ public class TestNetworkMonitor {
         assertThat(secondCall.get(1)).isEqualTo(ethernet);
 
         assertThat(interfaceSupplier.numberOfTimesCalled()).isEqualTo(2);
+    }
+
+    private static class CollectingNetworkChangeListener implements NetworkChangeListener {
+        private final List<NetworkChangeEvent> events = Collections.synchronizedList(new ArrayList<>());
+
+        public List<NetworkChangeEvent> getEvents() {
+            return Collections.unmodifiableList(events);
+        }
+
+        @Override
+        public void eventOccurred(final NetworkChangeEvent observableEvent) {
+            events.add(observableEvent);
+        }
+    }
+
+    @Test
+    public void changesRequireTwoSuppliesFirstIsByGetCurrentInterfaceList() throws SocketException {
+        final NetworkInterface local = Mockito.mock(NetworkInterface.class);
+        final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
+        Mockito.when(ethernet.getName()).thenReturn(ETHERNET_INTERFACE_NAME);
+        Mockito.when(ethernet.isUp()).thenReturn(true);
+
+        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
+                singletonList(local), asList(local, ethernet));
+        monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
+        final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
+        monitor.addNetworkChangeListener(listener);
+
+        // call the interface supplier for the first time
+        final List<NetworkInterface> initial = monitor.getCurrentInterfaceList();
+
+        waitNoInterruption(250);
+
+        assertThat(interfaceSupplier.numberOfTimesCalled()).isEqualTo(1);
+        assertThat(listener.getEvents()).isEmpty();
+
+        monitor.start();
+
+        waitNoInterruption(MONITOR_INTERVAL + 250);
+
+        // should have called supplier twice now, and notified listener.
+        final List<NetworkChangeEvent> events = listener.getEvents();
+        assertThat(events).hasSize(1);
+        assertThat(interfaceSupplier.numberOfTimesCalled()).isEqualTo(2);
+
+        final NetworkChangeEvent event = events.get(0);
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
+    }
+
+    @Test
+    public void changesRequireTwoSuppliesFirstIsByFirstPoll() {
+
     }
 }

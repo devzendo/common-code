@@ -23,22 +23,29 @@ import java.net.NetworkInterface;
  */
 public class NetworkChangeEvent implements ObservableEvent {
     private final NetworkInterface networkInterface;
+
     private final String networkInterfaceName;
     private final NetworkChangeType changeType;
+    private final NetworkStateType stateType;
 
     public enum NetworkChangeType {
-        INTERFACE_ADDED, INTERFACE_REMOVED, INTERFACE_UP, INTERFACE_DOWN
+        INTERFACE_ADDED, INTERFACE_REMOVED, INTERFACE_STATE_CHANGED
     }
 
-    public NetworkChangeEvent(final NetworkInterface networkInterface, final String networkInterfaceName, final NetworkChangeType changeType) {
+    public enum NetworkStateType {
+        INTERFACE_UP, INTERFACE_DOWN
+    }
+
+    public NetworkChangeEvent(final NetworkInterface networkInterface, final String networkInterfaceName, final NetworkChangeType changeType, final NetworkStateType stateType) {
         this.networkInterface = networkInterface;
         this.networkInterfaceName = networkInterfaceName;
         this.changeType = changeType;
+        this.stateType = stateType;
     }
 
     @Override
     public String toString() {
-        return networkInterfaceName + ": " + changeType;
+        return networkInterfaceName + ": " + changeType + " / " + stateType;
     }
 
     @Override
@@ -46,7 +53,8 @@ public class NetworkChangeEvent implements ObservableEvent {
         return new HashCodeBuilder(1, 31).
                 append(networkInterface).
                 append(networkInterfaceName).
-                append(changeType).toHashCode();
+                append(changeType).
+                append(stateType).toHashCode();
     }
 
     @Override
@@ -63,6 +71,23 @@ public class NetworkChangeEvent implements ObservableEvent {
                 append(this.networkInterface, other.networkInterface).
                 append(this.networkInterfaceName, other.networkInterfaceName).
                 append(this.changeType, other.changeType).
+                append(this.stateType, other.stateType).
                 isEquals();
+    }
+
+    public NetworkInterface getNetworkInterface() {
+        return networkInterface;
+    }
+
+    public String getNetworkInterfaceName() {
+        return networkInterfaceName;
+    }
+
+    public NetworkChangeType getChangeType() {
+        return changeType;
+    }
+
+    public NetworkStateType getStateType() {
+        return stateType;
     }
 }

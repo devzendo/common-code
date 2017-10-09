@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -74,6 +75,14 @@ public class NetworkMonitor {
         return running;
     }
 
+    public void addNetworkChangeListener(final NetworkChangeListener listener) {
+        changeListeners.addObserver(listener);
+    }
+
+    public void removeNetworkChangeListener(final NetworkChangeListener listener) {
+        changeListeners.removeListener(listener);
+    }
+
     private class NetworkMonitorRunnable implements Runnable {
 
         @Override
@@ -82,7 +91,13 @@ public class NetworkMonitor {
             logger.info("Network monitor started");
             while (!stopThread) {
                 synchronized (interfaceSupplier) {
-                    currentNetworkInterfaceList = Collections.list(interfaceSupplier.get());
+                    final ArrayList<NetworkInterface> newNetworkInterfaceList = Collections.list(interfaceSupplier.get());
+
+//                    if (!currentNetworkInterfaceList.isEmpty()) {
+//                        determineDifferences(currentNetworkInterfaceList, newNetworkInterfaceList);
+//                    }
+
+                    currentNetworkInterfaceList = newNetworkInterfaceList;
                 }
                 ThreadUtils.waitNoInterruption(monitorInterval);
             }
@@ -90,4 +105,8 @@ public class NetworkMonitor {
             running = false;
         }
     }
+
+//    private void determineDifferences(final List<NetworkInterface> lastInterfaces, final List<NetworkInterface> newInterfaces) {
+//        final
+//    }
 }
