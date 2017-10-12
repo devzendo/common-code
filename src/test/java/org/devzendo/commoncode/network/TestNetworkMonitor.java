@@ -58,6 +58,7 @@ public class TestNetworkMonitor {
     final NetworkInterface localDown = local(false);
     final NetworkInterface ethernetUp = ethernet(true);
     final NetworkInterface ethernetDown = ethernet(false);
+    final NetworkInterface ethernetUnknown = ethernetUnknown();
 
     @BeforeClass
     public static void setupLogging() {
@@ -258,8 +259,19 @@ public class TestNetworkMonitor {
         try {
             Mockito.when(ethernet.getName()).thenReturn(ETHERNET_INTERFACE_NAME);
             Mockito.when(ethernet.isUp()).thenReturn(up);
-        } catch (SocketException e) {
+        } catch (final SocketException e) {
             throw new IllegalStateException(e);
+        }
+        return ethernet;
+    }
+
+    private NetworkInterface ethernetUnknown() {
+        final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
+        try {
+            Mockito.when(ethernet.getName()).thenReturn(ETHERNET_INTERFACE_NAME);
+            Mockito.when(ethernet.isUp()).thenThrow(new SocketException("Exception when detecting up/down"));
+        } catch (final SocketException e) {
+            // should not happen in test setup
         }
         return ethernet;
     }
@@ -269,7 +281,7 @@ public class TestNetworkMonitor {
         try {
             Mockito.when(local.getName()).thenReturn(LOCAL_INTERFACE_NAME);
             Mockito.when(local.isUp()).thenReturn(up);
-        } catch (SocketException e) {
+        } catch (final SocketException e) {
             throw new IllegalStateException(e);
         }
         return local;
@@ -397,14 +409,52 @@ public class TestNetworkMonitor {
                 loggingEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
     }
 
-    // TODO interface added up state
-    // TODO interface added down state
-    // TODO interface added unknown state
+    private NetworkChangeEvent runChangeDetectionTest(final List[] supplies) {
+        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(supplies);
+        monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
+        final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
+        monitor.addNetworkChangeListener(listener);
+        monitor.start();
+
+        interfaceSupplier.waitForDataExhaustion();
+        waitNoInterruption(250);
+
+        final List<NetworkChangeEvent> events = listener.getEvents();
+        assertThat(events).hasSize(1);
+
+        return events.get(0);
+    }
+
+    @Test(timeout = 8000)
+    public void interfaceAddedUpDetected() throws SocketException {
+        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{singletonList(localUp), asList(localUp, ethernetUp)});
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
+    }
+
+
+    @Test(timeout = 8000)
+    public void interfaceAddedDownDetected() throws SocketException {
+        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{singletonList(localUp), asList(localUp, ethernetDown)});
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_DOWN);
+    }
+
+    @Test(timeout = 8000)
+    public void interfaceAddedUnknownDetected() throws SocketException {
+        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{singletonList(localUp), asList(localUp, ethernetUnknown)});
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
+    }
+
     // TODO interface removed up
     // TODO interface removed down
     // TODO interface remodev unknown state
     // TODO interface changed up
-    // TODO interface changed down
+    // TODO interface changed down and unignore logFirstChange tests
     // TODO interface changed unknown
 
 }
