@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -34,7 +33,7 @@ public class PollIntervalMeasuringInterfaceSupplier implements NetworkInterfaceS
     private final long monitorInterval;
     private final List<Long> callTimes = new ArrayList<>();
 
-    public PollIntervalMeasuringInterfaceSupplier(final long monitorInterval) throws SocketException {
+    public PollIntervalMeasuringInterfaceSupplier(final long monitorInterval) {
         this.monitorInterval = monitorInterval;
     }
 
