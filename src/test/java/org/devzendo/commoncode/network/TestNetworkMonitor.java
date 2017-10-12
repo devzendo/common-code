@@ -54,11 +54,11 @@ public class TestNetworkMonitor {
     private static final String ETHERNET_INTERFACE_NAME = "eth0"; // for tests, use a linuxy name
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
 
-    final NetworkInterface localUp = local(true);
-    final NetworkInterface localDown = local(false);
-    final NetworkInterface ethernetUp = ethernet(true);
-    final NetworkInterface ethernetDown = ethernet(false);
-    final NetworkInterface ethernetUnknown = ethernetUnknown();
+    private final NetworkInterface localUp = local(true);
+    private final NetworkInterface localDown = local(false);
+    private final NetworkInterface ethernetUp = ethernet(true);
+    private final NetworkInterface ethernetDown = ethernet(false);
+    private final NetworkInterface ethernetUnknown = ethernetUnknown();
 
     @BeforeClass
     public static void setupLogging() {
@@ -231,7 +231,7 @@ public class TestNetworkMonitor {
         monitor.addNetworkChangeListener(listener);
 
         // call the interface supplier for the first time
-        final List<NetworkInterface> initial = monitor.getCurrentInterfaceList();
+        monitor.getCurrentInterfaceList();
 
         waitNoInterruption(250);
 
@@ -358,7 +358,7 @@ public class TestNetworkMonitor {
 
         waitNoInterruption(MONITOR_INTERVAL * 5);
 
-        interfaceSupplier.validateIntervals();
+        interfaceSupplier.validateIntervals(); // flaky last interval sometimes 1999
     }
 
     @Test(timeout = 16000)
@@ -370,11 +370,10 @@ public class TestNetworkMonitor {
 
         waitNoInterruption(MONITOR_INTERVAL * 5);
 
-        interfaceSupplier.validateIntervals();
+        interfaceSupplier.validateIntervals(); // flaky last interval sometimes 1999
     }
 
     @Test(timeout = 8000)
-    @Ignore
     public void logsFirstChangeIfGetCurrentInterfaceCalledFirst() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(ethernetUp), singletonList(ethernetDown));
@@ -393,7 +392,6 @@ public class TestNetworkMonitor {
     }
 
     @Test(timeout = 8000)
-    @Ignore
     public void logsFirstChangeIfGetCurrentInterfaceIsNotCalled() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(ethernetUp), singletonList(ethernetDown));
@@ -409,7 +407,7 @@ public class TestNetworkMonitor {
                 loggingEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
     }
 
-    private NetworkChangeEvent runChangeDetectionTest(final List[] supplies) {
+    private NetworkChangeEvent runChangeDetectionTest(final List<NetworkInterface>[] supplies) {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(supplies);
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
@@ -433,7 +431,6 @@ public class TestNetworkMonitor {
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
     }
 
-
     @Test(timeout = 8000)
     public void interfaceAddedDownDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(new List[]{singletonList(localUp), asList(localUp, ethernetDown)});
@@ -450,11 +447,36 @@ public class TestNetworkMonitor {
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
     }
 
-    // TODO interface removed up
-    // TODO interface removed down
-    // TODO interface remodev unknown state
-    // TODO interface changed up
-    // TODO interface changed down and unignore logFirstChange tests
-    // TODO interface changed unknown
+    @Test(timeout = 8000)
+    public void interfaceRemovedDetected() throws SocketException {
+        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetUp), singletonList(localUp)});
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_REMOVED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
+    }
 
+    @Test(timeout = 8000)
+    public void interfaceChangedUpDetected() throws SocketException {
+        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetDown), asList(localUp, ethernetUp)});
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
+    }
+
+
+    @Test(timeout = 8000)
+    public void interfaceChangedDownDetected() throws SocketException {
+        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetUp), asList(localUp, ethernetDown)});
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_DOWN);
+    }
+
+    @Test(timeout = 8000)
+    public void interfaceChangedUnknownDetected() throws SocketException {
+        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetDown), asList(localUp, ethernetUnknown)});
+        assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
+    }
 }

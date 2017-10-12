@@ -147,7 +147,28 @@ public class NetworkMonitor {
                 emit(new NetworkChangeEvent(ni, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED, state(ni)));
             }
         });
+        // Removed interfaces
+        lastInts.forEach((String name, NetworkInterface ni) -> {
+            if (!newInts.containsKey(name)) {
+                // it's gone, so we can't know its current state
+                emit(new NetworkChangeEvent(ni, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_REMOVED, NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE));
+            }
+        });
+        // Changed interfaces - those who appear in both last and new, ie intersection, via Java 8's bassackwards way
+        // of doing it...
+        final Set<String> intersectionNames = new HashSet<>(lastInts.keySet());
+        intersectionNames.retainAll(newInts.keySet());
 
+        intersectionNames.forEach(name -> {
+            final NetworkInterface lastNi = lastInts.get(name);
+            final NetworkInterface newNi = newInts.get(name);
+            final NetworkChangeEvent.NetworkStateType lastState = state(lastNi);
+            final NetworkChangeEvent.NetworkStateType newState = state(newNi);
+            logger.debug("Interface '" + name + "' last state " + lastState + " new state " + newState);
+            if (lastState != newState) {
+                emit(new NetworkChangeEvent(newNi, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED, newState));
+            }
+        });
     }
 
     private void emit(final NetworkChangeEvent event) {
