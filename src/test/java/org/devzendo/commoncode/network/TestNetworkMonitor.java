@@ -54,6 +54,11 @@ public class TestNetworkMonitor {
     private static final String ETHERNET_INTERFACE_NAME = "eth0"; // for tests, use a linuxy name
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
 
+    final NetworkInterface localUp = local(true);
+    final NetworkInterface localDown = local(false);
+    final NetworkInterface ethernetUp = ethernet(true);
+    final NetworkInterface ethernetDown = ethernet(false);
+
     @BeforeClass
     public static void setupLogging() {
         LoggingUnittestHelper.setupLogging();
@@ -156,8 +161,7 @@ public class TestNetworkMonitor {
 
     @Test
     public void getCurrentInterfaceListCalledAgainBeforeThreadStartedDoesNotCallSupplierAgain() throws SocketException {
-        final NetworkInterface local = local(true);
-        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(singletonList(local));
+        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(singletonList(localUp));
 
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
 
@@ -166,18 +170,15 @@ public class TestNetworkMonitor {
 
         final List<NetworkInterface> secondCall = monitor.getCurrentInterfaceList();
         assertThat(secondCall).hasSize(1);
-        assertThat(secondCall.get(0)).isEqualTo(local);
+        assertThat(secondCall.get(0)).isEqualTo(localUp);
 
         assertThat(interfaceSupplier.numberOfTimesCalled()).isEqualTo(1); // hasn't been re-called
     }
 
     @Test(timeout = 8000)
     public void interfaceSupplierNotCalledUntilThreadStartsIfNotExplicitlyCalledFirst() throws SocketException {
-        final NetworkInterface local = local(true);
-        final NetworkInterface ethernet = ethernet(true);
-
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
-                singletonList(local), asList(local, ethernet));
+                singletonList(localUp), asList(localUp, ethernetUp));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
 
         monitor.start();
@@ -189,16 +190,13 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void getCurrentInterfaceListReturnsSubsequentChangesOnceThreadStarted() throws SocketException {
-        final NetworkInterface local = local(true);
-        final NetworkInterface ethernet = ethernet(true);
-
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
-                singletonList(local), asList(local, ethernet));
+                singletonList(localUp), asList(localUp, ethernetUp));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
 
         final List<NetworkInterface> initial = monitor.getCurrentInterfaceList();
         assertThat(initial).hasSize(1);
-        assertThat(initial.get(0)).isEqualTo(local);
+        assertThat(initial.get(0)).isEqualTo(localUp);
 
         waitNoInterruption(250);
 
@@ -225,11 +223,8 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void changesRequireTwoSuppliesFirstIsByGetCurrentInterfaceList() throws SocketException {
-        final NetworkInterface local = local(true);
-        final NetworkInterface ethernet = ethernet(true);
-
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
-                singletonList(local), asList(local, ethernet));
+                singletonList(localUp), asList(localUp, ethernetUp));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
         monitor.addNetworkChangeListener(listener);
@@ -258,27 +253,32 @@ public class TestNetworkMonitor {
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
     }
 
-    private NetworkInterface ethernet(final boolean up) throws SocketException {
+    private NetworkInterface ethernet(final boolean up) {
         final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
-        Mockito.when(ethernet.getName()).thenReturn(ETHERNET_INTERFACE_NAME);
-        Mockito.when(ethernet.isUp()).thenReturn(up);
+        try {
+            Mockito.when(ethernet.getName()).thenReturn(ETHERNET_INTERFACE_NAME);
+            Mockito.when(ethernet.isUp()).thenReturn(up);
+        } catch (SocketException e) {
+            throw new IllegalStateException(e);
+        }
         return ethernet;
     }
 
-    private NetworkInterface local(final boolean up) throws SocketException {
+    private NetworkInterface local(final boolean up) {
         final NetworkInterface local = Mockito.mock(NetworkInterface.class);
-        Mockito.when(local.getName()).thenReturn(LOCAL_INTERFACE_NAME);
-        Mockito.when(local.isUp()).thenReturn(up);
+        try {
+            Mockito.when(local.getName()).thenReturn(LOCAL_INTERFACE_NAME);
+            Mockito.when(local.isUp()).thenReturn(up);
+        } catch (SocketException e) {
+            throw new IllegalStateException(e);
+        }
         return local;
     }
 
     @Test(timeout = 8000)
     public void changesRequireTwoSuppliesFirstIsByFirstPoll() throws SocketException {
-        final NetworkInterface local = local(true);
-        final NetworkInterface ethernet = ethernet(true);
-
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
-                singletonList(local), asList(local, ethernet));
+                singletonList(localUp), asList(localUp, ethernetUp));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
         monitor.addNetworkChangeListener(listener);
@@ -304,11 +304,8 @@ public class TestNetworkMonitor {
 
     @Test
     public void logsInitialStatesViaGetCurrentInterfaces() throws SocketException {
-        final NetworkInterface local = local(true);
-        final NetworkInterface ethernet = ethernet(false);
-
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
-                asList(local, ethernet));
+                asList(localUp, ethernetDown));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
 
         monitor.getCurrentInterfaceList();
@@ -323,10 +320,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void logsInitialStatesOnFirstPoll() throws SocketException {
-        final NetworkInterface local = local(false);
-        final NetworkInterface ethernet = ethernet(true);
-
-        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(asList(local, ethernet));
+        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(asList(localDown, ethernetUp));
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
         monitor.addNetworkChangeListener(listener);
@@ -367,8 +361,42 @@ public class TestNetworkMonitor {
         interfaceSupplier.validateIntervals();
     }
 
-    // TODO logs on first change via getCurrentInterface
-    // TODO logs on first change via poll
+    @Test(timeout = 8000)
+    @Ignore
+    public void logsFirstChangeIfGetCurrentInterfaceCalledFirst() throws SocketException {
+        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
+                singletonList(ethernetUp), singletonList(ethernetDown));
+        monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
+
+        // call the interface supplier for the first time
+        monitor.getCurrentInterfaceList();
+        monitor.start();
+
+        interfaceSupplier.waitForDataExhaustion();
+        waitNoInterruption(250);
+
+        final List<LoggingEvent> events = CAPTURING_APPENDER.getEvents();
+        MatcherAssert.assertThat(events, hasItems(
+                loggingEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
+    }
+
+    @Test(timeout = 8000)
+    @Ignore
+    public void logsFirstChangeIfGetCurrentInterfaceIsNotCalled() throws SocketException {
+        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
+                singletonList(ethernetUp), singletonList(ethernetDown));
+        monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
+
+        monitor.start();
+
+        interfaceSupplier.waitForDataExhaustion();
+        waitNoInterruption(250);
+
+        final List<LoggingEvent> events = CAPTURING_APPENDER.getEvents();
+        MatcherAssert.assertThat(events, hasItems(
+                loggingEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
+    }
+
     // TODO interface added up state
     // TODO interface added down state
     // TODO interface added unknown state

@@ -112,7 +112,7 @@ public class NetworkMonitor {
                 if (firstCall) {
                     logger.debug("Calling supplier for first time in monitor thread");
                     getCurrentInterfaceList();
-                    waitNoInterruption(monitorInterval); // TODO refine this
+                    waitNoInterruption(monitorInterval);
                 } else {
                     final long initialWait = monitorInterval - (System.currentTimeMillis() - firstCallTime);
                     logger.debug("Waiting until monitor interval has expired before starting loop (for " + initialWait + "ms)");
