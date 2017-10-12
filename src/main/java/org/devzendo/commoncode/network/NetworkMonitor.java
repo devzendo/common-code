@@ -6,11 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.function.Supplier;
+import java.net.SocketException;
+import java.util.*;
+
+import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption;
 
 /**
  * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
@@ -29,15 +28,23 @@ import java.util.function.Supplier;
  */
 public class NetworkMonitor {
     private static final Logger logger = LoggerFactory.getLogger(NetworkMonitor.class);
-    private final Supplier<Enumeration<NetworkInterface>> interfaceSupplier;
+
     private final long monitorInterval;
-    private List<NetworkInterface> currentNetworkInterfaceList = Collections.emptyList();
     private final Thread monitorThread = new Thread(new NetworkMonitorRunnable());
     private volatile boolean stopThread = false;
     private volatile boolean running = false;
+    private boolean firstCall = true;
+    private long firstCallTime = 0L;
+
+    private final NetworkInterfaceSupplier interfaceSupplier;
+
+    private final Object interfacesLock = new Object();
+    private List<NetworkInterface> currentNetworkInterfaceList = null; // guarded by lock on interfacesLock
+
+
     private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<NetworkChangeEvent>();
 
-    public NetworkMonitor(final Supplier<Enumeration<NetworkInterface>> interfaceSupplier, final long monitorInterval) {
+    public NetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final long monitorInterval) {
         this.interfaceSupplier = interfaceSupplier;
         this.monitorInterval = monitorInterval;
         monitorThread.setDaemon(true);
@@ -51,12 +58,22 @@ public class NetworkMonitor {
      * @return the current network interface list.
      */
     public List<NetworkInterface> getCurrentInterfaceList() {
-        synchronized (interfaceSupplier) {
-            if (currentNetworkInterfaceList.isEmpty()) {
+        synchronized (interfacesLock) {
+            // only update first time, or if we're running the poll thread
+            if (currentNetworkInterfaceList == null || running) {
                 currentNetworkInterfaceList = Collections.list(interfaceSupplier.get());
+
+                // Log the initial interface states...
+                if (firstCall) {
+                    firstCall = false;
+                    firstCallTime = System.currentTimeMillis();
+                    currentNetworkInterfaceList.forEach((NetworkInterface ni) -> {
+                        logger.info(ni.getName() + ": " + state(ni));
+                    });
+                }
             }
+            return Collections.unmodifiableList(currentNetworkInterfaceList);
         }
-        return currentNetworkInterfaceList;
     }
 
     public void start() {
@@ -89,24 +106,67 @@ public class NetworkMonitor {
         public void run() {
             running = true;
             logger.info("Network monitor started");
-            while (!stopThread) {
-                synchronized (interfaceSupplier) {
-                    final ArrayList<NetworkInterface> newNetworkInterfaceList = Collections.list(interfaceSupplier.get());
 
-//                    if (!currentNetworkInterfaceList.isEmpty()) {
-//                        determineDifferences(currentNetworkInterfaceList, newNetworkInterfaceList);
-//                    }
-
-                    currentNetworkInterfaceList = newNetworkInterfaceList;
+            List<NetworkInterface> lastNetworkInterfaceList = null;
+            synchronized (interfacesLock) {
+                if (firstCall) {
+                    logger.debug("Calling supplier for first time in monitor thread");
+                    getCurrentInterfaceList();
+                    waitNoInterruption(monitorInterval); // TODO refine this
+                } else {
+                    final long initialWait = monitorInterval - (System.currentTimeMillis() - firstCallTime);
+                    logger.debug("Waiting until monitor interval has expired before starting loop (for " + initialWait + "ms)");
+                    waitNoInterruption(initialWait);
                 }
-                ThreadUtils.waitNoInterruption(monitorInterval);
+
+                lastNetworkInterfaceList = Collections.unmodifiableList(currentNetworkInterfaceList);
             }
+
+            while (!stopThread) {
+                synchronized (interfacesLock) {
+                    logger.debug("Network monitor calling supplier");
+                    final List<NetworkInterface> newNetworkInterfaceList = getCurrentInterfaceList();
+                    // TODO this could emit events into listeners, needs to emit outside the sync block
+                    determineDifferences(lastNetworkInterfaceList, newNetworkInterfaceList);
+                    lastNetworkInterfaceList = newNetworkInterfaceList;
+                }
+                waitNoInterruption(monitorInterval);
+            }
+
             logger.info("Network monitor stopped");
             running = false;
         }
     }
 
-//    private void determineDifferences(final List<NetworkInterface> lastInterfaces, final List<NetworkInterface> newInterfaces) {
-//        final
-//    }
+    private void determineDifferences(final List<NetworkInterface> lastInterfaces, final List<NetworkInterface> newInterfaces) {
+        final Map<String, NetworkInterface> lastInts = toMap(lastInterfaces);
+        final Map<String, NetworkInterface> newInts = toMap(newInterfaces);
+        // Added interfaces
+        newInts.forEach((String name, NetworkInterface ni) -> {
+            if (!lastInts.containsKey(name)) {
+                emit(new NetworkChangeEvent(ni, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED, state(ni)));
+            }
+        });
+
+    }
+
+    private void emit(final NetworkChangeEvent event) {
+        logger.info(event.toString());
+        changeListeners.eventOccurred(event);
+    }
+
+    private static NetworkChangeEvent.NetworkStateType state(final NetworkInterface ni) {
+        try {
+            return ni.isUp() ? NetworkChangeEvent.NetworkStateType.INTERFACE_UP : NetworkChangeEvent.NetworkStateType.INTERFACE_DOWN;
+        } catch (final SocketException e) {
+            logger.warn("Could not determine up/down state of interface '" + ni.getName() + "': " + e.getMessage());
+            return NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE;
+        }
+    }
+
+    private Map<String, NetworkInterface> toMap(final List<NetworkInterface> interfaces) {
+        final Map<String, NetworkInterface> map = new HashMap<>();
+        interfaces.forEach((NetworkInterface ni) -> map.put(ni.getName(), ni));
+        return map;
+    }
 }

@@ -33,7 +33,7 @@ public class NetworkChangeEvent implements ObservableEvent {
     }
 
     public enum NetworkStateType {
-        INTERFACE_UP, INTERFACE_DOWN
+        INTERFACE_UP, INTERFACE_DOWN, INTERFACE_UNKNOWN_STATE
     }
 
     public NetworkChangeEvent(final NetworkInterface networkInterface, final String networkInterfaceName, final NetworkChangeType changeType, final NetworkStateType stateType) {
