@@ -407,7 +407,8 @@ public class TestNetworkMonitor {
                 loggingEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
     }
 
-    private NetworkChangeEvent runChangeDetectionTest(final List<NetworkInterface>[] supplies) {
+    @SafeVarargs
+    private final NetworkChangeEvent runChangeDetectionTest(final List<NetworkInterface> ... supplies) {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(supplies);
         monitor = new NetworkMonitor(interfaceSupplier, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
@@ -425,7 +426,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void interfaceAddedUpDetected() throws SocketException {
-        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{singletonList(localUp), asList(localUp, ethernetUp)});
+        final NetworkChangeEvent event = runChangeDetectionTest(singletonList(localUp), asList(localUp, ethernetUp));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
@@ -433,7 +434,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void interfaceAddedDownDetected() throws SocketException {
-        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{singletonList(localUp), asList(localUp, ethernetDown)});
+        final NetworkChangeEvent event = runChangeDetectionTest(singletonList(localUp), asList(localUp, ethernetDown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_DOWN);
@@ -441,7 +442,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void interfaceAddedUnknownDetected() throws SocketException {
-        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{singletonList(localUp), asList(localUp, ethernetUnknown)});
+        final NetworkChangeEvent event = runChangeDetectionTest(singletonList(localUp), asList(localUp, ethernetUnknown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
@@ -449,7 +450,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void interfaceRemovedDetected() throws SocketException {
-        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetUp), singletonList(localUp)});
+        final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetUp), singletonList(localUp));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_REMOVED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
@@ -457,7 +458,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void interfaceChangedUpDetected() throws SocketException {
-        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetDown), asList(localUp, ethernetUp)});
+        final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetDown), asList(localUp, ethernetUp));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
@@ -466,7 +467,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void interfaceChangedDownDetected() throws SocketException {
-        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetUp), asList(localUp, ethernetDown)});
+        final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetUp), asList(localUp, ethernetDown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_DOWN);
@@ -474,7 +475,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 8000)
     public void interfaceChangedUnknownDetected() throws SocketException {
-        final NetworkChangeEvent event = runChangeDetectionTest(new List[]{asList(localUp, ethernetDown), asList(localUp, ethernetUnknown)});
+        final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetDown), asList(localUp, ethernetUnknown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
