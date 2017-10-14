@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  *
  */
 public class INIFile {
-    private static final Logger myLogger = LoggerFactory.getLogger(INIFile.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(INIFile.class);
 
     private final Map<String, Map<String, String> > mySectionMap;
 
@@ -60,10 +60,10 @@ public class INIFile {
         mySectionMap = new HashMap < String, Map<String, String> > ();
         myFile = new File(fileName);
         if (myFile.exists()) {
-            myLogger.debug("Loading existing INI file: " + fileName);
+            LOGGER.debug("Loading existing INI file: " + fileName);
             loadFile();
         } else {
-            myLogger.debug("Creating new INI file: " + fileName);
+            LOGGER.debug("Creating new INI file: " + fileName);
             saveFile();
         }
         bDirty = false;
@@ -117,7 +117,7 @@ public class INIFile {
                 fos.close();
             }
         } catch (final IOException e) {
-            myLogger.error("Could not write INI file " + myFile.getAbsolutePath() + ": " + e.getMessage());
+            LOGGER.error("Could not write INI file " + myFile.getAbsolutePath() + ": " + e.getMessage());
         }
     }
 
@@ -132,7 +132,7 @@ public class INIFile {
             try {
                 while (true) {
                     final String line = br.readLine();
-                    myLogger.debug("Read line '" + line + "'");
+                    LOGGER.debug("Read line '" + line + "'");
                     if (line == null) {
                         break;
                     }
@@ -140,7 +140,7 @@ public class INIFile {
                     sectionMatcher.reset(line);
                     if (sectionMatcher.lookingAt()) {
                         currentSectionName = sectionMatcher.group(1);
-                        myLogger.debug("Found section [" + currentSectionName + "]");
+                        LOGGER.debug("Found section [" + currentSectionName + "]");
                         final Map<String, String> newSectionMap = new HashMap<String, String>();
                         currentSectionMap = newSectionMap;
                         mySectionMap.put(currentSectionName, newSectionMap);
@@ -148,31 +148,31 @@ public class INIFile {
                         nvpMatcher.reset(line);
                         if (nvpMatcher.lookingAt()) {
                             if (currentSectionMap == null) {
-                                myLogger.error("Line " + lineNo + " name=value line not under any [section]: '" + line  + "'");
+                                LOGGER.error("Line " + lineNo + " name=value line not under any [section]: '" + line  + "'");
                             } else {
                                 final String name = nvpMatcher.group(1);
                                 final String value = nvpMatcher.group(2);
-                                myLogger.debug("[" + currentSectionName + "] " + name + "=" + value);
+                                LOGGER.debug("[" + currentSectionName + "] " + name + "=" + value);
                                 currentSectionMap.put(name, value);
                             }
                         } else {
-                            myLogger.error("Line " + lineNo + " not matched against [section] or name=value: '" + line + "'");
+                            LOGGER.error("Line " + lineNo + " not matched against [section] or name=value: '" + line + "'");
                         }
                     }
                 }
             } catch (final IOException ioe) {
-                myLogger.error("Could not load INI file: " + ioe.getMessage());
+                LOGGER.error("Could not load INI file: " + ioe.getMessage());
             } finally {
                 if (br != null) {
                     try {
                         br.close();
                     } catch (final IOException e1) {
-                        myLogger.error("Could not close BufferedReader: " + e1.getMessage());
+                        LOGGER.error("Could not close BufferedReader: " + e1.getMessage());
                     }
                 }
             }
         } catch (final FileNotFoundException e) {
-            myLogger.error("INI file " + myFile.getAbsolutePath() + " not found");
+            LOGGER.error("INI file " + myFile.getAbsolutePath() + " not found");
         }
     }
 
@@ -184,12 +184,12 @@ public class INIFile {
      */
     public final String getValue(final String sectionName, final String name) {
         if (!mySectionMap.containsKey(sectionName)) {
-            myLogger.debug("getValue(" + sectionName + "," + name + "): not found [section]");
+            LOGGER.debug("getValue(" + sectionName + "," + name + "): not found [section]");
             return null;
         } else {
             final Map<String, String> sectionMap = mySectionMap.get(sectionName);
             final String value = sectionMap.get(name); // returns null on 'not found'
-            myLogger.debug("getValue(" + sectionName + "," + name + "): returning '" + value + "'");
+            LOGGER.debug("getValue(" + sectionName + "," + name + "): returning '" + value + "'");
             return value;
         }
     }
@@ -215,14 +215,14 @@ public class INIFile {
      */
     public final synchronized void removeValue(final String sectionName, final String name) {
         if (!mySectionMap.containsKey(sectionName)) {
-            myLogger.debug("removeValue(" + sectionName + ", " + name + "): not found [section]");
+            LOGGER.debug("removeValue(" + sectionName + ", " + name + "): not found [section]");
             return;
         }
         bDirty = true;
         final Map<String, String> sectionMap = mySectionMap.get(sectionName);
         sectionMap.remove(name);
         if (sectionMap.size() == 0) {
-            myLogger.debug("removeValue(" + sectionName + ", " + name
+            LOGGER.debug("removeValue(" + sectionName + ", " + name
                     + "): final name returned from [section]; removing [section]");
             mySectionMap.remove(sectionName);
         }
@@ -248,11 +248,11 @@ public class INIFile {
         if (!mySectionMap.containsKey(sectionName)) {
             sectionMap = new HashMap<String, String>();
             mySectionMap.put(sectionName, sectionMap);
-            myLogger.debug("setValue(" + sectionName + "," + name + "," + value + "): created new [class]");
+            LOGGER.debug("setValue(" + sectionName + "," + name + "," + value + "): created new [class]");
         } else {
             sectionMap = mySectionMap.get(sectionName);
         }
-        myLogger.debug("setValue(" + sectionName + "," + name + "," + value + "): saving");
+        LOGGER.debug("setValue(" + sectionName + "," + name + "," + value + "): saving");
         sectionMap.put(name, value);
         saveFile();
     }
@@ -298,7 +298,7 @@ public class INIFile {
         try {
             return Long.parseLong(value);
         } catch (final NumberFormatException e) {
-            myLogger.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not a long integer");
+            LOGGER.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not a long integer");
             return 0L;
         }
     }
@@ -314,7 +314,7 @@ public class INIFile {
         try {
             return Integer.parseInt(value);
         } catch (final NumberFormatException e) {
-            myLogger.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not an integer");
+            LOGGER.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not an integer");
             return 0;
         }
     }
@@ -330,7 +330,7 @@ public class INIFile {
         try {
             return Boolean.parseBoolean(value);
         } catch (final NumberFormatException e) {
-            myLogger.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not a boolean");
+            LOGGER.warn("Value of section [" + sectionName + "], name '" + name + "' is '" + value + "' which is not a boolean");
             return false;
         }
     }
@@ -342,7 +342,7 @@ public class INIFile {
      */
     public final String[] getArray(final String sectionName) {
         if (!mySectionMap.containsKey(sectionName)) {
-            myLogger.debug("getArray(" + sectionName + "): not found [section]");
+            LOGGER.debug("getArray(" + sectionName + "): not found [section]");
             return new String[0];
         } else {
             final Map<String, String> sectionMap = mySectionMap.get(sectionName);
@@ -366,7 +366,7 @@ public class INIFile {
             arrayMap.put("" + (i + 1), array[i]);
         }
         mySectionMap.put(sectionName, arrayMap);
-        myLogger.debug("setArray(" + sectionName + ", ...): saving");
+        LOGGER.debug("setArray(" + sectionName + ", ...): saving");
         saveFile();
     }
     
@@ -376,11 +376,11 @@ public class INIFile {
      */
     public final synchronized void removeSection(final String sectionName) {
         if (!mySectionMap.containsKey(sectionName)) {
-            myLogger.debug("removeSection(" + sectionName + "): not found [section]");
+            LOGGER.debug("removeSection(" + sectionName + "): not found [section]");
         } else {
             bDirty = true;
             mySectionMap.remove(sectionName);
-            myLogger.debug("removeSection(" + sectionName + "): saving");
+            LOGGER.debug("removeSection(" + sectionName + "): saving");
             saveFile();
         }
     }

@@ -35,7 +35,7 @@ import javax.swing.ImageIcon;
  *
  */
 public final class ResourceLoader {
-    private static final Logger myLogger = LoggerFactory.getLogger(ResourceLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceLoader.class);
     /**
      * It's a toolkit; no instances
      */
@@ -51,7 +51,7 @@ public final class ResourceLoader {
     public static void readResource(final StringBuilder store, final String resourceName) {
         final InputStream resourceAsStream = getResourceInputStream(resourceName);
         if (resourceAsStream == null) {
-            myLogger.warn("Could not open resource '" + resourceName + "'");
+            LOGGER.warn("Could not open resource '" + resourceName + "'");
             return;
         }
         final int bufsize = 16384;
@@ -63,7 +63,7 @@ public final class ResourceLoader {
                 store.append(block);
             }
         } catch (final IOException e) {
-            myLogger.warn("Could not read resource '" + resourceName + "': " + e.getMessage());
+            LOGGER.warn("Could not read resource '" + resourceName + "': " + e.getMessage());
         } finally {
             try {
                 resourceAsStream.close();
@@ -127,7 +127,7 @@ public final class ResourceLoader {
         if (imgURL != null) {
             return new ImageIcon(imgURL);
         } else {
-            myLogger.warn("Couldn't find file: " + resourceName);
+            LOGGER.warn("Couldn't find file: " + resourceName);
             return null;
         }
     }
@@ -147,11 +147,11 @@ public final class ResourceLoader {
                     resourceAsStream.close();
                 }
             } else {
-                myLogger.warn("Couldn't find file: " + resourceName);
+                LOGGER.warn("Couldn't find file: " + resourceName);
                 return null;
             }
         } catch (final IOException e) {
-            myLogger.warn("Couldn't read image " + resourceName + ": " + e.getMessage(), e);
+            LOGGER.warn("Couldn't read image " + resourceName + ": " + e.getMessage(), e);
             return null;
         }
     }
@@ -174,11 +174,11 @@ public final class ResourceLoader {
                     resourceAsStream.close();
                 }
             } else {
-                myLogger.warn("Couldn't find file: " + resourceName);
+                LOGGER.warn("Couldn't find file: " + resourceName);
                 return null;
             }
         } catch (final IOException e) {
-            myLogger.warn("Couldn't read properties " + resourceName + ": " + e.getMessage(), e);
+            LOGGER.warn("Couldn't read properties " + resourceName + ": " + e.getMessage(), e);
             return null;
         }
     }

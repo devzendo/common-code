@@ -30,7 +30,7 @@ import java.util.Iterator;
  *
  */
 public class IteratorExecutor extends Executor implements Iterator<Object> {
-    private static Logger myLogger = LoggerFactory.getLogger(IteratorExecutor.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(IteratorExecutor.class);
     private boolean bFirst;
     private boolean bSkipBlankLines;
     private IOException myIOException;
@@ -99,7 +99,7 @@ public class IteratorExecutor extends Executor implements Iterator<Object> {
                 myReader = getReader();
             } catch (final IOException e) {
                 myIOException = e;
-                myLogger.warn("Could not execute " + getArguments()[0] + ": " + e.getMessage());
+                LOGGER.warn("Could not execute " + getArguments()[0] + ": " + e.getMessage());
                 return false;
             }
         }
@@ -116,15 +116,15 @@ public class IteratorExecutor extends Executor implements Iterator<Object> {
             if (myNextLine == null) {
                 try {
                     setExitValue(getProcess().waitFor());
-                    myLogger.debug("Exit code is " + getExitValue());
+                    LOGGER.debug("Exit code is " + getExitValue());
                 } catch (final InterruptedException e) {
-                    myLogger.warn("Interrupted " + getArguments()[0] + " obtaining exit status");
+                    LOGGER.warn("Interrupted " + getArguments()[0] + " obtaining exit status");
                     // TODO now what?
                 }
             }
         } catch (final IOException e) {
             myIOException = e;
-            myLogger.warn("Could not read " + getArguments()[0] + ": " + e.getMessage());
+            LOGGER.warn("Could not read " + getArguments()[0] + ": " + e.getMessage());
         }
         return false;
     }

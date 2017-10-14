@@ -35,7 +35,7 @@ import java.util.ArrayList;
  *
  */
 public abstract class Executor {
-    private static Logger myLogger = LoggerFactory.getLogger(Executor.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(Executor.class);
     private final String[] myArguments;
     private Process myProcess;
     private ArrayList<String> myOtherLines;
@@ -69,7 +69,7 @@ public abstract class Executor {
     }
 
     private void init() {
-        if (myLogger.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             final StringBuilder sb = new StringBuilder();
             sb.append(this.getClass().getSimpleName());
             sb.append(" [");
@@ -79,7 +79,7 @@ public abstract class Executor {
             }
             sb.deleteCharAt(sb.length() - 1);
             sb.append("]");
-            myLogger.debug(sb.toString());
+            LOGGER.debug(sb.toString());
         }
         myOtherLines = new ArrayList<String>();
         myOtherReaderThread = null;
@@ -136,7 +136,7 @@ public abstract class Executor {
                     myOtherLines.add(l);
                 }
             } catch (final IOException ioe) {
-                myLogger.warn("Failed to read standard error: " + ioe.getMessage());
+                LOGGER.warn("Failed to read standard error: " + ioe.getMessage());
             }
         }
     }
@@ -183,7 +183,7 @@ public abstract class Executor {
      * @throws IOException if the process cannot be executed.
      */
     protected Process execute() throws IOException {
-        if (myLogger.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             final StringBuilder sb = new StringBuilder();
             sb.append("Executing: ");
             for (String arg : myArguments) {
@@ -193,7 +193,7 @@ public abstract class Executor {
             if (sb.charAt(sb.length() - 1) == ' ') {
                 sb.deleteCharAt(sb.length() - 1);
             }
-            myLogger.debug(sb.toString());
+            LOGGER.debug(sb.toString());
         }
         final Runtime rt = Runtime.getRuntime();
         myProcess = rt.exec(myArguments);
@@ -219,10 +219,10 @@ public abstract class Executor {
         try {
             myExitValue = execute().waitFor();
             close();
-            myLogger.debug("Process " + myArguments[0] + " returned with exit code " + myExitValue);
+            LOGGER.debug("Process " + myArguments[0] + " returned with exit code " + myExitValue);
             return myExitValue;
         } catch (final InterruptedException e) {
-            myLogger.warn("Interrupted waiting for " + myArguments[0] + ": " + e.getMessage());
+            LOGGER.warn("Interrupted waiting for " + myArguments[0] + ": " + e.getMessage());
             return -1;
         }
     }
@@ -251,7 +251,7 @@ public abstract class Executor {
             try {
                 myOtherReaderThread.join();
             } catch (final InterruptedException e) {
-                myLogger.warn("Interrupted waiting for Standard Error Reader thread: " + e.getMessage());
+                LOGGER.warn("Interrupted waiting for Standard Error Reader thread: " + e.getMessage());
             }
         }
         if (myProcess != null) {
@@ -261,7 +261,7 @@ public abstract class Executor {
             try {
                 myReader.close();
             } catch (final IOException ioe) {
-                myLogger.warn("Could not close reader for " + myArguments[0] + ": " + ioe.getMessage());
+                LOGGER.warn("Could not close reader for " + myArguments[0] + ": " + ioe.getMessage());
             }
         }
     }
