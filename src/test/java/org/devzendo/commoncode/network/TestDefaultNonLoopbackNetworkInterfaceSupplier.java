@@ -36,6 +36,7 @@ import static org.devzendo.commoncode.network.NetworkInterfaceFixture.local;
  * limitations under the License.
  */
 public class TestDefaultNonLoopbackNetworkInterfaceSupplier {
+
     private final NetworkInterface localUp = local(true);
     private final NetworkInterface ethernetUp = ethernet(true);
 
