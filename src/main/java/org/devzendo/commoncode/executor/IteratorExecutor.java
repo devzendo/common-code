@@ -30,7 +30,7 @@ import java.util.Iterator;
  *
  */
 public class IteratorExecutor extends Executor implements Iterator<Object> {
-    private static Logger LOGGER = LoggerFactory.getLogger(IteratorExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IteratorExecutor.class);
     private boolean bFirst;
     private boolean bSkipBlankLines;
     private IOException myIOException;
@@ -88,6 +88,7 @@ public class IteratorExecutor extends Executor implements Iterator<Object> {
      *
      * @return true if there is a line, false if there is not.
      */
+    @Override
     public boolean hasNext() {
         if (myIOException != null) {
             return false;
@@ -133,6 +134,7 @@ public class IteratorExecutor extends Executor implements Iterator<Object> {
      * If hasNext() has returned true, obtain the line with next().
      * @return the line from the program's output.
      */
+    @Override
     public Object next() {
         return myNextLine;
     }
@@ -140,6 +142,7 @@ public class IteratorExecutor extends Executor implements Iterator<Object> {
     /**
      * We don't remove things
      */
+    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }

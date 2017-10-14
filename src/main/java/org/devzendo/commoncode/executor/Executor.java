@@ -35,7 +35,7 @@ import java.util.ArrayList;
  *
  */
 public abstract class Executor {
-    private static Logger LOGGER = LoggerFactory.getLogger(Executor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Executor.class);
     private final String[] myArguments;
     private Process myProcess;
     private ArrayList<String> myOtherLines;
@@ -73,7 +73,7 @@ public abstract class Executor {
             final StringBuilder sb = new StringBuilder();
             sb.append(this.getClass().getSimpleName());
             sb.append(" [");
-            for (String arg : myArguments) {
+            for (final String arg : myArguments) {
                 sb.append(arg);
                 sb.append(',');
             }
@@ -186,7 +186,7 @@ public abstract class Executor {
         if (LOGGER.isDebugEnabled()) {
             final StringBuilder sb = new StringBuilder();
             sb.append("Executing: ");
-            for (String arg : myArguments) {
+            for (final String arg : myArguments) {
                 sb.append(arg);
                 sb.append(' ');
             }
