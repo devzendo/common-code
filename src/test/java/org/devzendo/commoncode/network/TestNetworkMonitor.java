@@ -10,7 +10,6 @@ import org.hamcrest.MatcherAssert;
 import org.junit.*;
 
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.slf4j.Logger;
@@ -31,6 +30,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.*;
 import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption;
 import static org.devzendo.commoncode.logging.IsLoggingEvent.loggingEvent;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.ethernet;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.ethernetUnknown;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.local;
 import static org.hamcrest.Matchers.hasItems;
 
 /**
@@ -50,8 +52,6 @@ import static org.hamcrest.Matchers.hasItems;
  */
 public class TestNetworkMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestNetworkMonitor.class);
-    private static final String LOCAL_INTERFACE_NAME = "lo"; // for tests, use a linuxy name
-    private static final String ETHERNET_INTERFACE_NAME = "eth0"; // for tests, use a linuxy name
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
 
     private final NetworkInterface localUp = local(true);
@@ -250,41 +250,8 @@ public class TestNetworkMonitor {
 
         final NetworkChangeEvent event = events.get(0);
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
-    }
-
-    private NetworkInterface ethernet(final boolean up) {
-        final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
-        try {
-            Mockito.when(ethernet.getName()).thenReturn(ETHERNET_INTERFACE_NAME);
-            Mockito.when(ethernet.isUp()).thenReturn(up);
-        } catch (final SocketException e) {
-            throw new IllegalStateException(e);
-        }
-        return ethernet;
-    }
-
-    private NetworkInterface ethernetUnknown() {
-        final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
-        try {
-            Mockito.when(ethernet.getName()).thenReturn(ETHERNET_INTERFACE_NAME);
-            Mockito.when(ethernet.isUp()).thenThrow(new SocketException("Exception when detecting up/down"));
-        } catch (final SocketException e) {
-            // should not happen in test setup
-        }
-        return ethernet;
-    }
-
-    private NetworkInterface local(final boolean up) {
-        final NetworkInterface local = Mockito.mock(NetworkInterface.class);
-        try {
-            Mockito.when(local.getName()).thenReturn(LOCAL_INTERFACE_NAME);
-            Mockito.when(local.isUp()).thenReturn(up);
-        } catch (final SocketException e) {
-            throw new IllegalStateException(e);
-        }
-        return local;
     }
 
     @Test(timeout = 8000)
@@ -310,7 +277,7 @@ public class TestNetworkMonitor {
 
         final NetworkChangeEvent event = events.get(0);
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
     }
 
@@ -428,7 +395,7 @@ public class TestNetworkMonitor {
     public void interfaceAddedUpDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(singletonList(localUp), asList(localUp, ethernetUp));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
     }
 
@@ -436,7 +403,7 @@ public class TestNetworkMonitor {
     public void interfaceAddedDownDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(singletonList(localUp), asList(localUp, ethernetDown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_DOWN);
     }
 
@@ -444,7 +411,7 @@ public class TestNetworkMonitor {
     public void interfaceAddedUnknownDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(singletonList(localUp), asList(localUp, ethernetUnknown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
     }
 
@@ -452,7 +419,7 @@ public class TestNetworkMonitor {
     public void interfaceRemovedDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetUp), singletonList(localUp));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_REMOVED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
     }
 
@@ -460,7 +427,7 @@ public class TestNetworkMonitor {
     public void interfaceChangedUpDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetDown), asList(localUp, ethernetUp));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
     }
 
@@ -469,7 +436,7 @@ public class TestNetworkMonitor {
     public void interfaceChangedDownDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetUp), asList(localUp, ethernetDown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_DOWN);
     }
 
@@ -477,7 +444,7 @@ public class TestNetworkMonitor {
     public void interfaceChangedUnknownDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetDown), asList(localUp, ethernetUnknown));
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
-        assertThat(event.getNetworkInterfaceName()).isEqualTo(ETHERNET_INTERFACE_NAME);
+        assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
     }
 }
