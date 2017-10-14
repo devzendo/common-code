@@ -53,7 +53,7 @@ import static org.hamcrest.Matchers.hasItems;
 public class TestNetworkMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestNetworkMonitor.class);
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
-    private static final Sleeper SLEEPER = new Sleeper(5);
+    private static final Sleeper SLEEPER = new Sleeper(20);
 
     private final NetworkInterface localUp = local(true);
     private final NetworkInterface localDown = local(false);
