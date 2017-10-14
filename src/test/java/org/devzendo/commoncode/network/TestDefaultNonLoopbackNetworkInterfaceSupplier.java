@@ -2,8 +2,6 @@ package org.devzendo.commoncode.network;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.PatternLayout;
-import org.assertj.core.api.Assertions;
-import org.devzendo.commoncode.logging.CapturingAppender;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -11,18 +9,16 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.*;
+import java.util.Enumeration;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.enumeration;
-import static java.util.Collections.list;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.devzendo.commoncode.network.NetworkInterfaceFixture.*;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.ethernet;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.local;
 
 /**
  * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
@@ -40,8 +36,6 @@ import static org.devzendo.commoncode.network.NetworkInterfaceFixture.*;
  * limitations under the License.
  */
 public class TestDefaultNonLoopbackNetworkInterfaceSupplier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestDefaultNonLoopbackNetworkInterfaceSupplier.class);
-
     private final NetworkInterface localUp = local(true);
     private final NetworkInterface ethernetUp = ethernet(true);
 
