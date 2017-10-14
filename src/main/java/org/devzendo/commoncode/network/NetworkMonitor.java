@@ -1,6 +1,7 @@
 package org.devzendo.commoncode.network;
 
 import org.devzendo.commoncode.patterns.observer.ObserverList;
+import org.devzendo.commoncode.time.Sleeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,8 @@ import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption
 public class NetworkMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkMonitor.class);
 
+    private final NetworkInterfaceSupplier interfaceSupplier;
+    private final Sleeper sleeper;
     private final long monitorInterval;
     private final Thread monitorThread = new Thread(new NetworkMonitorRunnable());
     private volatile boolean stopThread = false;
@@ -35,19 +38,22 @@ public class NetworkMonitor {
     private boolean firstCall = true;
     private long firstCallTime = 0L;
 
-    private final NetworkInterfaceSupplier interfaceSupplier;
-
     private final Object interfacesLock = new Object();
     private List<NetworkInterface> currentNetworkInterfaceList = null; // guarded by lock on interfacesLock
 
 
     private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<NetworkChangeEvent>();
 
-    public NetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final long monitorInterval) {
+    public NetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final Sleeper sleeper, final long monitorInterval) {
         this.interfaceSupplier = interfaceSupplier;
+        this.sleeper = sleeper;
         this.monitorInterval = monitorInterval;
-        monitorThread.setDaemon(true);
-        monitorThread.setName("network-monitor");
+        monitorThread.setDaemon(true); // TODO test for this
+        monitorThread.setName("network-monitor"); // TODO test for this
+    }
+
+    public NetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final long monitorInterval) {
+        this(interfaceSupplier, new Sleeper(), monitorInterval);
     }
 
     /**
@@ -65,7 +71,7 @@ public class NetworkMonitor {
                 // Log the initial interface states...
                 if (firstCall) {
                     firstCall = false;
-                    firstCallTime = System.currentTimeMillis();
+                    firstCallTime = sleeper.currentTimeMillis();
                     currentNetworkInterfaceList.forEach((NetworkInterface ni) -> {
                         LOGGER.info(ni.getName() + ": " + state(ni));
                     });
@@ -111,11 +117,11 @@ public class NetworkMonitor {
                 if (firstCall) {
                     LOGGER.debug("Calling supplier for first time in monitor thread");
                     getCurrentInterfaceList();
-                    waitNoInterruption(monitorInterval);
+                    sleeper.sleep(monitorInterval);
                 } else {
-                    final long initialWait = monitorInterval - (System.currentTimeMillis() - firstCallTime);
+                    final long initialWait = monitorInterval - (sleeper.currentTimeMillis() - firstCallTime);
                     LOGGER.debug("Waiting until monitor interval has expired before starting loop (for " + initialWait + "ms)");
-                    waitNoInterruption(initialWait);
+                    sleeper.sleep(initialWait);
                 }
 
                 lastNetworkInterfaceList = Collections.unmodifiableList(currentNetworkInterfaceList);
@@ -129,7 +135,7 @@ public class NetworkMonitor {
                     determineDifferences(lastNetworkInterfaceList, newNetworkInterfaceList);
                     lastNetworkInterfaceList = newNetworkInterfaceList;
                 }
-                waitNoInterruption(monitorInterval);
+                sleeper.sleep(monitorInterval);
             }
 
             LOGGER.info("Network monitor stopped");
