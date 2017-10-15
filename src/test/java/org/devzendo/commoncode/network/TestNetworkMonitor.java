@@ -18,10 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static java.util.Arrays.asList;
@@ -91,24 +88,27 @@ public class TestNetworkMonitor {
         }
     }
 
+    // TODO extract this, and add tests for it
     private static class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
-        private final List<NetworkInterface>[] toBeReturned;
+        private final List<List<NetworkInterface>> toBeReturned;
         private final CountDownLatch exhausted = new CountDownLatch(1);
         int count = 0;
+        // TODO add ability to add to this list of to be returned, and for waitForDataExhaustion to be re-called
         @SafeVarargs
         CountingInterfaceSupplier(final List<NetworkInterface> ... toBeReturned) {
-            this.toBeReturned = toBeReturned;
+            this.toBeReturned = new ArrayList<>();
+            this.toBeReturned.addAll(asList(toBeReturned));
             LOGGER.info("Supplier can be called " + toBeReturned.length + " time(s)");
         }
 
         @Override
         public synchronized Enumeration<NetworkInterface> get() {
             LOGGER.info("Supplier called");
-            if (count == toBeReturned.length) {
+            if (count == toBeReturned.size()) {
                 throw new IllegalStateException("Interface supplier called more frequently than expected");
             }
-            final List<NetworkInterface> networkInterfaces = toBeReturned[count++];
-            if (count == toBeReturned.length) {
+            final List<NetworkInterface> networkInterfaces = toBeReturned.get(count++);
+            if (count == toBeReturned.size()) {
                 exhausted.countDown();
             }
             return enumeration(networkInterfaces);
@@ -202,7 +202,7 @@ public class TestNetworkMonitor {
 
         SLEEPER.sleep(250);
 
-        monitor.start(); // calls interface supplier immediately, but waits for the duration before polling again
+        monitor.start(); // calls interface supplier immediately, but waits for the virtualToReal before polling again
 
         interfaceSupplier.waitForDataExhaustion();
 
@@ -318,7 +318,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 16000)
     public void supplierCalledWithinFrequencyIfGetCurrentInterfaceListCalledFirst() throws SocketException {
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
 
         monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         monitor.getCurrentInterfaceList();
@@ -331,7 +331,7 @@ public class TestNetworkMonitor {
 
     @Test(timeout = 16000)
     public void supplierCalledWithinFrequencyIfGetCurrentInterfaceListNotCalledFirst() {
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
 
         monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         monitor.start();

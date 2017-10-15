@@ -1,12 +1,18 @@
 package org.devzendo.commoncode.network;
 
+import org.apache.log4j.Appender;
+import org.apache.log4j.PatternLayout;
+import org.devzendo.commoncode.logging.LoggingUnittestHelper;
+import org.devzendo.commoncode.time.Sleeper;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketException;
-
-import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption;
+import java.util.Enumeration;
 
 /**
  * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
@@ -24,10 +30,24 @@ import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption
  * limitations under the License.
  */
 public class TestPollIntervalMeasuringInterfaceSupplier {
+    private final Logger LOGGER = LoggerFactory.getLogger(TestPollIntervalMeasuringInterfaceSupplier.class);
+
+    @BeforeClass
+    public static void setupLogging() {
+        LoggingUnittestHelper.setupLogging();
+        // Want to see detailed logs, for diagnostics including milliseconds
+        final Enumeration allAppenders = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
+        while (allAppenders.hasMoreElements()) {
+            final Appender appender = (Appender) allAppenders.nextElement();
+            appender.setLayout(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %t %-5p %c{1}:%L - %m%n"));
+        }
+    }
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     private static final long MONITOR_INTERVAL = 2000L;
+    private static final Sleeper SLEEPER = new Sleeper(4);
 
     private void expectInsufficentCallsToThrow() {
         thrown.expect(IllegalStateException.class);
@@ -38,7 +58,7 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
     public void insufficientMeasuringCallsZero() throws SocketException {
         expectInsufficentCallsToThrow();
 
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
 
         interfaceSupplier.validateIntervals();
     }
@@ -47,7 +67,7 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
     public void insufficientMeasuringCallsOne() throws SocketException {
         expectInsufficentCallsToThrow();
 
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
         interfaceSupplier.get();
 
         interfaceSupplier.validateIntervals();
@@ -55,11 +75,14 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
 
     @Test
     public void measuringCallsShorterThanInterval() throws SocketException {
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
         interfaceSupplier.get();
         final long shortInterval = MONITOR_INTERVAL / 2;
-        waitNoInterruption(shortInterval); // just subtracting 1 wouldn't be good enough, as this is timing-vague
+        LOGGER.info("sleeping for short interval " + shortInterval);
+        SLEEPER.sleep(shortInterval); // just subtracting 1 wouldn't be good enough, as this is timing-vague
         interfaceSupplier.get();
+
+        SLEEPER.sleep(250);
 
         thrown.expect(IllegalStateException.class);
         thrown.expectMessage("Supply call interval was < " + MONITOR_INTERVAL + "ms");
@@ -69,9 +92,9 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
 
     @Test
     public void measuringCallsEqualToInterval() throws SocketException {
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
         interfaceSupplier.get();
-        waitNoInterruption(MONITOR_INTERVAL);
+        SLEEPER.sleep(MONITOR_INTERVAL);
         interfaceSupplier.get();
 
         interfaceSupplier.validateIntervals(); // all ok
@@ -79,14 +102,16 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
 
     @Test
     public void measuringCallsShorterThanIntervalWithThreeMeasurements() throws SocketException {
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
         interfaceSupplier.get();
-        waitNoInterruption(MONITOR_INTERVAL);
+        SLEEPER.sleep(MONITOR_INTERVAL);
         interfaceSupplier.get();
 
         final long shortInterval = MONITOR_INTERVAL / 2;
-        waitNoInterruption(shortInterval); // just subtracting 1 wouldn't be good enough, as this is timing-vague
+        SLEEPER.sleep(shortInterval); // just subtracting 1 wouldn't be good enough, as this is timing-vague
         interfaceSupplier.get();
+
+        SLEEPER.sleep(250);
 
         thrown.expect(IllegalStateException.class);
         thrown.expectMessage("Supply call interval was < " + MONITOR_INTERVAL + "ms");
@@ -96,11 +121,11 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
 
     @Test
     public void measuringCallsEqualToIntervalWithThreeMeasurements() throws SocketException {
-        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(MONITOR_INTERVAL);
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
         interfaceSupplier.get();
-        waitNoInterruption(MONITOR_INTERVAL);
+        SLEEPER.sleep(MONITOR_INTERVAL);
         interfaceSupplier.get();
-        waitNoInterruption(MONITOR_INTERVAL);
+        SLEEPER.sleep(MONITOR_INTERVAL);
         interfaceSupplier.get();
 
         interfaceSupplier.validateIntervals(); // all ok

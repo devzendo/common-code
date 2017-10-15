@@ -1,5 +1,6 @@
 package org.devzendo.commoncode.network;
 
+import org.devzendo.commoncode.time.Sleeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +31,14 @@ import static java.util.Collections.enumeration;
 public class PollIntervalMeasuringInterfaceSupplier implements NetworkInterfaceSupplier {
     private final Logger LOGGER = LoggerFactory.getLogger(PollIntervalMeasuringInterfaceSupplier.class);
 
+    private final Sleeper sleeper;
     private final long monitorInterval;
     private final List<Long> callTimes = new ArrayList<>();
 
-    public PollIntervalMeasuringInterfaceSupplier(final long monitorInterval) {
+    public PollIntervalMeasuringInterfaceSupplier(final Sleeper sleeper, final long monitorInterval) {
+        this.sleeper = sleeper;
         this.monitorInterval = monitorInterval;
+        LOGGER.info("Monitor interval is " + monitorInterval + " ms");
     }
 
     public void validateIntervals() {
@@ -64,7 +68,9 @@ public class PollIntervalMeasuringInterfaceSupplier implements NetworkInterfaceS
 
     @Override
     public Enumeration<NetworkInterface> get() {
-        callTimes.add(System.currentTimeMillis());
+        final long millis = sleeper.currentTimeMillis();
+        LOGGER.debug("Calling fake supplier at " + millis);
+        callTimes.add(millis);
         return enumeration(emptyList());
     }
 }

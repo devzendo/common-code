@@ -60,6 +60,24 @@ public final class Sleeper {
     }
 
     /**
+     * How many real milliseconds does this 'virtual' number of milliseconds represent?
+     * @param millis a duration in virtual time
+     * @return the duration in real milliseconds that a Sleeper would appear to sleep for. ie, sped up.
+     */
+    public long virtualToReal(final long millis) {
+        return millis / fasterBy;
+    }
+
+    /**
+     * How many virtual milliseconds does this real number of milliseconds represent?
+     * @param millis a duration in real time
+     * @return the duration in virtual milliseconds that a Sleeper would actually sleep for. ie, sped up.
+     */
+    public long realToVirtual(final long millis) {
+        return millis * fasterBy;
+    }
+
+    /**
      * Get the number of milliseconds since the start of the UNIX epoch, but
      * speeded up.
      * @return milliseconds
