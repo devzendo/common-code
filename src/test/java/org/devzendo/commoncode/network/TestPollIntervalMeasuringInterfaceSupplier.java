@@ -47,7 +47,7 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
     public ExpectedException thrown = ExpectedException.none();
 
     private static final long MONITOR_INTERVAL = 2000L;
-    private static final Sleeper SLEEPER = new Sleeper(4);
+    private static final Sleeper SLEEPER = new Sleeper(20);
 
     private void expectInsufficentCallsToThrow() {
         thrown.expect(IllegalStateException.class);
