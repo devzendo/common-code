@@ -8,28 +8,26 @@ import org.devzendo.commoncode.logging.CapturingAppender;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.devzendo.commoncode.time.Sleeper;
 import org.hamcrest.MatcherAssert;
-import org.junit.*;
-
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.enumeration;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.*;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.devzendo.commoncode.logging.IsLoggingEvent.loggingEvent;
-import static org.devzendo.commoncode.network.NetworkInterfaceFixture.ethernet;
-import static org.devzendo.commoncode.network.NetworkInterfaceFixture.ethernetUnknown;
-import static org.devzendo.commoncode.network.NetworkInterfaceFixture.local;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.*;
 import static org.hamcrest.Matchers.hasItems;
 
 /**
@@ -48,7 +46,6 @@ import static org.hamcrest.Matchers.hasItems;
  * limitations under the License.
  */
 public class TestNetworkMonitor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestNetworkMonitor.class);
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
     private static final Sleeper SLEEPER = new Sleeper(20);
 
@@ -85,45 +82,6 @@ public class TestNetworkMonitor {
     public void stopMonitor() {
         if (monitor != null) {
             monitor.stop();
-        }
-    }
-
-    // TODO extract this, and add tests for it
-    private static class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
-        private final List<List<NetworkInterface>> toBeReturned;
-        private final CountDownLatch exhausted = new CountDownLatch(1);
-        int count = 0;
-        // TODO add ability to add to this list of to be returned, and for waitForDataExhaustion to be re-called
-        @SafeVarargs
-        CountingInterfaceSupplier(final List<NetworkInterface> ... toBeReturned) {
-            this.toBeReturned = new ArrayList<>();
-            this.toBeReturned.addAll(asList(toBeReturned));
-            LOGGER.info("Supplier can be called " + toBeReturned.length + " time(s)");
-        }
-
-        @Override
-        public synchronized Enumeration<NetworkInterface> get() {
-            LOGGER.info("Supplier called");
-            if (count == toBeReturned.size()) {
-                throw new IllegalStateException("Interface supplier called more frequently than expected");
-            }
-            final List<NetworkInterface> networkInterfaces = toBeReturned.get(count++);
-            if (count == toBeReturned.size()) {
-                exhausted.countDown();
-            }
-            return enumeration(networkInterfaces);
-        }
-
-        public synchronized int numberOfTimesCalled() {
-            return count;
-        }
-
-        public void waitForDataExhaustion() {
-            try {
-                exhausted.await();
-            } catch (final InterruptedException e) {
-                LOGGER.debug("Interrupted waiting for exhaustion");
-            }
         }
     }
 

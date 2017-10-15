@@ -9,8 +9,6 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.*;
 
-import static org.devzendo.commoncode.concurrency.ThreadUtils.waitNoInterruption;
-
 /**
  * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
  * <p>
@@ -32,6 +30,7 @@ public class NetworkMonitor {
     private final NetworkInterfaceSupplier interfaceSupplier;
     private final Sleeper sleeper;
     private final long monitorInterval;
+
     private final Thread monitorThread = new Thread(new NetworkMonitorRunnable());
     private volatile boolean stopThread = false;
     private volatile boolean running = false;
@@ -40,7 +39,6 @@ public class NetworkMonitor {
 
     private final Object interfacesLock = new Object();
     private List<NetworkInterface> currentNetworkInterfaceList = null; // guarded by lock on interfacesLock
-
 
     private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<NetworkChangeEvent>();
 
