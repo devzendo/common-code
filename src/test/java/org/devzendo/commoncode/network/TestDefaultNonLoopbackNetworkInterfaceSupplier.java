@@ -2,6 +2,8 @@ package org.devzendo.commoncode.network;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.spi.LoggingEvent;
+import org.devzendo.commoncode.logging.CapturingAppender;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -13,9 +15,11 @@ import org.mockito.junit.MockitoRule;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.enumeration;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.devzendo.commoncode.network.NetworkInterfaceFixture.ethernet;
 import static org.devzendo.commoncode.network.NetworkInterfaceFixture.local;
@@ -36,6 +40,7 @@ import static org.devzendo.commoncode.network.NetworkInterfaceFixture.local;
  * limitations under the License.
  */
 public class TestDefaultNonLoopbackNetworkInterfaceSupplier {
+    private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
 
     private final NetworkInterface localUp = local(true);
     private final NetworkInterface ethernetUp = ethernet(true);
@@ -44,6 +49,7 @@ public class TestDefaultNonLoopbackNetworkInterfaceSupplier {
     public static void setupLogging() {
         LoggingUnittestHelper.setupLogging();
         final org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
+        rootLogger.addAppender(CAPTURING_APPENDER);
 
         final Enumeration allAppenders = rootLogger.getAllAppenders();
         while (allAppenders.hasMoreElements()) {
@@ -72,5 +78,42 @@ public class TestDefaultNonLoopbackNetworkInterfaceSupplier {
         assertThat(enumeration.hasMoreElements()).isTrue();
         assertThat(enumeration.nextElement()).isEqualTo(ethernetUp);
         assertThat(enumeration.hasMoreElements()).isFalse();
+    }
+
+    @Test
+    public void realSupplierActuallyReturnsSomething() {
+        final DefaultNonLoopbackNetworkInterfaceSupplier real = new DefaultNonLoopbackNetworkInterfaceSupplier();
+        final Enumeration<NetworkInterface> enumeration = real.get();
+        assertThat(enumeration.hasMoreElements()).isTrue();
+    }
+
+    public static NetworkInterface explodingEthernet() {
+        final NetworkInterface ethernet = Mockito.mock(NetworkInterface.class);
+        try {
+            Mockito.when(ethernet.getName()).thenReturn("boom0");
+            Mockito.when(ethernet.isLoopback()).thenThrow(SocketException.class);
+        } catch (final SocketException e) {
+            throw new IllegalStateException(e);
+        }
+        return ethernet;
+    }
+
+    private final class ExplodingSupplier implements NetworkInterfaceSupplier {
+        @Override
+        public Enumeration<NetworkInterface> get() {
+            return enumeration(singletonList(explodingEthernet()));
+        }
+    }
+
+    @Test
+    public void whenSupplierBlowsUp() {
+        final DefaultNonLoopbackNetworkInterfaceSupplier nonLoopback = new DefaultNonLoopbackNetworkInterfaceSupplier(new ExplodingSupplier());
+        final Enumeration<NetworkInterface> enumeration = nonLoopback.get();
+
+        assertThat(enumeration.hasMoreElements()).isFalse();
+
+        final List<LoggingEvent> events = CAPTURING_APPENDER.getEvents();
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0).getMessage()).isEqualTo("Could not determine whether network interface 'boom0' is loopback: null");
     }
 }
