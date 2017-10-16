@@ -14,7 +14,8 @@ import java.util.List;
 import static java.util.Collections.list;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.devzendo.commoncode.network.NetworkInterfaceFixture.*;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.ethernet;
+import static org.devzendo.commoncode.network.NetworkInterfaceFixture.local;
 
 /**
  * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
@@ -34,18 +35,13 @@ import static org.devzendo.commoncode.network.NetworkInterfaceFixture.*;
 public class TestCountingInterfaceSupplier {
 
     private final NetworkInterface localUp = local(true);
-    private final NetworkInterface localDown = local(false);
-    private final NetworkInterface ethernetUp = ethernet(true);
     private final NetworkInterface ethernetDown = ethernet(false);
-    private final NetworkInterface ethernetUnknown = ethernetUnknown();
 
     private final List<NetworkInterface> justLocalUp = singletonList(localUp);
     private final List<NetworkInterface> bothInterfaces = Arrays.asList(localUp, ethernetDown);
     private final CountingInterfaceSupplier cis = new CountingInterfaceSupplier(justLocalUp, bothInterfaces);
 
-    private final Thread waitForExhaustionThread = new Thread(() -> {
-        cis.waitForDataExhaustion();
-    });
+    private final Thread waitForExhaustionThread = new Thread(cis::waitForDataExhaustion);
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();

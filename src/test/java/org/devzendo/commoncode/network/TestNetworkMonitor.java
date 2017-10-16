@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -406,7 +407,35 @@ public class TestNetworkMonitor {
         assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
     }
-    
+
+    @Test
+    public void listenersCanBeRemoved() {
+        final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
+                asList(localDown, ethernetUp),
+                asList(localUp, ethernetUp),
+                asList(localDown, ethernetUp));
+        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+
+
+        final AtomicInteger callCount = new AtomicInteger(0);
+        final NetworkChangeListener oneShotListener = new NetworkChangeListener() {
+            @Override
+            public void eventOccurred(final NetworkChangeEvent observableEvent) {
+                callCount.incrementAndGet();
+                monitor.removeNetworkChangeListener(this);
+            }
+        };
+
+        monitor.addNetworkChangeListener(oneShotListener);
+
+        monitor.start();
+
+        interfaceSupplier.waitForDataExhaustion();
+        SLEEPER.sleep(250);
+
+        assertThat(callCount.get()).isEqualTo(1);
+    }
+
     // TODO test add / remove listeners
     // TODO test the first delayed call in polling after getCurrentInterfaceList has been called.
     // TODO Network monitor does not detect switching from eg wifi to tethered - interface stays up despite address changes.
