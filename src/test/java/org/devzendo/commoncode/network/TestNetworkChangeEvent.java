@@ -61,4 +61,11 @@ public class TestNetworkChangeEvent {
         assertThat(localUpAdded.getNetworkInterface()).isEqualTo(localUp);
     }
 
+    @Test
+    public void simpleEqualityTests() {
+        assertThat(localUpAdded.equals(localUpAdded)).isTrue();
+        assertThat(localDownAdded.equals(localUpAdded)).isFalse();
+        assertThat(localUpAdded.equals(null)).isFalse();
+        assertThat(localUpAdded.equals("A hat")).isFalse();
+    }
 }
