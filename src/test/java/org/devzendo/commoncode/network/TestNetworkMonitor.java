@@ -18,10 +18,7 @@ import org.mockito.junit.MockitoRule;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
@@ -461,6 +458,18 @@ public class TestNetworkMonitor {
 
         assertThat(callCount.get()).isEqualTo(1);
     }
+
+    @Test
+    public void monitorThreadProperties() {
+        monitor = new NetworkMonitor(new EmptyInterfaceSupplier(), SLEEPER, MONITOR_INTERVAL);
+        monitor.start();
+        SLEEPER.sleep(250);
+
+        final Set<Thread> threads = Thread.getAllStackTraces().keySet();
+        assertThat(threads.stream().anyMatch(thread ->
+                thread.isDaemon() && thread.getName().equals("network-monitor"))).isTrue();
+    }
+
 
     // TODO test the first delayed call in polling after getCurrentInterfaceList has been called.
 }

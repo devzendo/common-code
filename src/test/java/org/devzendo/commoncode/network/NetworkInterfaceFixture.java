@@ -68,7 +68,6 @@ public class NetworkInterfaceFixture {
         }
         final String addressString = bytes.stream().map(Object::toString).collect(joining("."));
 
-        System.out.println("address string is '" + addressString + "'");
         Mockito.when(i4.toString()).thenReturn(addressString);
         // need a fresh enumeration on each call, so can't just thenReturn...
         Mockito.when(ni.getInetAddresses()).thenAnswer((Answer<Enumeration<InetAddress>>) invocation ->

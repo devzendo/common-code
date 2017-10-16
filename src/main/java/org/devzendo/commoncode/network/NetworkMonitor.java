@@ -49,8 +49,8 @@ public class NetworkMonitor {
         this.interfaceSupplier = interfaceSupplier;
         this.sleeper = sleeper;
         this.monitorInterval = monitorInterval;
-        monitorThread.setDaemon(true); // TODO test for this
-        monitorThread.setName("network-monitor"); // TODO test for this
+        monitorThread.setDaemon(true);
+        monitorThread.setName("network-monitor");
     }
 
     public NetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final long monitorInterval) {
