@@ -29,7 +29,7 @@ import static java.util.Collections.enumeration;
  * limitations under the License.
  */
 public class PollIntervalMeasuringInterfaceSupplier implements NetworkInterfaceSupplier {
-    private final Logger LOGGER = LoggerFactory.getLogger(PollIntervalMeasuringInterfaceSupplier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PollIntervalMeasuringInterfaceSupplier.class);
 
     private final Sleeper sleeper;
     private final long monitorInterval;

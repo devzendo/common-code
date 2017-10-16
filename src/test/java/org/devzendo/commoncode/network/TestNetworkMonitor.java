@@ -50,11 +50,12 @@ public class TestNetworkMonitor {
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
     private static final Sleeper SLEEPER = new Sleeper(20);
 
-    private final NetworkInterface localUp = local(true);
-    private final NetworkInterface localDown = local(false);
-    private final NetworkInterface ethernetUp = ethernet(true);
-    private final NetworkInterface ethernetDown = ethernet(false);
-    private final NetworkInterface ethernetUnknown = ethernetUnknown();
+    private final NetworkInterface localUp = localLAN(true);
+    private final NetworkInterface localDown = localLAN(false);
+    private final NetworkInterface ethernetUp = ethernetLAN(true);
+    private final NetworkInterface ethernetDown = ethernetLAN(false);
+    private final NetworkInterface ethernetUnknown = ethernetLANUnknown();
+    private final NetworkInterface tetheredEthernet = withTetheredAddress(ethernet(true));
 
     @BeforeClass
     public static void setupLogging() {
@@ -336,6 +337,13 @@ public class TestNetworkMonitor {
 
     @SafeVarargs
     private final NetworkChangeEvent runChangeDetectionTest(final List<NetworkInterface> ... supplies) {
+        final List<NetworkChangeEvent> events = runChangeDetectionTests(supplies);
+        assertThat(events).hasSize(1);
+        return events.get(0);
+    }
+
+    @SafeVarargs
+    private final List<NetworkChangeEvent> runChangeDetectionTests(final List<NetworkInterface> ... supplies) {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(supplies);
         monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
@@ -345,10 +353,7 @@ public class TestNetworkMonitor {
         interfaceSupplier.waitForDataExhaustion();
         SLEEPER.sleep(250);
 
-        final List<NetworkChangeEvent> events = listener.getEvents();
-        assertThat(events).hasSize(1);
-
-        return events.get(0);
+        return listener.getEvents();
     }
 
     @Test(timeout = 8000)
@@ -391,7 +396,6 @@ public class TestNetworkMonitor {
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
     }
 
-
     @Test(timeout = 8000)
     public void interfaceChangedDownDetected() throws SocketException {
         final NetworkChangeEvent event = runChangeDetectionTest(asList(localUp, ethernetUp), asList(localUp, ethernetDown));
@@ -406,6 +410,28 @@ public class TestNetworkMonitor {
         assertThat(event.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
         assertThat(event.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
         assertThat(event.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE);
+    }
+
+    @Test(timeout = 8000)
+    public void interfaceChangedAddressDetected() throws SocketException {
+        final List<NetworkChangeEvent> events = runChangeDetectionTests(singletonList(ethernetUp),
+                singletonList(tetheredEthernet), singletonList(ethernetUp));
+
+        assertThat(events).hasSize(2);
+
+        final NetworkChangeEvent tethered = events.get(0);
+        assertThat(tethered.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
+        assertThat(tethered.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
+        assertThat(tethered.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
+        assertThat(tethered.getNetworkInterface().getInetAddresses().nextElement().getAddress()).
+                isEqualTo(NetworkInterfaceFixture.TETHERED_ADDRESS);
+
+        final NetworkChangeEvent lan = events.get(1);
+        assertThat(lan.getChangeType()).isEqualTo(NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED);
+        assertThat(lan.getNetworkInterfaceName()).isEqualTo(NetworkInterfaceFixture.ETHERNET_INTERFACE_NAME);
+        assertThat(lan.getStateType()).isEqualTo(NetworkChangeEvent.NetworkStateType.INTERFACE_UP);
+        assertThat(lan.getNetworkInterface().getInetAddresses().nextElement().getAddress()).
+                isEqualTo(NetworkInterfaceFixture.LAN_ADDRESS);
     }
 
     @Test
@@ -436,7 +462,5 @@ public class TestNetworkMonitor {
         assertThat(callCount.get()).isEqualTo(1);
     }
 
-    // TODO test add / remove listeners
     // TODO test the first delayed call in polling after getCurrentInterfaceList has been called.
-    // TODO Network monitor does not detect switching from eg wifi to tethered - interface stays up despite address changes.
 }

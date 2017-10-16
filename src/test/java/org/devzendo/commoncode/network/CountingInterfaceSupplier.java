@@ -34,7 +34,6 @@ class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
     private final CountDownLatch exhausted = new CountDownLatch(1);
     int count = 0;
 
-    // TODO add ability to add to this list of to be returned, and for waitForDataExhaustion to be re-called
     @SafeVarargs
     CountingInterfaceSupplier(final List<NetworkInterface>... toBeReturned) {
         this.toBeReturned = new ArrayList<>();

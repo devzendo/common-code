@@ -5,9 +5,12 @@ import org.devzendo.commoncode.time.Sleeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.*;
+
+import static java.util.Collections.list;
 
 /**
  * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
@@ -64,7 +67,7 @@ public class NetworkMonitor {
         synchronized (interfacesLock) {
             // only update first time, or if we're running the poll thread
             if (currentNetworkInterfaceList == null || running) {
-                currentNetworkInterfaceList = Collections.list(interfaceSupplier.get());
+                currentNetworkInterfaceList = list(interfaceSupplier.get());
 
                 // Log the initial interface states...
                 if (firstCall) {
@@ -164,11 +167,16 @@ public class NetworkMonitor {
 
         intersectionNames.forEach(name -> {
             final NetworkInterface lastNi = lastInts.get(name);
-            final NetworkInterface newNi = newInts.get(name);
             final NetworkChangeEvent.NetworkStateType lastState = state(lastNi);
+            final List<InetAddress> lastAddresses = list(lastNi.getInetAddresses());
+
+            final NetworkInterface newNi = newInts.get(name);
             final NetworkChangeEvent.NetworkStateType newState = state(newNi);
-            LOGGER.debug("Interface '" + name + "' last state " + lastState + " new state " + newState);
-            if (lastState != newState) {
+            final List<InetAddress> newAddresses = list(newNi.getInetAddresses());
+
+            LOGGER.debug("Interface '" + name + "' last state " + lastState + "; addresses " + lastAddresses +
+                    "/ new state " + newState + "; addresses " + newAddresses);
+            if (lastState != newState || !lastNi.equals(newNi)) {
                 emit(new NetworkChangeEvent(newNi, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED, newState));
             }
         });
