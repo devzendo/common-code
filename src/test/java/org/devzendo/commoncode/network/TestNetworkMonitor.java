@@ -15,11 +15,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -44,6 +47,7 @@ import static org.hamcrest.Matchers.hasItems;
  * limitations under the License.
  */
 public class TestNetworkMonitor {
+    private final Logger LOGGER = LoggerFactory.getLogger(TestNetworkMonitor.class);
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
     private static final Sleeper SLEEPER = new Sleeper(20);
 
@@ -466,8 +470,9 @@ public class TestNetworkMonitor {
         SLEEPER.sleep(250);
 
         final Set<Thread> threads = Thread.getAllStackTraces().keySet();
-        assertThat(threads.stream().anyMatch(thread ->
-                thread.isDaemon() && thread.getName().equals("network-monitor"))).isTrue();
+        threads.forEach((Thread t) -> LOGGER.info("Thread name [" + t.getName() + "]"));
+        assertThat(threads.stream().filter(thread ->
+                thread.isDaemon() && thread.getName().equals("network-monitor")).collect(Collectors.toList())).hasSize(1);
     }
 
 
