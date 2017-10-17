@@ -86,18 +86,38 @@ public final class TestIteratorExecutor {
         assertThat(ie.getExitValue()).isEqualTo(-1);
     }
 
-    @Test
-    public void singleLineOutput() {
-        final ArrayList<Object> list = new ArrayList<>();
-
-        final IteratorExecutor ie = new IteratorExecutor(new String[] {"echo", "hello" });
-        ie.forEachRemaining(list::add);
-
-        assertThat(list).hasSize(1);
-        assertThat(list.get(0)).isEqualTo("hello");
-
+    private List<String> run(final boolean skipBlankLines, final String ... commandWords) {
+        final List<String> list = new ArrayList<>();
+        final IteratorExecutor ie = new IteratorExecutor(commandWords);
+        if (skipBlankLines) {
+            ie.skipBlankLines();
+        }
+        ie.forEachRemaining((Object o) -> list.add(o.toString()));
         assertThat(ie.getExitValue()).isEqualTo(0);
         assertThat(ie.getIOException()).isNull();
+        return list;
     }
 
+    @Test
+    public void blankLinesNotSkipped() {
+        final List<String> strings = run(false, "echo", "one\n\n\ntwo\nthree\n");
+        strings.forEach((String s) -> LOGGER.info("[" + s + "]"));
+        assertThat(strings).hasSize(6);
+        assertThat(strings).contains("one", "", "", "two", "three", "");
+    }
+
+    @Test
+    public void blankLinesSkipped() {
+        final List<String> strings = run(true, "echo", "one\n\n\ntwo\nthree\n");
+        strings.forEach((String s) -> LOGGER.info("[" + s + "]"));
+        assertThat(strings).hasSize(3);
+        assertThat(strings).contains("one", "two", "three");
+    }
+
+    @Test
+    public void singleLineOutput() {
+        final List<String> list = run(false, "echo", "hello");
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0)).isEqualTo("hello");
+    }
 }

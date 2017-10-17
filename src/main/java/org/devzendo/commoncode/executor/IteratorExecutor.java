@@ -107,21 +107,17 @@ public class IteratorExecutor extends Executor implements Iterator<Object> {
         myNextLine = null;
         try {
             while ((myNextLine = myReader.readLine()) != null) {
-                if (bSkipBlankLines && myNextLine.length() == 0) {
-                    // Skip blank lines
-                    continue;
+                if (!bSkipBlankLines || myNextLine.length() != 0) {
+                    return true;
                 }
-                return true;
             }
             // Has process finished? Obtain exit value...
-            if (myNextLine == null) {
-                try {
-                    setExitValue(getProcess().waitFor());
-                    LOGGER.debug("Exit code is " + getExitValue());
-                } catch (final InterruptedException e) {
-                    LOGGER.warn("Interrupted " + getArguments()[0] + " obtaining exit status");
-                    // TODO now what?
-                }
+            try {
+                setExitValue(getProcess().waitFor());
+                LOGGER.debug("Exit code is " + getExitValue());
+            } catch (final InterruptedException e) {
+                LOGGER.warn("Interrupted " + getArguments()[0] + " obtaining exit status");
+                // TODO now what?
             }
         } catch (final IOException e) {
             myIOException = e;
