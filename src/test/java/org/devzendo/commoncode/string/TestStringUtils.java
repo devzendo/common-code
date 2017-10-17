@@ -17,10 +17,14 @@
 package org.devzendo.commoncode.string;
 
 import org.apache.log4j.Logger;
+import org.assertj.core.api.Assertions;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.devzendo.commoncode.string.StringUtils.join;
 import static org.devzendo.commoncode.string.StringUtils.translateByteUnits;
 import static org.hamcrest.Matchers.equalTo;
@@ -36,6 +40,7 @@ import static org.junit.Assert.assertThat;
  */
 public final class TestStringUtils {
     private static final Logger LOGGER = Logger.getLogger(TestStringUtils.class);
+    public static final char SLASH = File.separatorChar;
 
     @BeforeClass
     public static void setupLogging() {
@@ -142,4 +147,43 @@ public final class TestStringUtils {
         assertEquals("", StringUtils.maskSensitiveText(""));
         assertEquals("", StringUtils.maskSensitiveText(null));
     }
+
+    @Test
+    public void unSlashTerminate() {
+        assertThat(StringUtils.unSlashTerminate(null)).isEqualTo("");
+        assertThat(StringUtils.unSlashTerminate("")).isEqualTo("");
+        assertThat(StringUtils.unSlashTerminate(" ")).isEqualTo("");
+        assertThat(StringUtils.unSlashTerminate(" A ")).isEqualTo("A");
+        assertThat(StringUtils.unSlashTerminate(SLASH + "A")).isEqualTo(SLASH + "A");
+        assertThat(StringUtils.unSlashTerminate(" " + SLASH + "A")).isEqualTo(SLASH + "A");
+        assertThat(StringUtils.unSlashTerminate("A" + SLASH)).isEqualTo("A");
+        assertThat(StringUtils.unSlashTerminate("A" + SLASH + " ")).isEqualTo("A");
+        assertThat(StringUtils.unSlashTerminate("A" + SLASH + SLASH)).isEqualTo("A");
+        assertThat(StringUtils.unSlashTerminate("A" + SLASH + SLASH + " ")).isEqualTo("A");
+    }
+
+    @Test
+    public void slashTerminate() {
+        assertThat(StringUtils.slashTerminate(null)).isEqualTo("" + SLASH);
+        assertThat(StringUtils.slashTerminate("")).isEqualTo("" + SLASH);
+        assertThat(StringUtils.slashTerminate(" ")).isEqualTo("" + SLASH);
+        assertThat(StringUtils.slashTerminate(" A ")).isEqualTo("A" + SLASH);
+        assertThat(StringUtils.slashTerminate(SLASH + "A")).isEqualTo(SLASH + "A" + SLASH);
+        assertThat(StringUtils.slashTerminate(" " + SLASH + "A")).isEqualTo(SLASH + "A" + SLASH);
+        assertThat(StringUtils.slashTerminate("A" + SLASH)).isEqualTo("A" + SLASH);
+        assertThat(StringUtils.slashTerminate("A" + SLASH + " ")).isEqualTo("A" + SLASH);
+        assertThat(StringUtils.slashTerminate("A" + SLASH + SLASH)).isEqualTo("A" + SLASH);
+        assertThat(StringUtils.slashTerminate("A" + SLASH + SLASH + " ")).isEqualTo("A" + SLASH);
+    }
+
+    @Test
+    public void sensibiliseFileName() {
+        assertThat(StringUtils.sensibilizeFileName(null)).isEqualTo("");
+        assertThat(StringUtils.sensibilizeFileName("")).isEqualTo("");
+        assertThat(StringUtils.sensibilizeFileName("xxx")).isEqualTo("xxx");
+        assertThat(StringUtils.sensibilizeFileName(" xxx ")).isEqualTo("xxx");
+        assertThat(StringUtils.sensibilizeFileName(" foo bar ")).isEqualTo("foo_bar");
+        assertThat(StringUtils.sensibilizeFileName(" foo.bar ")).isEqualTo("foo_bar");
+    }
+
 }

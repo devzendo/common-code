@@ -31,7 +31,7 @@ import java.util.List;
  */
 public final class StringUtils {
     private StringUtils() {
-        super();
+        // do not instantiate
     }
 
     /**
@@ -96,10 +96,13 @@ public final class StringUtils {
     /**
      * Remove all trailing slashes (directory separators). Directory separators
      * are platform-specific.
-     * @param dirPath the original path e.g. /tmp///
-     * @return the path with no trailing slashes e.g. /tmp
+     * @param dirPath the original path e.g. /tmp/// or null (which causes an empty string to be returned)
+     * @return the path with no trailing slashes e.g. /tmp. Never null; can be empty.
      */
     public static String unSlashTerminate(final String dirPath) {
+        if (dirPath == null) {
+            return "";
+        }
         final StringBuilder sb = new StringBuilder(dirPath.trim());
         unSlashTerminate(sb);
         return sb.toString();
@@ -118,6 +121,9 @@ public final class StringUtils {
      * @return the path with one trailing slash e.g. /tmp/ or /foo/
      */
     public static String slashTerminate(final String dirPath) {
+        if (dirPath == null) {
+            return File.separator;
+        }
         final StringBuilder sb = new StringBuilder(dirPath.trim());
         unSlashTerminate(sb);
         sb.append(File.separatorChar);
@@ -131,6 +137,9 @@ public final class StringUtils {
      * @return the sensible version
      */
     public static String sensibilizeFileName(final String name) {
+        if (name == null) {
+            return "";
+        }
         final StringBuilder sb = new StringBuilder(name.trim());
         for (int i = 0; i < sb.length(); i++) {
             if (sb.charAt(i) == ' ' || sb.charAt(i) == '.') {
