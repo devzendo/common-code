@@ -27,7 +27,7 @@ import java.util.List;
  */
 public final class HexDump {
     private HexDump() {
-        super();
+        // not instantiatable
     }
 
     private static String hexDigits = "0123456789ABCDEF";
@@ -115,6 +115,10 @@ public final class HexDump {
      * @return an array of hex/ascii dump strings
      */
     public static String[] hexDump(final byte[] buffer) {
+        if (buffer == null) {
+            return new String[0];
+        }
+
         return hexDump(buffer, 0, buffer.length);
     }
 
@@ -122,19 +126,23 @@ public final class HexDump {
      * Dump some of a byte array into a hex/ascii dump
      * @param buffer the byte array
      * @param startOffset the position in the byte array to start the dump
-     * @param bufferLength the number of bytes in the byte array to dump
+     * @param dumpLength the number of bytes in the byte array to dump from the startOffset (maximum: the length of buffer)
      * @return an array of hex/ascii dump strings
      */
-    public static String[] hexDump(final byte[] buffer, final int startOffset, final int bufferLength) {
+    public static String[] hexDump(final byte[] buffer, final int startOffset, final int dumpLength) {
+        if (buffer == null) {
+            return new String[0];
+        }
+
         int offset = startOffset;
-        final ArrayList < String > lines = new ArrayList < String > ();
+        final ArrayList <String> lines = new ArrayList<>();
         final StringBuilder line = new StringBuilder(80);
 
         for (int i = 0; i < 78; i++) {
             line.append(' ');
         }
 
-        int left = bufferLength - startOffset;
+        int left = Math.min(dumpLength, buffer.length - startOffset);
         int upto16;
         byte b;
 
@@ -170,6 +178,10 @@ public final class HexDump {
      * @return the lines of hex/ascii dump
      */
     public static String[] hexDump(final ByteBuffer buffer) {
+        if (buffer == null) {
+            return new String[0];
+        }
+
         final int len = buffer.remaining();
         final byte[] buf = new byte[len];
         final int startPosition = buffer.position();
@@ -185,6 +197,9 @@ public final class HexDump {
      * @return the byte
      */
     public static byte hex2byte(final String h) {
+        if (h == null || h.length() < 2) {
+            throw new IllegalArgumentException("Cannot decode '" + h + "' as a hex byte");
+        }
         return (byte) ((nibble2decimal(h.charAt(0)) << 4) | (nibble2decimal(h.charAt(1))));
     }
     
@@ -197,10 +212,19 @@ public final class HexDump {
     public static byte hex2byte(final char h, final char l) {
         return (byte) ((nibble2decimal(h) << 4) | (nibble2decimal(l)));
     }
-    
-    private static byte nibble2decimal(final char n) {
-        return (byte) ((n >= 0x30 && n <= 0x39) ? n - 0x30 :
-            n - 'A' + 10);
+
+    /**
+     * Convert a char in the range [0-9a-fA-F] to its decimal base 10 representation
+     * @param nibchar a nibble character
+     * @return 0-15.
+     */
+    public static byte nibble2decimal(final char nibchar) {
+        final char n = Character.toUpperCase(nibchar);
+        if ((n >= '0' && n <= '9') || (n >= 'A' && n <= 'F') ) {
+            return (byte) (Character.isDigit(n) ? n - 0x30 : n - 'A' + 10);
+        } else {
+            throw new IllegalArgumentException("Cannot decode '" + n + "' as a hex nibble");
+        }
     }
     
     /**
@@ -229,6 +253,10 @@ public final class HexDump {
      * 
      */
     public static String[] asciiDump(final byte[] buffer) {
+        if (buffer == null) {
+            return new String[0];
+        }
+
         return asciiDump(buffer, 0, buffer.length);
     }
     
@@ -240,6 +268,10 @@ public final class HexDump {
      * @return the dump of the buffer starting at the start offset
      */
     public static String[] asciiDump(final byte[] buffer, final int startOffset) {
+        if (buffer == null) {
+            return new String[0];
+        }
+
         return asciiDump(buffer, startOffset, buffer.length);
     }
     
@@ -253,6 +285,10 @@ public final class HexDump {
      */
     public static String[] asciiDump(final byte[] buffer, final int startOffset, 
             final int bufferLength) {
+        if (buffer == null) {
+            return new String[0];
+        }
+
         int offset = startOffset;
         final List<String> lines = new ArrayList<String>();
         final StringBuffer line = new StringBuffer(80);
