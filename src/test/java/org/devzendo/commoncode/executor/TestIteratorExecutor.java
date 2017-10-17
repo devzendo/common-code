@@ -17,9 +17,16 @@
 package org.devzendo.commoncode.executor;
 
 import org.apache.log4j.Logger;
+import org.assertj.core.api.Assertions;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -52,6 +59,7 @@ public final class TestIteratorExecutor {
         }
         LOGGER.info("Exit code is " + ie.getExitValue());
         LOGGER.info("IOException is " + ie.getIOException());
+        assertThat(ie.getExitValue()).isEqualTo(0);
     }
 
     /**
@@ -75,5 +83,21 @@ public final class TestIteratorExecutor {
         }
         LOGGER.info("Exit code is " + ie.getExitValue());
         LOGGER.info("IOException is " + ie.getIOException());
+        assertThat(ie.getExitValue()).isEqualTo(-1);
     }
+
+    @Test
+    public void singleLineOutput() {
+        final ArrayList<Object> list = new ArrayList<>();
+
+        final IteratorExecutor ie = new IteratorExecutor(new String[] {"echo", "hello" });
+        ie.forEachRemaining(list::add);
+
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0)).isEqualTo("hello");
+
+        assertThat(ie.getExitValue()).isEqualTo(0);
+        assertThat(ie.getIOException()).isNull();
+    }
+
 }
