@@ -129,13 +129,18 @@ public class NetworkMonitor {
             }
 
             while (!stopThread) {
+                final List<NetworkChangeEvent> events = new ArrayList<>();
                 synchronized (interfacesLock) {
-                    LOGGER.debug("Network monitor calling supplier");
                     final List<NetworkInterface> newNetworkInterfaceList = getCurrentInterfaceList();
-                    // TODO this could emit events into listeners, needs to emit outside the sync block
-                    determineDifferences(lastNetworkInterfaceList, newNetworkInterfaceList);
+                    events.addAll(determineDifferences(lastNetworkInterfaceList, newNetworkInterfaceList));
                     lastNetworkInterfaceList = newNetworkInterfaceList;
                 }
+
+                events.forEach((NetworkChangeEvent nce) -> {
+                    LOGGER.info(nce.toString());
+                    changeListeners.eventOccurred(nce);
+                });
+
                 sleeper.sleep(monitorInterval);
             }
 
@@ -144,20 +149,22 @@ public class NetworkMonitor {
         }
     }
 
-    private void determineDifferences(final List<NetworkInterface> lastInterfaces, final List<NetworkInterface> newInterfaces) {
+    private List<NetworkChangeEvent> determineDifferences(final List<NetworkInterface> lastInterfaces, final List<NetworkInterface> newInterfaces) {
+        final List<NetworkChangeEvent> events = new ArrayList<>();
+
         final Map<String, NetworkInterface> lastInts = toMap(lastInterfaces);
         final Map<String, NetworkInterface> newInts = toMap(newInterfaces);
         // Added interfaces
         newInts.forEach((String name, NetworkInterface ni) -> {
             if (!lastInts.containsKey(name)) {
-                emit(new NetworkChangeEvent(ni, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED, state(ni)));
+                events.add(new NetworkChangeEvent(ni, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_ADDED, state(ni)));
             }
         });
         // Removed interfaces
         lastInts.forEach((String name, NetworkInterface ni) -> {
             if (!newInts.containsKey(name)) {
                 // it's gone, so we can't know its current state
-                emit(new NetworkChangeEvent(ni, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_REMOVED, NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE));
+                events.add(new NetworkChangeEvent(ni, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_REMOVED, NetworkChangeEvent.NetworkStateType.INTERFACE_UNKNOWN_STATE));
             }
         });
         // Changed interfaces - those who appear in both last and new, ie intersection, via Java 8's bassackwards way
@@ -177,14 +184,11 @@ public class NetworkMonitor {
             LOGGER.debug("Interface '" + name + "' last state " + lastState + "; addresses " + lastAddresses +
                     "/ new state " + newState + "; addresses " + newAddresses);
             if (lastState != newState || !lastNi.equals(newNi)) {
-                emit(new NetworkChangeEvent(newNi, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED, newState));
+                events.add(new NetworkChangeEvent(newNi, name, NetworkChangeEvent.NetworkChangeType.INTERFACE_STATE_CHANGED, newState));
             }
         });
-    }
 
-    private void emit(final NetworkChangeEvent event) {
-        LOGGER.info(event.toString());
-        changeListeners.eventOccurred(event);
+        return events;
     }
 
     private static NetworkChangeEvent.NetworkStateType state(final NetworkInterface ni) {
