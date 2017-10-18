@@ -43,7 +43,7 @@ public class NetworkMonitor {
     private final Object interfacesLock = new Object();
     private List<NetworkInterface> currentNetworkInterfaceList = null; // guarded by lock on interfacesLock
 
-    private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<NetworkChangeEvent>();
+    private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<>();
 
     public NetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final Sleeper sleeper, final long monitorInterval) {
         this.interfaceSupplier = interfaceSupplier;
@@ -73,9 +73,8 @@ public class NetworkMonitor {
                 if (firstCall) {
                     firstCall = false;
                     firstCallTime = sleeper.currentTimeMillis();
-                    currentNetworkInterfaceList.forEach((NetworkInterface ni) -> {
-                        LOGGER.info(ni.getName() + ": " + state(ni));
-                    });
+                    currentNetworkInterfaceList.forEach((NetworkInterface ni) ->
+                            LOGGER.info(ni.getName() + ": " + state(ni)));
                 }
             }
             return Collections.unmodifiableList(currentNetworkInterfaceList);
@@ -113,7 +112,7 @@ public class NetworkMonitor {
             running = true;
             LOGGER.info("Network monitor started");
 
-            List<NetworkInterface> lastNetworkInterfaceList = null;
+            List<NetworkInterface> lastNetworkInterfaceList;
             synchronized (interfacesLock) {
                 if (firstCall) {
                     LOGGER.debug("Calling supplier for first time in monitor thread");
