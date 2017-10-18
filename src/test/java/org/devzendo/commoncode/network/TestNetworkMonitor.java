@@ -244,6 +244,7 @@ public class TestNetworkMonitor {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void logsInitialStatesViaGetCurrentInterfaces() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 asList(localUp, ethernetDown));
@@ -260,6 +261,7 @@ public class TestNetworkMonitor {
     }
 
     @Test(timeout = 8000)
+    @SuppressWarnings("unchecked")
     public void logsInitialStatesOnFirstPoll() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(asList(localDown, ethernetUp));
         monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
@@ -323,6 +325,7 @@ public class TestNetworkMonitor {
     }
 
     @Test(timeout = 8000)
+    @SuppressWarnings("unchecked")
     public void logsFirstChangeIfGetCurrentInterfaceCalledFirst() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(ethernetUp), singletonList(ethernetDown));
@@ -341,6 +344,7 @@ public class TestNetworkMonitor {
     }
 
     @Test(timeout = 8000)
+    @SuppressWarnings("unchecked")
     public void logsFirstChangeIfGetCurrentInterfaceIsNotCalled() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(ethernetUp), singletonList(ethernetDown));
