@@ -291,6 +291,26 @@ public class TestNetworkMonitor {
     }
 
     @Test(timeout = 16000)
+    public void supplierCalledWithinFrequencyIfGetCurrentInterfaceListCalledFirstThenThreadStartsSoon() throws SocketException {
+        final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
+
+        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor.getCurrentInterfaceList();
+        // Give it a while before starting the thread, but less than the monitor interval, so that the first polling
+        // call delays to the next monitor interval.
+        final Double almostAFullMonitorInterval = MONITOR_INTERVAL * 0.9;
+        final long almostAFullMonitorIntervalLong = almostAFullMonitorInterval.longValue();
+        LOGGER.info("Monitor interval is " + MONITOR_INTERVAL + "; almost a full monitor interval is " + almostAFullMonitorIntervalLong);
+        SLEEPER.sleep(almostAFullMonitorIntervalLong);
+
+        monitor.start();
+
+        SLEEPER.sleep(MONITOR_INTERVAL * 5);
+
+        interfaceSupplier.validateIntervals(); // flaky last interval sometimes 1999
+    }
+
+    @Test(timeout = 16000)
     public void supplierCalledWithinFrequencyIfGetCurrentInterfaceListNotCalledFirst() {
         final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
 
@@ -467,14 +487,11 @@ public class TestNetworkMonitor {
     public void monitorThreadProperties() {
         monitor = new NetworkMonitor(new EmptyInterfaceSupplier(), SLEEPER, MONITOR_INTERVAL);
         monitor.start();
-        SLEEPER.sleep(250);
+        SLEEPER.sleep(1000);
 
         final Set<Thread> threads = Thread.getAllStackTraces().keySet();
         threads.forEach((Thread t) -> LOGGER.info("Thread name [" + t.getName() + "]"));
         assertThat(threads.stream().filter(thread ->
                 thread.isDaemon() && thread.getName().equals("network-monitor")).collect(Collectors.toList())).hasSize(1);
     }
-
-
-    // TODO test the first delayed call in polling after getCurrentInterfaceList has been called.
 }
