@@ -16,7 +16,6 @@
 
 package org.devzendo.commoncode.collection;
 
-import org.devzendo.commoncode.collection.FilteringEnumeration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
