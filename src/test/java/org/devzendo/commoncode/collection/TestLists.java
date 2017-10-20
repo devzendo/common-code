@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.devzendo.commoncode;
+package org.devzendo.commoncode.collection;
 
 import org.devzendo.commoncode.collection.Lists;
 import org.hamcrest.MatcherAssert;
