@@ -1,10 +1,5 @@
-package org.devzendo.commoncode.collection;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Copyright (C) 2008-2015 Matt Gumbley, DevZendo.org http://devzendo.org
+/*
+ * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +13,13 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+package org.devzendo.commoncode.collection;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Lists {
 
     private Lists() { } // can't be instantiated

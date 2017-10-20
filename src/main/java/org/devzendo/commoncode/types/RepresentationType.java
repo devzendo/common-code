@@ -1,7 +1,5 @@
-package org.devzendo.commoncode.types;
-
-/**
- * Copyright (C) 2008-2016 Matt Gumbley, DevZendo.org http://devzendo.org
+/*
+ * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +13,9 @@ package org.devzendo.commoncode.types;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.devzendo.commoncode.types;
+
 public class RepresentationType<T> {
     private final T value;
 

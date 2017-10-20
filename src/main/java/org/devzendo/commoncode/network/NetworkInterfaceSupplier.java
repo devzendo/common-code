@@ -4,7 +4,7 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.function.Supplier;
 
-/**
+/*
  * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");

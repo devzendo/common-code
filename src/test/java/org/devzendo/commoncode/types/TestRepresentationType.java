@@ -1,14 +1,5 @@
-package org.devzendo.commoncode.types;
-
-import org.hamcrest.Matchers;
-import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
-
-/**
- * Copyright (C) 2008-2016 Matt Gumbley, DevZendo.org http://devzendo.org
+/*
+ * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +13,16 @@ import static org.hamcrest.Matchers.not;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.devzendo.commoncode.types;
+
+import org.hamcrest.Matchers;
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+
 public class TestRepresentationType {
 
     public class SampleRepresentationZero extends RepresentationType<String> {

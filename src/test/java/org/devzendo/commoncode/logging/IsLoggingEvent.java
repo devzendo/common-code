@@ -1,14 +1,5 @@
-package org.devzendo.commoncode.logging;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.spi.LoggingEvent;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-
-/**
- * Copyright (C) 2008-2015 Matt Gumbley, DevZendo.org http://devzendo.org
+/*
+ * Copyright (C) 2008-2017 Matt Gumbley, DevZendo.org http://devzendo.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +13,16 @@ import org.hamcrest.TypeSafeMatcher;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.devzendo.commoncode.logging;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.spi.LoggingEvent;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+
 public class IsLoggingEvent extends TypeSafeMatcher<LoggingEvent> {
     private final Level level;
     private final String message;
