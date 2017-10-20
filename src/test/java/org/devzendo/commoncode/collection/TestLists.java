@@ -16,8 +16,6 @@
 
 package org.devzendo.commoncode.collection;
 
-import org.devzendo.commoncode.collection.Lists;
-import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
