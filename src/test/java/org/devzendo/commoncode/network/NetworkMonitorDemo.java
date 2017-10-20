@@ -42,12 +42,9 @@ public class NetworkMonitorDemo {
     public static void main(final String[] args) {
         setupLogging();
         LOGGER.info("Starting Network Monitor Demo...");
-        final NetworkMonitor monitor = new NetworkMonitor(new DefaultNonLoopbackNetworkInterfaceSupplier(), 2000L);
-        monitor.addNetworkChangeListener(new NetworkChangeListener() {
-            @Override
-            public void eventOccurred(final NetworkChangeEvent observableEvent) {
-
-            }
+        final DefaultNetworkMonitor monitor = new DefaultNetworkMonitor(new DefaultNonLoopbackNetworkInterfaceSupplier(), 2000L);
+        monitor.addNetworkChangeListener(observableEvent -> {
+            LOGGER.info("NetworkChangeEvent: " + observableEvent);
         });
         monitor.start();
 

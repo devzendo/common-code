@@ -46,8 +46,8 @@ import static org.hamcrest.Matchers.hasItems;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class TestNetworkMonitor {
-    private final Logger LOGGER = LoggerFactory.getLogger(TestNetworkMonitor.class);
+public class TestDefaultNetworkMonitor {
+    private final Logger LOGGER = LoggerFactory.getLogger(TestDefaultNetworkMonitor.class);
     private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
     private static final Sleeper SLEEPER = new Sleeper(20);
 
@@ -78,7 +78,7 @@ public class TestNetworkMonitor {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private NetworkMonitor monitor;
+    private DefaultNetworkMonitor monitor;
     private static final long MONITOR_INTERVAL = 2000L;
 
     @After
@@ -97,7 +97,7 @@ public class TestNetworkMonitor {
 
     @Test
     public void monitorNotRunningUntilStartedThenStopsWhenStopped() {
-        monitor = new NetworkMonitor(new EmptyInterfaceSupplier(), SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(new EmptyInterfaceSupplier(), SLEEPER, MONITOR_INTERVAL);
         assertThat(monitor.isRunning()).isFalse();
         monitor.start();
         SLEEPER.sleep(250);
@@ -113,7 +113,7 @@ public class TestNetworkMonitor {
         final NetworkInterface local = local(true);
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(singletonList(local));
 
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
         final List<NetworkInterface> initial = monitor.getCurrentInterfaceList();
         assertThat(initial).hasSize(1);
@@ -126,7 +126,7 @@ public class TestNetworkMonitor {
     public void getCurrentInterfaceListCalledAgainBeforeThreadStartedDoesNotCallSupplierAgain() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(singletonList(localUp));
 
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
         monitor.getCurrentInterfaceList();
         SLEEPER.sleep(250);
@@ -142,7 +142,7 @@ public class TestNetworkMonitor {
     public void interfaceSupplierNotCalledUntilThreadStartsIfNotExplicitlyCalledFirst() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(localUp), asList(localUp, ethernetUp));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
         monitor.start();
 
@@ -155,7 +155,7 @@ public class TestNetworkMonitor {
     public void getCurrentInterfaceListReturnsSubsequentChangesOnceThreadStarted() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(localUp), asList(localUp, ethernetUp));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
         final List<NetworkInterface> initial = monitor.getCurrentInterfaceList();
         assertThat(initial).hasSize(1);
@@ -188,7 +188,7 @@ public class TestNetworkMonitor {
     public void changesRequireTwoSuppliesFirstIsByGetCurrentInterfaceList() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(localUp), asList(localUp, ethernetUp));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
         monitor.addNetworkChangeListener(listener);
 
@@ -220,7 +220,7 @@ public class TestNetworkMonitor {
     public void changesRequireTwoSuppliesFirstIsByFirstPoll() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(localUp), asList(localUp, ethernetUp));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
         monitor.addNetworkChangeListener(listener);
 
@@ -248,7 +248,7 @@ public class TestNetworkMonitor {
     public void logsInitialStatesViaGetCurrentInterfaces() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 asList(localUp, ethernetDown));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
         monitor.getCurrentInterfaceList();
 
@@ -264,7 +264,7 @@ public class TestNetworkMonitor {
     @SuppressWarnings("unchecked")
     public void logsInitialStatesOnFirstPoll() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(asList(localDown, ethernetUp));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
         monitor.addNetworkChangeListener(listener);
 
@@ -283,7 +283,7 @@ public class TestNetworkMonitor {
     public void supplierCalledWithinFrequencyIfGetCurrentInterfaceListCalledFirst() throws SocketException {
         final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
 
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         monitor.getCurrentInterfaceList();
         monitor.start();
 
@@ -296,7 +296,7 @@ public class TestNetworkMonitor {
     public void supplierCalledWithinFrequencyIfGetCurrentInterfaceListCalledFirstThenThreadStartsSoon() throws SocketException {
         final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
 
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         monitor.getCurrentInterfaceList();
         // Give it a while before starting the thread, but less than the monitor interval, so that the first polling
         // call delays to the next monitor interval.
@@ -316,7 +316,7 @@ public class TestNetworkMonitor {
     public void supplierCalledWithinFrequencyIfGetCurrentInterfaceListNotCalledFirst() {
         final PollIntervalMeasuringInterfaceSupplier interfaceSupplier = new PollIntervalMeasuringInterfaceSupplier(SLEEPER, MONITOR_INTERVAL);
 
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         monitor.start();
 
         SLEEPER.sleep(MONITOR_INTERVAL * 5);
@@ -329,7 +329,7 @@ public class TestNetworkMonitor {
     public void logsFirstChangeIfGetCurrentInterfaceCalledFirst() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(ethernetUp), singletonList(ethernetDown));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
         // call the interface supplier for the first time
         monitor.getCurrentInterfaceList();
@@ -348,7 +348,7 @@ public class TestNetworkMonitor {
     public void logsFirstChangeIfGetCurrentInterfaceIsNotCalled() throws SocketException {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(
                 singletonList(ethernetUp), singletonList(ethernetDown));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
         monitor.start();
 
@@ -370,7 +370,7 @@ public class TestNetworkMonitor {
     @SafeVarargs
     private final List<NetworkChangeEvent> runChangeDetectionTests(final List<NetworkInterface> ... supplies) {
         final CountingInterfaceSupplier interfaceSupplier = new CountingInterfaceSupplier(supplies);
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
         final CollectingNetworkChangeListener listener = new CollectingNetworkChangeListener();
         monitor.addNetworkChangeListener(listener);
         monitor.start();
@@ -465,7 +465,7 @@ public class TestNetworkMonitor {
                 asList(localDown, ethernetUp),
                 asList(localUp, ethernetUp),
                 asList(localDown, ethernetUp));
-        monitor = new NetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(interfaceSupplier, SLEEPER, MONITOR_INTERVAL);
 
 
         final AtomicInteger callCount = new AtomicInteger(0);
@@ -489,7 +489,7 @@ public class TestNetworkMonitor {
 
     @Test
     public void monitorThreadProperties() {
-        monitor = new NetworkMonitor(new EmptyInterfaceSupplier(), SLEEPER, MONITOR_INTERVAL);
+        monitor = new DefaultNetworkMonitor(new EmptyInterfaceSupplier(), SLEEPER, MONITOR_INTERVAL);
         monitor.start();
         SLEEPER.sleep(1000);
 
