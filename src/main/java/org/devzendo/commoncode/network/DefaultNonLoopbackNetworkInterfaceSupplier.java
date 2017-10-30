@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package org.devzendo.commoncode.network;
 
 import org.devzendo.commoncode.collection.FilteringEnumeration;
@@ -28,11 +27,14 @@ import java.util.Enumeration;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.enumeration;
 
+/**
+ * A NetworkInterfaceSupplier that returns non-loopback interfaces.
+ */
 public class DefaultNonLoopbackNetworkInterfaceSupplier implements NetworkInterfaceSupplier {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNonLoopbackNetworkInterfaceSupplier.class);
     private final NetworkInterfaceSupplier supplier;
 
-    public DefaultNonLoopbackNetworkInterfaceSupplier(final NetworkInterfaceSupplier supplier) {
+    DefaultNonLoopbackNetworkInterfaceSupplier(final NetworkInterfaceSupplier supplier) {
         this.supplier = supplier;
     }
 

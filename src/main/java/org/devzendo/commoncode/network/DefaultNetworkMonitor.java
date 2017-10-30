@@ -29,6 +29,10 @@ import java.util.*;
 
 import static java.util.Collections.list;
 
+/**
+ * The default implementation of NetworkMonitor that's given a NetworkInterfaceSupplier, and an interval between polls
+ * of the supplier.
+ */
 public class DefaultNetworkMonitor implements NetworkMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkMonitor.class);
 
@@ -47,7 +51,7 @@ public class DefaultNetworkMonitor implements NetworkMonitor {
 
     private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<>();
 
-    public DefaultNetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final Sleeper sleeper, final long monitorInterval) {
+    DefaultNetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final Sleeper sleeper, final long monitorInterval) {
         this.interfaceSupplier = interfaceSupplier;
         this.sleeper = sleeper;
         this.monitorInterval = monitorInterval;

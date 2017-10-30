@@ -19,18 +19,49 @@ package org.devzendo.commoncode.network;
 import java.net.NetworkInterface;
 import java.util.List;
 
+/**
+ * A NetworkMonitor continuously monitors the state of the system's NetworkInterfaces, by calling a
+ * NetworkInterfaceSupplier. It starts a daemon thread to achieve this, polling at a user-defined frequency.
+ *
+ * Any additions, removals, changes in up/down state, or changes of address in the list of
+ * interfaces are notified to connected NetworkChangeListeners, by sending appropriate NetworkChangeEvents.
+ */
 public interface NetworkMonitor {
     /**
      * Obtain the current interface list. If the monitoring thread has not yet been triggered to get the list,
      * call the interface supplier for it. If the thread has recently obtained the list, return what it found.
      * The idea is that this doesn't necessarily call the interface supplier, so it couldn't get overloaded.
+     *
+     * It is intended that this call is to be used to get the initial state of the NetworkInterfaces, and that
+     * attached NetworkChangeListeners will be used to be notified of any subsequent changes.
+     *
      * @return the current network interface list.
      */
     List<NetworkInterface> getCurrentInterfaceList();
 
+    /**
+     * Start the NetworkMonitor's monitor thread. Changes in interface state will be notified to any
+     * NetworkChangeListeners.
+     */
     void start();
-    void stop();
-    void addNetworkChangeListener(final NetworkChangeListener listener);
-    void removeNetworkChangeListener(final NetworkChangeListener listener);
 
+    /**
+     * Stop the NetworkMonitor's monitor thread. No more changes will be notified.
+     */
+    void stop();
+
+    /**
+     * Add a NetworkChangeListener to the NetworkMonitor. Once the monitor is started, and its thread is regularly
+     * polling the state of the NetworkInterfaces, any connected NetworkChangeListeners will be notified of the
+     * changes.
+     * @param listener a NetworkChangeListener to attach to the NetworkMonitor.
+     */
+    void addNetworkChangeListener(final NetworkChangeListener listener);
+
+    /**
+     * Remove a formerly-attached NetworkChangeListener from the NetworkMonitor. This listener will no longer be
+     * notified of changes in the NetworkInterface state.
+     * @param listener a NetworkChangeListener to remove from the NetworkMonitor.
+     */
+    void removeNetworkChangeListener(final NetworkChangeListener listener);
 }

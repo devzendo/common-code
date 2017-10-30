@@ -18,5 +18,10 @@ package org.devzendo.commoncode.network;
 
 import org.devzendo.commoncode.patterns.observer.Observer;
 
+/**
+ * A NetworkChangeListener is attached to a NetworkMonitor, and is notified of NetworkChangeEvents when they are
+ * detected by the monitor.
+ */
 public interface NetworkChangeListener extends Observer<NetworkChangeEvent> {
+    // marker interface; type alias
 }
