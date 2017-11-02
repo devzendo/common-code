@@ -51,7 +51,14 @@ public class DefaultNetworkMonitor implements NetworkMonitor {
 
     private final ObserverList<NetworkChangeEvent> changeListeners = new ObserverList<>();
 
-    DefaultNetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final Sleeper sleeper, final long monitorInterval) {
+    /**
+     * Construct a NetworkMonitor with a specific sleeper, this constructor is used typically by tests or other
+     * protocols embedding a NetworkMonitor that need a sleeper injecting.
+     * @param interfaceSupplier The NetworkInterfaceSupplier that will be called every monitorInterval ms
+     * @param sleeper the sleeper that is used as a source of time, and for providing delays.
+     * @param monitorInterval the frequency at which the interfaceSupplier will be called, in ms.
+     */
+    public DefaultNetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final Sleeper sleeper, final long monitorInterval) {
         this.interfaceSupplier = interfaceSupplier;
         this.sleeper = sleeper;
         this.monitorInterval = monitorInterval;
@@ -59,6 +66,11 @@ public class DefaultNetworkMonitor implements NetworkMonitor {
         monitorThread.setName("network-monitor");
     }
 
+    /**
+     * Construct a NetworkMonitor.
+     * @param interfaceSupplier The NetworkInterfaceSupplier that will be called every monitorInterval ms
+     * @param monitorInterval the frequency at which the interfaceSupplier will be called, in ms.
+     */
     public DefaultNetworkMonitor(final NetworkInterfaceSupplier interfaceSupplier, final long monitorInterval) {
         this(interfaceSupplier, new Sleeper(), monitorInterval);
     }
