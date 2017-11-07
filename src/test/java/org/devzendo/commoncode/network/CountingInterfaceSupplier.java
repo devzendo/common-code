@@ -36,7 +36,7 @@ public class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
     int count = 0;
 
     @SafeVarargs
-    CountingInterfaceSupplier(final List<NetworkInterface>... toBeReturned) {
+    public CountingInterfaceSupplier(final List<NetworkInterface>... toBeReturned) {
         this.toBeReturned = new ArrayList<>();
         this.toBeReturned.addAll(asList(toBeReturned));
         LOGGER.info("Supplier can be called " + toBeReturned.length + " time(s)");
