@@ -28,7 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import static java.util.Arrays.asList;
 import static java.util.Collections.enumeration;
 
-class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
+public class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
     private static final Logger LOGGER = LoggerFactory.getLogger(CountingInterfaceSupplier.class);
 
     private final List<List<NetworkInterface>> toBeReturned;
