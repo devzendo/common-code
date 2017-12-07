@@ -20,14 +20,7 @@ package org.devzendo.commoncode.file;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -118,7 +111,9 @@ public class INIFile {
                 fos.close();
             }
         } catch (final IOException e) {
-            LOGGER.error("Could not write INI file " + myFile.getAbsolutePath() + ": " + e.getMessage());
+            final String msg = "Could not write INI file " + myFile.getAbsolutePath() + ": " + e.getMessage();
+            LOGGER.error(msg);
+            throw new UncheckedIOException(msg, e);
         }
     }
 
@@ -149,7 +144,9 @@ public class INIFile {
                         nvpMatcher.reset(line);
                         if (nvpMatcher.lookingAt()) {
                             if (currentSectionMap == null) {
-                                LOGGER.error("Line " + lineNo + " name=value line not under any [section]: '" + line  + "'");
+                                final String msg = "Line " + lineNo + " name=value line not under any [section]: '" + line + "'";
+                                LOGGER.error(msg);
+                                throw new IllegalStateException(msg);
                             } else {
                                 final String name = nvpMatcher.group(1);
                                 final String value = nvpMatcher.group(2);
@@ -157,23 +154,31 @@ public class INIFile {
                                 currentSectionMap.put(name, value);
                             }
                         } else {
-                            LOGGER.error("Line " + lineNo + " not matched against [section] or name=value: '" + line + "'");
+                            final String msg = "Line " + lineNo + " not matched against [section] or name=value: '" + line + "'";
+                            LOGGER.error(msg);
+                            throw new IllegalStateException(msg);
                         }
                     }
                 }
             } catch (final IOException ioe) {
                 LOGGER.error("Could not load INI file: " + ioe.getMessage());
+                // hard to test for this
             } finally {
                 if (br != null) {
                     try {
                         br.close();
                     } catch (final IOException e1) {
                         LOGGER.error("Could not close BufferedReader: " + e1.getMessage());
+                        // hard to test for this
                     }
                 }
             }
-        } catch (final FileNotFoundException e) {
-            LOGGER.error("INI file " + myFile.getAbsolutePath() + " not found");
+        } catch (final FileNotFoundException fnfe) {
+            // This is generated if there is genuinely nothing at this File object's path,
+            // or, if there is, but it is not a *file* (e.g. if it's a directory).
+            final String msg = "INI file " + myFile.getAbsolutePath() + " not found";
+            LOGGER.error(msg);
+            throw new UncheckedIOException(msg, fnfe);
         }
     }
 
