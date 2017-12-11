@@ -41,12 +41,15 @@ public interface NetworkMonitor {
 
     /**
      * Start the NetworkMonitor's monitor thread. Changes in interface state will be notified to any
-     * NetworkChangeListeners.
+     * NetworkChangeListeners. A shared NetworkMonitor can be started by several owners; the first to start will
+     * cause the monitor thread to start. Subsequent starters will just increment a sharing count.
      */
     void start();
 
     /**
-     * Stop the NetworkMonitor's monitor thread. No more changes will be notified.
+     * Stop the NetworkMonitor's monitor thread. No more changes will be notified. A shared NetworkMonitor can be
+     * stopped by several owners (who have each started it). Only the final stopper will cause the monitor thread
+     * to stop. Prior stoppers will just decrement the sharing count.
      */
     void stop();
 

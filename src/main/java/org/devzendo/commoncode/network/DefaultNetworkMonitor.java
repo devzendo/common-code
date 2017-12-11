@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Collections.list;
 
@@ -43,6 +44,8 @@ public class DefaultNetworkMonitor implements NetworkMonitor {
     private final Thread monitorThread = new Thread(new NetworkMonitorRunnable());
     private volatile boolean stopThread = false;
     private volatile boolean running = false;
+    private final AtomicInteger startCount = new AtomicInteger(0);
+
     private boolean firstCall = true;
     private long firstCallTime = 0L;
 
@@ -81,7 +84,6 @@ public class DefaultNetworkMonitor implements NetworkMonitor {
             // only update first time, or if we're running the poll thread
             if (currentNetworkInterfaceList == null || running) {
                 currentNetworkInterfaceList = list(interfaceSupplier.get());
-
                 // Log the initial interface states...
                 if (firstCall) {
                     firstCall = false;
@@ -97,14 +99,18 @@ public class DefaultNetworkMonitor implements NetworkMonitor {
     @Override
     public void start() {
         LOGGER.info("Starting network monitor");
-        monitorThread.start();
+        if (startCount.incrementAndGet() == 1) {
+            monitorThread.start();
+        }
     }
 
     @Override
     public void stop() {
         LOGGER.info("Stopping network monitor");
-        stopThread = true;
-        monitorThread.interrupt();
+        if (startCount.decrementAndGet() == 0) {
+            stopThread = true;
+            monitorThread.interrupt();
+        }
     }
 
     // Mostly for testing...

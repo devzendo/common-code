@@ -499,4 +499,25 @@ public class TestDefaultNetworkMonitor {
         assertThat(threads.stream().filter(thread ->
                 thread.isDaemon() && thread.getName().equals("network-monitor")).collect(Collectors.toList())).hasSize(1);
     }
+
+    @Test
+    public void monitorCanBeStartedSeveralTimesAndRequiresStoppingThatNumberOfTimes() {
+        monitor = new DefaultNetworkMonitor(new EmptyInterfaceSupplier(), SLEEPER, MONITOR_INTERVAL);
+        assertThat(monitor.isRunning()).isFalse();
+        monitor.start();
+        SLEEPER.sleep(250);
+        assertThat(monitor.isRunning()).isTrue();
+        monitor.start();
+        SLEEPER.sleep(250);
+        assertThat(monitor.isRunning()).isTrue();
+        SLEEPER.sleep(250);
+
+        monitor.stop();
+        SLEEPER.sleep(250);
+        assertThat(monitor.isRunning()).isTrue();
+        monitor.stop();
+        SLEEPER.sleep(250);
+        assertThat(monitor.isRunning()).isFalse();
+    }
+
 }
