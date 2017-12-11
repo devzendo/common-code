@@ -46,6 +46,7 @@ public class INIFile {
     
     /**
      * Create a new .ini file, or load an existing one with a given path.
+     * Throws UncheckedIOException on load/save error.
      * @param fileName the path of the file to create.
      */
     public INIFile(final String fileName) {
@@ -199,7 +200,6 @@ public class INIFile {
             return value;
         }
     }
-
 
     /**
      * Obtain a value from the file, with a default if it does not exist.
