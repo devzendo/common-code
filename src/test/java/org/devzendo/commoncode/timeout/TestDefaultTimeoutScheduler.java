@@ -35,10 +35,10 @@ import static org.hamcrest.Matchers.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class TestTimeoutScheduler extends LogCapturingUnittestHelper {
-    private static final Logger logger = LoggerFactory.getLogger(TestTimeoutScheduler.class);
+public class TestDefaultTimeoutScheduler extends LogCapturingUnittestHelper {
+    private static final Logger logger = LoggerFactory.getLogger(TestDefaultTimeoutScheduler.class);
 
-    private final TimeoutScheduler ts = new TimeoutScheduler();
+    private final TimeoutScheduler ts = new DefaultTimeoutScheduler();
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
