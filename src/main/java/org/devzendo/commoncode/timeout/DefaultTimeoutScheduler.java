@@ -36,7 +36,7 @@ public class DefaultTimeoutScheduler implements TimeoutScheduler {
     private final ScheduledThreadPoolExecutor executor;
 
     public DefaultTimeoutScheduler() {
-        executor = new ScheduledThreadPoolExecutor(10, new DaemonThreadFactory("zarjaz-timeout-scheduler-thread-"));
+        executor = new ScheduledThreadPoolExecutor(10, new DaemonThreadFactory("timeout-scheduler-thread-"));
         executor.setRemoveOnCancelPolicy(true);
         executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
     }
