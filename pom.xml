@@ -6,7 +6,7 @@
     <name>Common utility code</name>
     <version>1.1.5-SNAPSHOT</version>
     <description>Common utility code
-        (Apache License v2) 2008-2019 Matt Gumbley, DevZendo.org
+        (Apache License v2) 2008-2020 Matt Gumbley, DevZendo.org
     </description>
     <url>https://devzendo.github.io/dev/commons/</url>
 
@@ -23,9 +23,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://bitbucket.org/devzendo/common-code</url>
-        <connection>scm:hg:https://bitbucket.org/devzendo/common-code</connection>
-        <developerConnection>scm:hg:https://bitbucket.org/devzendo/common-code</developerConnection>
+        <url>https://github.com/devzendo/common-code.git</url>
+        <connection>scm:git:https://github.com/devzendo/common-code.git</connection>
+        <developerConnection>scm:git:git@github.com:devzendo/common-code.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <developers>
