@@ -142,7 +142,8 @@ public class DefaultNetworkMonitor implements NetworkMonitor {
                     getCurrentInterfaceList();
                     sleeper.sleep(monitorInterval);
                 } else {
-                    final long initialWait = monitorInterval - (sleeper.currentTimeMillis() - firstCallTime);
+                    // Have seen this wait go negative during stress testing; clamp it positive.
+                    final long initialWait = Math.max(0, monitorInterval - (sleeper.currentTimeMillis() - firstCallTime));
                     LOGGER.debug("Waiting until monitor interval has expired before starting loop (for " + initialWait + "ms)");
                     sleeper.sleep(initialWait);
                 }

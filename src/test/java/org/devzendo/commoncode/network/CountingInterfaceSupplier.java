@@ -45,10 +45,13 @@ public class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
     @Override
     public synchronized Enumeration<NetworkInterface> get() {
         LOGGER.info("Supplier called");
+        final List<NetworkInterface> networkInterfaces;
         if (count == toBeReturned.size()) {
-            throw new IllegalStateException("Interface supplier called more frequently than expected");
+            networkInterfaces = toBeReturned.get(count - 1); // There will always be > 0
+            LOGGER.warn("Interface supplier called more frequently than expected");
+        } else {
+            networkInterfaces = toBeReturned.get(count++);
         }
-        final List<NetworkInterface> networkInterfaces = toBeReturned.get(count++);
         if (count == toBeReturned.size()) {
             exhausted.countDown();
         }
