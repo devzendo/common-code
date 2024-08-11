@@ -86,6 +86,7 @@ public class TestDefaultNetworkMonitor {
     public void stopMonitor() {
         if (monitor != null) {
             monitor.stop();
+            SLEEPER.sleep(100);
         }
     }
 
@@ -377,7 +378,7 @@ public class TestDefaultNetworkMonitor {
         monitor.start();
 
         interfaceSupplier.waitForDataExhaustion();
-        SLEEPER.sleep(250);
+        SLEEPER.sleep(MONITOR_INTERVAL);
 
         return listener.getEvents();
     }
