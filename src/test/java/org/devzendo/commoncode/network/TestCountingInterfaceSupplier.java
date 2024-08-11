@@ -65,12 +65,20 @@ public class TestCountingInterfaceSupplier {
     }
 
     @Test
-    public void calledMoreFrequentlyThanYouHaveDataForCausesThrow() {
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("Interface supplier called more frequently than expected");
+    public void calledMoreFrequentlyThanYouHaveDataForReturnsLast() {
+        cis.get(); // localUp
+        cis.get(); // localUp, ethernetDown
+        assertThat(list(cis.get())).contains(localUp, ethernetDown);
+        assertThat(cis.numberOfTimesCalled()).isEqualTo(2); // Bit misleading - more like number of elements returned
+        // fresh (not counting the possibly repeated last entry).
+    }
 
-        cis.get();
-        cis.get();
+    @Test
+    public void noDataCausesThrow() {
+        final CountingInterfaceSupplier cis = new CountingInterfaceSupplier();
+        thrown.expect(IllegalStateException.class);
+        thrown.expectMessage("Interface supplier has no data");
+
         cis.get(); // boom
     }
 

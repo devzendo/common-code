@@ -45,6 +45,9 @@ public class CountingInterfaceSupplier implements NetworkInterfaceSupplier {
     @Override
     public synchronized Enumeration<NetworkInterface> get() {
         LOGGER.info("Supplier called");
+        if (toBeReturned.isEmpty()) {
+            throw new IllegalStateException("Interface supplier has no data");
+        }
         final List<NetworkInterface> networkInterfaces;
         if (count == toBeReturned.size()) {
             networkInterfaces = toBeReturned.get(count - 1); // There will always be > 0
