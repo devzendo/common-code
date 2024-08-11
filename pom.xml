@@ -4,7 +4,7 @@
     <groupId>org.devzendo</groupId>
     <artifactId>common-code</artifactId>
     <name>Common utility code</name>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <description>Common utility code
         (Apache License v2) 2008-2024 Matt Gumbley, DevZendo.org
     </description>
@@ -26,7 +26,7 @@
         <url>https://github.com/devzendo/common-code.git</url>
         <connection>scm:git:https://github.com/devzendo/common-code.git</connection>
         <developerConnection>scm:git:git@github.com:devzendo/common-code.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>common-code-1.2.0</tag>
     </scm>
     <developers>
         <developer>
