@@ -16,11 +16,12 @@
 
 package org.devzendo.commoncode.string;
 
-import org.apache.log4j.Logger;
 import org.assertj.core.api.Assertions;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -38,7 +39,7 @@ import static org.junit.Assert.assertThat;
  *
  */
 public final class TestStringUtils {
-    private static final Logger LOGGER = Logger.getLogger(TestStringUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestStringUtils.class);
     public static final char SLASH = File.separatorChar;
 
     @BeforeClass

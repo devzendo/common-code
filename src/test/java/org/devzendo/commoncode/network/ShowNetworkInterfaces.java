@@ -16,8 +16,6 @@
 
 package org.devzendo.commoncode.network;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.PatternLayout;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.List;
 
 import static java.util.Collections.list;
@@ -35,13 +32,6 @@ public class ShowNetworkInterfaces {
 
     public static void setupLogging() {
         LoggingUnittestHelper.setupLogging();
-        final org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
-
-        final Enumeration allAppenders = rootLogger.getAllAppenders();
-        while (allAppenders.hasMoreElements()) {
-            final Appender appender = (Appender) allAppenders.nextElement();
-            appender.setLayout(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %t %-5p %c{1}:%L - %m%n"));
-        }
     }
 
     // Display the network interfaces, their addresses and features

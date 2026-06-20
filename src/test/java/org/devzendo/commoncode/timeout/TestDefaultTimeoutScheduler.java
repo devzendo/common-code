@@ -1,7 +1,7 @@
 package org.devzendo.commoncode.timeout;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LogEvent;
 import org.devzendo.commoncode.concurrency.ThreadUtils;
 import org.devzendo.commoncode.logging.LogCapturingUnittestHelper;
 import org.hamcrest.Matchers;
@@ -96,12 +96,12 @@ public class TestDefaultTimeoutScheduler extends LogCapturingUnittestHelper {
 
         waitNoInterruption(1000L);
 
-        final List<LoggingEvent> loggingEvents = getLoggingEvents();
+        final List<LogEvent> loggingEvents = getLogEvents();
         assertThat(loggingEvents, hasSize(1));
         // TODO use the IsLoggingEvent matcher in the zarjaz.logging package here...?
-        final LoggingEvent loggingEvent = loggingEvents.get(0);
-        assertThat(loggingEvent.getLevel(), equalTo(Level.WARN));
-        assertThat(loggingEvent.getMessage().toString(), Matchers.containsString("Timeout handler threw IllegalStateException: Boom"));
+        final LogEvent logEvent = loggingEvents.get(0);
+        assertThat(logEvent.getLevel(), equalTo(Level.WARN));
+        assertThat(logEvent.getMessage().toString(), Matchers.containsString("Timeout handler threw IllegalStateException: Boom"));
 
         assertThat(subsequentHandlersRun[0], equalTo(true));
     }

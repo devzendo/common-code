@@ -16,16 +16,12 @@
 
 package org.devzendo.commoncode.network;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.Level;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.LoggingEvent;
-import org.devzendo.commoncode.logging.CapturingAppender;
-import org.devzendo.commoncode.logging.LoggingUnittestHelper;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LogEvent;
+import org.devzendo.commoncode.logging.LogCapturingUnittestHelper;
 import org.devzendo.commoncode.time.Sleeper;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,13 +39,12 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.devzendo.commoncode.logging.IsLoggingEvent.loggingEvent;
+import static org.devzendo.commoncode.logging.IsLogEvent.logEvent;
 import static org.devzendo.commoncode.network.NetworkInterfaceFixture.*;
 import static org.hamcrest.Matchers.hasItems;
 
-public class TestDefaultNetworkMonitor {
+public class TestDefaultNetworkMonitor extends LogCapturingUnittestHelper {
     private final Logger LOGGER = LoggerFactory.getLogger(TestDefaultNetworkMonitor.class);
-    private static final CapturingAppender CAPTURING_APPENDER = new CapturingAppender();
     private static final Sleeper SLEEPER = new Sleeper(20);
 
     private final NetworkInterface localUp = localLAN(true);
@@ -58,20 +53,6 @@ public class TestDefaultNetworkMonitor {
     private final NetworkInterface ethernetDown = ethernetLAN(false);
     private final NetworkInterface ethernetUnknown = ethernetLANUnknown();
     private final NetworkInterface tetheredEthernet = withTetheredAddress(ethernet(true));
-
-    @BeforeClass
-    public static void setupLogging() {
-        LoggingUnittestHelper.setupLogging();
-        // Want to see detailed logs, for diagnostics including milliseconds
-        final org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
-        rootLogger.addAppender(CAPTURING_APPENDER);
-
-        final Enumeration allAppenders = rootLogger.getAllAppenders();
-        while (allAppenders.hasMoreElements()) {
-            final Appender appender = (Appender) allAppenders.nextElement();
-            appender.setLayout(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %t %-5p %c{1}:%L - %m%n"));
-        }
-    }
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -256,10 +237,10 @@ public class TestDefaultNetworkMonitor {
 
         SLEEPER.sleep(250);
 
-        final List<LoggingEvent> events = CAPTURING_APPENDER.getEvents();
+        final List<LogEvent> events = getLogEvents();
         MatcherAssert.assertThat(events, hasItems(
-                loggingEvent(Level.INFO, "lo: INTERFACE_UP"),
-                loggingEvent(Level.INFO, "eth0: INTERFACE_DOWN")));
+                logEvent(Level.INFO, "lo: INTERFACE_UP"),
+                logEvent(Level.INFO, "eth0: INTERFACE_DOWN")));
     }
 
     @Test(timeout = 8000)
@@ -275,10 +256,10 @@ public class TestDefaultNetworkMonitor {
         interfaceSupplier.waitForDataExhaustion();
         SLEEPER.sleep(250);
 
-        final List<LoggingEvent> events = CAPTURING_APPENDER.getEvents();
+        final List<LogEvent> events = getLogEvents();
         MatcherAssert.assertThat(events, hasItems(
-                loggingEvent(Level.INFO, "lo: INTERFACE_DOWN"),
-                loggingEvent(Level.INFO, "eth0: INTERFACE_UP")));
+                logEvent(Level.INFO, "lo: INTERFACE_DOWN"),
+                logEvent(Level.INFO, "eth0: INTERFACE_UP")));
     }
 
     @Test(timeout = 16000)
@@ -340,9 +321,9 @@ public class TestDefaultNetworkMonitor {
         interfaceSupplier.waitForDataExhaustion();
         SLEEPER.sleep(250);
 
-        final List<LoggingEvent> events = CAPTURING_APPENDER.getEvents();
+        final List<LogEvent> events = getLogEvents();
         MatcherAssert.assertThat(events, hasItems(
-                loggingEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
+                logEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
     }
 
     @Test(timeout = 8000)
@@ -357,9 +338,9 @@ public class TestDefaultNetworkMonitor {
         interfaceSupplier.waitForDataExhaustion();
         SLEEPER.sleep(250);
 
-        final List<LoggingEvent> events = CAPTURING_APPENDER.getEvents();
+        final List<LogEvent> events = getLogEvents();
         MatcherAssert.assertThat(events, hasItems(
-                loggingEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
+                logEvent(Level.INFO, "eth0: INTERFACE_STATE_CHANGED / INTERFACE_DOWN")));
     }
 
     @SafeVarargs

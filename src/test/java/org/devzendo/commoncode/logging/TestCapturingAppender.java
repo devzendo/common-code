@@ -16,10 +16,14 @@
 
 package org.devzendo.commoncode.logging;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.*;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,28 +36,55 @@ import org.junit.Test;
  *
  */
 public final class TestCapturingAppender {
-    private CapturingAppender mCapturingAppender;
+    private LoggerContext context;
 
     /**
      * 
      */
     @Before
     public void setupLogging() {
-        BasicConfigurator.resetConfiguration();
-        mCapturingAppender = new CapturingAppender();
-        BasicConfigurator.configure(mCapturingAppender);
+        ConfigurationBuilder<BuiltConfiguration> builder =
+                ConfigurationBuilderFactory.newConfigurationBuilder();
+
+        LayoutComponentBuilder layout = builder.newLayout("PatternLayout")
+                .addAttribute("pattern", "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n");
+
+        AppenderComponentBuilder consoleAppender = builder.newAppender("CONSOLE", "Console")
+                .addAttribute("target", "SYSTEM_OUT")
+                .add(layout);
+        builder.add(consoleAppender);
+
+        AppenderComponentBuilder appender = builder.newAppender("CAPTURE", "Capturing");
+        builder.add(appender);   // <-- register the appender with the builder itself
+
+        // Root logger, referencing the appender by NAME (not the builder object)
+        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.DEBUG)
+                .add(builder.newAppenderRef("CAPTURE"));
+        builder.add(rootLogger); // <-- register the root logger with the builder itself
+
+        context = new LoggerContext("CapturingTestContext");
+        context.start(builder.build());
     }
-    
+
+    @After
+    public void teardownLogging() {
+        if (context != null) {
+            context.stop();
+        }
+    }
+
     /**
      * 
      */
     @Test
     public void testCapture() {
-        final Logger logger = Logger.getLogger(this.getClass());
+        final Logger logger = (Logger) context.getLogger(this.getClass());
         logger.debug("Hello logger");
-        Assert.assertEquals(1, mCapturingAppender.getEvents().size());
-        final LoggingEvent loggingEvent = mCapturingAppender.getEvents().get(0);
-        Assert.assertEquals(Level.DEBUG, loggingEvent.getLevel());
-        Assert.assertEquals("Hello logger", loggingEvent.getMessage().toString());
+        CapturingAppender appender = (CapturingAppender) context.getConfiguration().getAppender("CAPTURE");
+
+        Assert.assertEquals(1, appender.getEvents().size());
+        final LogEvent logEvent = appender.getEvents().get(0);
+        Assert.assertEquals(Level.DEBUG, logEvent.getLevel());
+        Assert.assertEquals("Hello logger", logEvent.getMessage().getFormattedMessage());
     }
 }

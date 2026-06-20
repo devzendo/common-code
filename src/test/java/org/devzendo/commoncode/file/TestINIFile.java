@@ -16,11 +16,12 @@
 
 package org.devzendo.commoncode.file;
 
-import org.apache.log4j.Logger;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.hamcrest.text.MatchesPattern;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -33,7 +34,7 @@ import java.io.UncheckedIOException;
  *
  */
 public final class TestINIFile {
-    private static final Logger LOGGER = Logger.getLogger(TestINIFile.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestINIFile.class);
 
     private static final String SECTION_ARRAY = "ARRAY";
     private INIFile iniFile;
@@ -203,7 +204,7 @@ public final class TestINIFile {
             for (String string: strings) {
                 ft.write(string + System.lineSeparator());
             }
-        };
+        }
         return t;
     }
 

@@ -16,8 +16,6 @@
 
 package org.devzendo.commoncode.network;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.PatternLayout;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.devzendo.commoncode.time.Sleeper;
 import org.junit.BeforeClass;
@@ -36,12 +34,12 @@ public class TestPollIntervalMeasuringInterfaceSupplier {
     @BeforeClass
     public static void setupLogging() {
         LoggingUnittestHelper.setupLogging();
-        // Want to see detailed logs, for diagnostics including milliseconds
-        final Enumeration allAppenders = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
-        while (allAppenders.hasMoreElements()) {
-            final Appender appender = (Appender) allAppenders.nextElement();
-            appender.setLayout(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %t %-5p %c{1}:%L - %m%n"));
-        }
+//        // Want to see detailed logs, for diagnostics including milliseconds
+//        final Enumeration allAppenders = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
+//        while (allAppenders.hasMoreElements()) {
+//            final Appender appender = (Appender) allAppenders.nextElement();
+//            appender.setLayout(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %t %-5p %c{1}:%L - %m%n"));
+//        }
     }
 
     @Rule

@@ -16,11 +16,12 @@
 
 package org.devzendo.commoncode.executor;
 
-import org.apache.log4j.Logger;
 import org.assertj.core.api.Assertions;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 public final class TestIteratorExecutor {
-    private static final Logger LOGGER = Logger.getLogger(IteratorExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IteratorExecutor.class);
 
     /**
      * 

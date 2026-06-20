@@ -17,23 +17,20 @@
 
 package org.devzendo.commoncode.logging;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.*;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.LoggerRepository;
-
 /**
  * Initialisation toolkit for log4j logging, given command line
  * options.
- *
  * Note that log4j is now a provided dependency of this project,
  * having switched over to slf4j. This class would be of use only if you
  * are using log4j as your top-level application logging framework.
@@ -71,7 +68,6 @@ public final class Logging {
      * @return those arguments with the logging arguments removed
      */
     public List<String> setupLoggingFromArgs(final List<String> origArgs) {
-        BasicConfigurator.resetConfiguration();
         final ArrayList<String> out = new ArrayList<String>();
         boolean bLevel = false;
         mDebug = false;
@@ -114,16 +110,30 @@ public final class Logging {
             }
             out.add(arg);
         }
-        myLayout = createLayout(bLevel, bClasses, bThreads, bTimes);
-        final Logger root = Logger.getRootLogger();
-        root.removeAllAppenders();
-        final Appender appender = new ConsoleAppender(myLayout);
-        root.addAppender(appender);
-        root.setLevel(mDebug ? Level.DEBUG : mWarn ? Level.WARN : Level.INFO);
+
+        ConfigurationBuilder<BuiltConfiguration> builder =
+                ConfigurationBuilderFactory.newConfigurationBuilder();
+
+        LayoutComponentBuilder myLayout = builder.newLayout("PatternLayout")
+                .addAttribute("pattern", createLayout(bLevel, bClasses, bThreads, bTimes));
+
+        AppenderComponentBuilder consoleAppender = builder.newAppender("CONSOLE", "Console")
+                .addAttribute("target", "SYSTEM_OUT")
+                .add(myLayout);
+        builder.add(consoleAppender);
+
+        // Configure the root logger to use only this appender
+        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(mDebug ? Level.DEBUG : mWarn ? Level.WARN : Level.INFO)
+                .add(builder.newAppenderRef("CONSOLE"));
+        builder.add(rootLogger);
+
+        LoggerContext context = (LoggerContext) LogManager.getContext(false);
+        context.reconfigure(builder.build());
+
         return out;
     }
 
-    private PatternLayout createLayout(
+    private String createLayout(
             final boolean bLevel,
             final boolean bClasses,
             final boolean bThreads,
@@ -142,7 +152,7 @@ public final class Logging {
             sb.append("[%t] ");
         }
         sb.append("%m\n");
-        return new PatternLayout(sb.toString());
+        return sb.toString();
     }
     
     /**
@@ -153,17 +163,28 @@ public final class Logging {
     }
     
     /**
-     * Set a new PatternLayout to use
-     * @param layout the new layout
+     * Set a new pattern to use
+     * @param pattern the new layout
      */
-    public void setLayout(final PatternLayout layout) {
-        myLayout = layout;
-        final Logger root = Logger.getRootLogger();
-        final Enumeration<?> en = root.getAllAppenders();
-        while (en.hasMoreElements()) {
-            final Appender appender = (Appender) en.nextElement();
-            appender.setLayout(myLayout);
-        }
+    public void setLayout(final String pattern) {
+        final ConfigurationBuilder<BuiltConfiguration> builder =
+                ConfigurationBuilderFactory.newConfigurationBuilder();
+
+        final LayoutComponentBuilder layout = builder.newLayout("PatternLayout")
+                .addAttribute("pattern", pattern);
+
+        final AppenderComponentBuilder consoleAppender = builder.newAppender("CONSOLE", "Console")
+                .addAttribute("target", "SYSTEM_OUT")
+                .add(layout);
+        builder.add(consoleAppender);
+
+        final RootLoggerComponentBuilder rootLogger =
+                builder.newRootLogger(((Logger) LogManager.getRootLogger()).getLevel())
+                .add(builder.newAppenderRef("CONSOLE"));
+        builder.add(rootLogger);
+
+        LoggerContext context = (LoggerContext) LogManager.getContext(false);
+        context.reconfigure(builder.build());
     }
 
     /**
@@ -178,13 +199,9 @@ public final class Logging {
      */
     public void setPackageLoggingLevel(final String packageName, final Level level) {
         if (mDebug) {
-            return; // We warn to see EVERYTHING in debug mode.
+            return; // We want to see EVERYTHING in debug mode.
         }
-        
-        final LoggerRepository defaultHierarchy = LogManager.getLoggerRepository();
-        final Logger logger = defaultHierarchy.getLogger(packageName);
-        if (logger != null) {
-            logger.setLevel(level);
-        }
+
+        Configurator.setLevel(packageName, level);
     }
 }

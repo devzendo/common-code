@@ -1,6 +1,7 @@
 package org.devzendo.commoncode.logging;
 
-import org.apache.log4j.BasicConfigurator;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.junit.After;
 import org.junit.Before;
 
@@ -23,8 +24,7 @@ public abstract class ConsoleLoggingUnittestCase {
 
     // Intended to be callable from @BeforeClass when logging is needed
     public static void setupLoggingStatically() {
-        BasicConfigurator.resetConfiguration();
-        BasicConfigurator.configure();
+        Configurator.initialize(new DefaultConfiguration());
     }
 
     @Before
@@ -34,6 +34,6 @@ public abstract class ConsoleLoggingUnittestCase {
 
     @After
     public void teardownLogging() {
-        BasicConfigurator.resetConfiguration();
+        Configurator.initialize(new DefaultConfiguration());
     }
 }

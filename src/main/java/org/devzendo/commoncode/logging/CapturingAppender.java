@@ -17,14 +17,18 @@
 
 package org.devzendo.commoncode.logging;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Core;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.spi.ErrorHandler;
-import org.apache.log4j.spi.Filter;
-import org.apache.log4j.spi.LoggingEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A log4j Appender that captures events that it receives.
@@ -36,91 +40,44 @@ import org.apache.log4j.spi.LoggingEvent;
  * @author matt
  *
  */
-public class CapturingAppender implements Appender {
-    private final List<LoggingEvent> events = new ArrayList<LoggingEvent>();
+@Plugin(
+        name = CapturingAppender.PLUGIN_NAME,
+        category = Core.CATEGORY_NAME,
+        elementType = Appender.ELEMENT_TYPE,
+        printObject = true)
+public class CapturingAppender extends AbstractAppender {
+    public static final String PLUGIN_NAME = "Capturing";
 
-    /**
-     * @return the list of all received events 
-     */
-    public final List<LoggingEvent> getEvents() {
-        return events;
+    private final List<LogEvent> events = new ArrayList<LogEvent>();
+
+    @PluginFactory
+    public static CapturingAppender createAppender(
+            @PluginAttribute(value = "name", defaultString = "Capturing") final String name) {
+        return new CapturingAppender(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void addFilter(final Filter arg0) {
+    public CapturingAppender(final String name) {
+        super(name, null, null, true, Property.EMPTY_ARRAY);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void clearFilters() {
+    @Override
+    public void append(final LogEvent event) {
+        synchronized (events) {
+            // LogEvent instances may be reused by Log4j 2 (garbage-free mode);
+            // take an immutable copy.
+            events.add(event.toImmutable());
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void close() {
+    public List<LogEvent> getEvents() {
+        synchronized (events) {
+            return Collections.unmodifiableList(events);
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void doAppend(final LoggingEvent event) {
-        events.add(event);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public ErrorHandler getErrorHandler() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Filter getFilter() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Layout getLayout() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getName() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean requiresLayout() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setErrorHandler(final ErrorHandler arg0) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setLayout(final Layout arg0) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setName(final String arg0) {
+    public void clear() {
+        synchronized (events) {
+            events.clear();
+        }
     }
 }

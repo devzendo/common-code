@@ -16,17 +16,18 @@
 
 package org.devzendo.commoncode.concurrency;
 
-import org.apache.log4j.Logger;
 import org.devzendo.commoncode.logging.LoggingUnittestHelper;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author matt
  */
 public final class TestMinimumSleepResolution {
-    private static final Logger LOGGER = Logger
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(TestMinimumSleepResolution.class);
 
     @BeforeClass

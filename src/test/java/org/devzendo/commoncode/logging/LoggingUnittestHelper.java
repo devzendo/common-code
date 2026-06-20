@@ -16,7 +16,11 @@
 
 package org.devzendo.commoncode.logging;
 
-import org.apache.log4j.BasicConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.builder.api.*;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 /**
  * Helper class for initialising log4j.
@@ -28,7 +32,22 @@ public final class LoggingUnittestHelper {
      * Initialise logging.
      */
     public static void setupLogging() {
-        BasicConfigurator.resetConfiguration();
-        BasicConfigurator.configure();
+        ConfigurationBuilder<BuiltConfiguration> builder =
+                ConfigurationBuilderFactory.newConfigurationBuilder();
+
+        LayoutComponentBuilder layout = builder.newLayout("PatternLayout")
+                .addAttribute("pattern", "%d{yyyy-MM-dd HH:mm:ss,SSS} %t %-5p %c{1}:%L - %m%n");
+
+        AppenderComponentBuilder console = builder.newAppender("CONSOLE", "Console")
+                .addAttribute("target", "SYSTEM_OUT")
+                .add(layout);
+        builder.add(console);
+
+        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.DEBUG)
+                .add(builder.newAppenderRef("CONSOLE"));
+        builder.add(rootLogger);
+
+        LoggerContext context = (LoggerContext) LogManager.getContext(false);
+        context.reconfigure(builder.build());
     }
 }
