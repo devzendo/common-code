@@ -25,7 +25,7 @@
     <scm>
         <url>https://github.com/devzendo/common-code.git</url>
         <connection>scm:git:https://github.com/devzendo/common-code.git</connection>
-        <developerConnection>scm:git:git@github.com:devzendo/common-code.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/devzendo/common-code.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <developers>
@@ -39,7 +39,7 @@
     <parent>
         <groupId>org.devzendo</groupId>
         <artifactId>group-parent</artifactId>
-        <version>1.2.3-SNAPSHOT</version>
+        <version>1.2.3</version>
     </parent>
 
     <properties>
